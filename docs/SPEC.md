@@ -45,9 +45,10 @@ FACT, tested in this environment), runs axe-core, and evaluates checks against t
 snapshot. Checks are only admitted when they map to a documented agent failure mode, a WCAG success
 criterion, a Lighthouse audit, or a specification. See `docs/SCORING.md` for the list.
 
-The audit covers one or more pages: the start URL plus up to N same-origin pages discovered from
-navigation landmarks (default 3, `--pages`). Every page is sampled with two user agents when
-`--ua-diff` is on: the default Chromium UA and a declared agent UA, to detect bot walls.
+The audit covers one or more pages: the start URL plus up to N same-origin pages linked from the start page
+(default 3, `--pages`), preferring agent-relevant destinations, never following consequential links and
+honouring robots.txt for the tool's user agent. Bot walls are detected by comparing the browser load with a
+plain HTTP fetch carrying the tool's user agent (the `challenge-or-bot-wall` check).
 
 ### Layer B: task verification (behavioural, browser, optional LLM)
 
@@ -77,12 +78,14 @@ back, finish):
   multi-megabyte SDK dependency for a tool distributed via `npx`.)
 
 Tasks come from a YAML file (`--tasks tasks.yaml`) or from the built-in archetype library
-(`--tasks default`: contact, legal document, search, pricing/product). Archetypes carry synonym sets and
-generic success criteria that hold on most sites; they are the basis of the benchmark.
+(`--tasks default`: contact, legal-policy, help-or-about). Archetypes carry synonym sets and generic success
+criteria that hold on most sites (each requires at least one navigation); they are the basis of the benchmark.
+Search and product archetypes are planned once the public benchmark shows which criteria generalise.
 
 Safety classes: `read-only` (default), `form-submit` (synthetic data only, requires `--allow-forms`),
-`consequential` (purchase, delete, send, account changes; requires `--allow-consequential` and stops at the
-last safe step unless the user also sets `--i-own-this-site`). The runner never fills real personal data.
+`consequential` (purchase, delete, send, account changes; requires `--allow-consequential`, intended only for
+sites the user owns). Without the opt-in the runner stops at the consequential step and reports BLOCKED.
+The runner never fills real personal data.
 
 Every run retains evidence: ordered steps (tool, args, duration, result), accessibility snapshot before each
 action (truncated), screenshots at start, on failure and at the end, final URL/title, console errors,
@@ -118,10 +121,11 @@ separately and only blended when tasks were run; the output always states which 
 ## 5. Interfaces
 
 ```
-agentic-web-check scan   <url> [--pages N] [--tasks default|file] [--agent baseline|llm] [--json out.json] [--html out.html] [--fail-under N]
-agentic-web-check test   <url> --tasks tasks.yaml [--agent baseline|llm]      # behavioural only
+agentic-web-check scan   <url> [--pages N] [--tasks default|file] [--agent baseline|llm] [--out dir] [--json|--html|--md|--badge file] [--fail-under N]
+agentic-web-check test   <url> [--tasks default|file] [--agent baseline|llm]   # tasks (default archetypes when omitted)
 agentic-web-check report results.json [--html out.html]                        # re-render
 agentic-web-check ci     <url> [...scan flags] --fail-under 70 --fail-on-task-fail
+agentic-web-check checks                                                       # list the check catalogue
 awc                                                                            # alias
 ```
 
@@ -131,9 +135,11 @@ findings are located by URL and selector, not by file, so SARIF's value is margi
 
 ## 6. Privacy and ethics
 
-No telemetry. No network calls other than to the target site (and the LLM provider the user configured).
-No credential testing, no authentication bypass, no destructive actions, synthetic form data only, honest
-user agent (`AgenticWebCheck/<version> (+repo URL)`), robots.txt respected for crawling additional pages.
+No telemetry. No network calls other than to the target site (and the LLM provider the user configured);
+Chromium is launched with background networking disabled. No credential testing, no authentication bypass,
+no destructive actions, synthetic form data only, honest user agent (the Chromium UA followed by
+`AgenticWebCheck/<version>`), robots.txt respected for crawling additional pages, consequential links never
+followed while crawling.
 
 ## 7. Architecture
 
@@ -144,11 +150,12 @@ A GitHub Action lives in `action/` and runs the CLI inside the runner (no hosted
 static HTML sites in `fixtures/` served locally for tests and the development benchmark in `benchmark/`.
 DESIGN DECISION: a monorepo was rejected for v0.1; it adds publishing complexity without a second consumer.
 
-Lighthouse is an **optional adapter** (`--lighthouse`), not a dependency: when the user has Lighthouse
-installed, we run `onlyCategories: ['agentic-browsing']` over the same Chromium and attach its audit
-results to the MACHINE INTERFACES evidence (FACT: 171 MB install, hence optional).
+Lighthouse is not a dependency (FACT: 171 MB install). A `--lighthouse` adapter that runs
+`onlyCategories: ['agentic-browsing']` over the same Chromium and attaches its audits as evidence is on the
+roadmap, not in v0.1.
 
 ## 8. Out of scope for v0.1
 
 Hosted reports, leaderboards, authenticated flows, CAPTCHA solving, multi-browser (Firefox/WebKit),
-SARIF, an MCP server exposing the scanner, GEO/citation metrics.
+SARIF, an MCP server exposing the scanner, GEO/citation metrics, the Lighthouse adapter, search/product task
+archetypes.

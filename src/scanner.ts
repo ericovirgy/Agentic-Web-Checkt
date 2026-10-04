@@ -1,6 +1,11 @@
 import { mkdirSync } from 'node:fs';
-import { probeSite } from './browser/probes.js';
-import { type LoadedPage, launchBrowser, loadPage } from './browser/session.js';
+import { parseRobots, probeSite, robotsAllows } from './browser/probes.js';
+import {
+  type LoadedPage,
+  launchBrowser,
+  loadPage,
+  TOOL_USER_AGENT_SUFFIX,
+} from './browser/session.js';
 import { interactiveNodes } from './browser/snapshot.js';
 import { ALL_CHECKS, type CheckContext, runChecks } from './checks/index.js';
 import { KEY_PAGE_VOCAB, matchesVocab } from './checks/navigation.js';
@@ -19,7 +24,11 @@ import { toolVersion } from './util/version.js';
 export const DEFAULT_TIMEOUT_MS = 30_000;
 
 /** Pick up to `max` same-origin pages linked from the start page, preferring agent-relevant destinations. */
-export function pickPagesToScan(start: LoadedPage, max: number): string[] {
+export function pickPagesToScan(
+  start: LoadedPage,
+  max: number,
+  allowed: (url: string) => boolean = () => true,
+): string[] {
   const origin = new URL(start.finalUrl).origin;
   const seen = new Set<string>([normalise(start.finalUrl)]);
   const candidates: { url: string; priority: number }[] = [];
@@ -40,6 +49,7 @@ export function pickPagesToScan(start: LoadedPage, max: number): string[] {
       continue;
     // Keep hash-router paths (#/route) as distinct pages; drop plain fragments.
     if (!abs.hash.startsWith('#/')) abs.hash = '';
+    if (!allowed(abs.toString())) continue;
     const key = normalise(abs.toString());
     if (seen.has(key)) continue;
     if (/\.(pdf|zip|png|jpe?g|gif|svg|xml|txt|css|js)$/i.test(abs.pathname)) continue;
@@ -91,7 +101,14 @@ export async function scan(options: ScanOptions): Promise<ScanResult> {
         : `loaded ${start.finalUrl} (HTTP ${start.status}, ${start.snapshot.nodes.length} nodes)`,
     );
 
-    const extra = start.error ? [] : pickPagesToScan(start, Math.max(0, (options.pages ?? 3) - 1));
+    // robots.txt is fetched first so that additional pages are only picked where our UA may crawl.
+    const probes = await probeSite(start.finalUrl || url, session.userAgent, log);
+    const robots = probes.robots.ok ? parseRobots(probes.robots.body) : null;
+    const allowedByRobots = (candidate: string) =>
+      !robots || robotsAllows(robots, TOOL_USER_AGENT_SUFFIX, new URL(candidate).pathname).allowed;
+    const extra = start.error
+      ? []
+      : pickPagesToScan(start, Math.max(0, (options.pages ?? 3) - 1), allowedByRobots);
     for (const extraUrl of extra) {
       log(`loading ${extraUrl}`);
       const p = await session.newPage();
@@ -99,7 +116,6 @@ export async function scan(options: ScanOptions): Promise<ScanResult> {
       pages.push(loaded);
       await p.close().catch(() => {});
     }
-    const probes = await probeSite(start.finalUrl || url, session.userAgent, log);
     const ctx: CheckContext = { options, pages, start, probes, userAgent: session.userAgent, log };
     log(`running ${ALL_CHECKS.length} checks`);
     const checks = await runChecks(ALL_CHECKS, ctx);

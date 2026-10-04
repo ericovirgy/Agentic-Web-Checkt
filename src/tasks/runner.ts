@@ -90,7 +90,7 @@ async function runTask(
       return await r;
     }
     const runOpts = {
-      maxSteps: task.max_steps ?? (agentKind === 'llm' ? (opts.llm?.maxSteps ?? 15) : 15),
+      maxSteps: task.max_steps ?? opts.llm?.maxSteps ?? 15,
       deadlineMs: Math.max(60_000, opts.timeoutMs * 4),
       log: opts.log,
     };

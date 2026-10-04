@@ -42,6 +42,7 @@ export async function capturePageState(page: Page, startUrl?: string): Promise<P
     const o = n as {
       role?: string;
       name?: string;
+      url?: string;
       checked?: boolean | 'mixed';
       disabled?: boolean;
       children?: unknown[];
@@ -50,6 +51,7 @@ export async function capturePageState(page: Page, startUrl?: string): Promise<P
       elements.push({
         role: o.role,
         name: (o.name ?? '').trim(),
+        url: o.url,
         checked: o.checked,
         disabled: o.disabled,
       });
