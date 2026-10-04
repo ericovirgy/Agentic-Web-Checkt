@@ -1,7 +1,7 @@
 import {
+  type CheckResult,
   DIMENSION_LABELS,
   DIMENSIONS,
-  type CheckResult,
   type Dimension,
   type DimensionScore,
   type TaskResult,

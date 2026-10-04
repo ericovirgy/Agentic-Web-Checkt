@@ -1,10 +1,10 @@
-import { NAME_REQUIRED_ROLES, describe, interactiveNodes } from '../browser/snapshot.js';
+import { describe, interactiveNodes, NAME_REQUIRED_ROLES } from '../browser/snapshot.js';
 import type { EvidenceItem } from '../types.js';
 import {
-  type CheckDefinition,
   axeEvidence,
   axeRan,
   axeViolations,
+  type CheckDefinition,
   okPages,
   pagesOf,
   pct,

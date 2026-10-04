@@ -53,9 +53,9 @@ export function renderMarkdownSummary(
   }
   if (result.suggestedFixes.length) {
     lines.push('### Suggested fixes');
-    result.suggestedFixes
-      .slice(0, max)
-      .forEach((f, i) => lines.push(`${i + 1}. **${f.title}**: ${f.remediation}`));
+    result.suggestedFixes.slice(0, max).forEach((f, i) => {
+      lines.push(`${i + 1}. **${f.title}**: ${f.remediation}`);
+    });
     lines.push('');
   }
   lines.push(

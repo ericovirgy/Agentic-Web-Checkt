@@ -98,12 +98,22 @@ export function evaluateAssertion(
     const holds = normaliseText(state.title).includes(normaliseText(a.title.includes));
     return { assertion: a, holds, observed: `title="${state.title}"` };
   }
+  if ('navigated' in a) {
+    const strip = (u: string) => u.replace(/\/+$/, '');
+    const holds = state.startUrl !== undefined && strip(state.url) !== strip(state.startUrl);
+    return {
+      assertion: a,
+      holds,
+      observed: holds ? `navigated to ${state.url}` : `still on start URL ${state.url}`,
+    };
+  }
   if ('element' in a) {
-    const { role, name, state: st } = a.element;
+    const { role, name, url, state: st } = a.element;
     const matches = state.elements.filter(
       (e) =>
         e.role === role &&
-        (name === undefined || normaliseText(e.name).includes(normaliseText(name))),
+        (name === undefined || normaliseText(e.name).includes(normaliseText(name))) &&
+        (url === undefined || (e.url ?? '').toLowerCase().includes(url.toLowerCase())),
     );
     let holds = matches.length > 0;
     if (holds && st === 'checked') holds = matches.some((m) => m.checked === true);

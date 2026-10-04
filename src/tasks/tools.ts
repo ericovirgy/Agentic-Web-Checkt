@@ -5,13 +5,13 @@ import {
   CONSEQUENTIAL_WORDS,
   DISMISS_WORDS,
 } from '../browser/page-data.js';
+import { snapshotPage } from '../browser/session.js';
 import {
+  interactiveNodes,
   type Snapshot,
   type SnapshotNode,
-  interactiveNodes,
   truncateSnapshot,
 } from '../browser/snapshot.js';
-import { snapshotPage } from '../browser/session.js';
 import type { BlockerKind, TaskSafety, TaskStep } from '../types.js';
 
 export const SNAPSHOT_CHARS_FOR_AGENT = 24_000;

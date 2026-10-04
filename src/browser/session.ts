@@ -1,11 +1,11 @@
 import { existsSync } from 'node:fs';
 import { AxeBuilder } from '@axe-core/playwright';
 import type { AxeResults } from 'axe-core';
-import { type Browser, type BrowserContext, type Page, chromium } from 'playwright';
+import { type Browser, type BrowserContext, chromium, type Page } from 'playwright';
 import type { PageSummary } from '../types.js';
 import { INIT_SCRIPT } from './init-script.js';
 import { PAGE_DATA_ARGS, PAGE_DATA_SCRIPT, type PageData } from './page-data.js';
-import { type Snapshot, buildSnapshot } from './snapshot.js';
+import { buildSnapshot, type Snapshot } from './snapshot.js';
 
 export const TOOL_USER_AGENT_SUFFIX = 'AgenticWebCheck';
 

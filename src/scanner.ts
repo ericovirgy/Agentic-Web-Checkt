@@ -2,11 +2,11 @@ import { mkdirSync } from 'node:fs';
 import { probeSite } from './browser/probes.js';
 import { type LoadedPage, launchBrowser, loadPage } from './browser/session.js';
 import { interactiveNodes } from './browser/snapshot.js';
-import { KEY_PAGE_VOCAB, matchesVocab } from './checks/navigation.js';
-import { isConsequentialName } from './tasks/tools.js';
 import { ALL_CHECKS, type CheckContext, runChecks } from './checks/index.js';
+import { KEY_PAGE_VOCAB, matchesVocab } from './checks/navigation.js';
 import { computeScores, suggestedFixes } from './scoring/index.js';
 import { runTasks } from './tasks/runner.js';
+import { isConsequentialName } from './tasks/tools.js';
 import {
   METHODOLOGY_VERSION,
   RESULT_SCHEMA_VERSION,

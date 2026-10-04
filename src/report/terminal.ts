@@ -1,6 +1,7 @@
 import pc from 'picocolors';
 
 type Colors = ReturnType<typeof pc.createColors>;
+
 import type { CheckResult, ScanResult, TaskResult } from '../types.js';
 
 export interface TerminalOptions {

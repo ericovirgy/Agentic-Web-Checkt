@@ -15,5 +15,5 @@ export const ALL_CHECKS: CheckDefinition[] = [
   ...safetyChecks,
 ];
 
-export { runChecks } from './framework.js';
 export type { CheckContext, CheckDefinition, CheckOutcome } from './framework.js';
+export { runChecks } from './framework.js';

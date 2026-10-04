@@ -1,10 +1,10 @@
-import { describe, interactiveNodes } from '../browser/snapshot.js';
+import { interactiveNodes } from '../browser/snapshot.js';
 import type { EvidenceItem } from '../types.js';
 import {
-  type CheckDefinition,
   axeEvidence,
   axeRan,
   axeViolations,
+  type CheckDefinition,
   okPages,
   pagesOf,
   pct,

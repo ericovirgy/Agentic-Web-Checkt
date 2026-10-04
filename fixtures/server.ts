@@ -8,9 +8,10 @@
  *
  * CLI: `node --import tsx fixtures/server.ts <site> [port]` prints the URL and serves until SIGINT.
  */
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
-import { createReadStream, readFileSync, readdirSync, statSync } from 'node:fs';
+
+import { createReadStream, readdirSync, readFileSync, statSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
+import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -81,7 +82,7 @@ async function handle(root: string, req: IncomingMessage, res: ServerResponse): 
 
   // Normalise and refuse anything that escapes the site root.
   const relative = normalize(pathname).replace(/^(\.\.(\/|\\|$))+/, '');
-  let filePath = resolve(root, '.' + sep + relative);
+  let filePath = resolve(root, `.${sep}${relative}`);
   if (filePath !== root && !filePath.startsWith(root + sep)) {
     sendText(res, 403, 'Forbidden');
     return;
@@ -90,7 +91,7 @@ async function handle(root: string, req: IncomingMessage, res: ServerResponse): 
   let info = await stat(filePath).catch(() => null);
   if (info?.isDirectory()) {
     if (!pathname.endsWith('/')) {
-      res.writeHead(301, { Location: pathname + '/' + url.search });
+      res.writeHead(301, { Location: `${pathname}/${url.search}` });
       res.end();
       return;
     }

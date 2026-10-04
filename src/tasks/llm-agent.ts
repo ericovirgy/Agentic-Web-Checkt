@@ -1,7 +1,7 @@
 import { truncateSnapshot } from '../browser/snapshot.js';
 import type { TaskDefinition } from '../types.js';
 import type { AgentOutcome, AgentRunOptions } from './baseline.js';
-import { type LlmProvider, type ToolDef, type Turn } from './llm-provider.js';
+import type { LlmProvider, ToolDef, Turn } from './llm-provider.js';
 import { BlockedError, type BrowserTools, SNAPSHOT_CHARS_FOR_AGENT } from './tools.js';
 
 const TOOLS: ToolDef[] = [

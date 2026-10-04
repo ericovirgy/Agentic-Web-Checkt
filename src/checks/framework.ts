@@ -94,7 +94,7 @@ export async function runChecks(
   const only = ctx.options.onlyChecks;
   const results: CheckResult[] = [];
   for (const def of defs) {
-    if (only && only.length && !only.includes(def.id)) continue;
+    if (only?.length && !only.includes(def.id)) continue;
     const t = Date.now();
     try {
       const out = await def.run(ctx);

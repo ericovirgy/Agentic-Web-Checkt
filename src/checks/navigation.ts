@@ -1,6 +1,6 @@
 import { describe, hasAncestorRole, interactiveNodes } from '../browser/snapshot.js';
 import type { EvidenceItem } from '../types.js';
-import { type CheckDefinition, axeEvidence, axeViolations, okPages, pagesOf } from './framework.js';
+import { axeEvidence, axeViolations, type CheckDefinition, okPages, pagesOf } from './framework.js';
 
 export const KEY_PAGE_VOCAB: Record<string, string[]> = {
   contact: ['contact', 'contact us', 'get in touch', 'contacto', 'contactos', 'fale connosco'],

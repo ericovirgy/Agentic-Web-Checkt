@@ -5,7 +5,7 @@
  */
 import { interactiveNodes } from '../browser/snapshot.js';
 import type { TaskDefinition } from '../types.js';
-import { type PageState, capturePageState, evaluateAll, normaliseText } from './assertions.js';
+import { capturePageState, evaluateAll, normaliseText, type PageState } from './assertions.js';
 import { keywordsFromGoal, matchScore } from './keywords.js';
 import { BlockedError, type BrowserTools } from './tools.js';
 

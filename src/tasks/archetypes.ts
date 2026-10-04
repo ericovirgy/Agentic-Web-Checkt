@@ -14,11 +14,13 @@ export const DEFAULT_TASKS: TaskDefinition[] = [
     safety: 'read-only',
     max_steps: 12,
     success: [
+      { navigated: true },
       {
         any_of: [
-          { text: { includes: '@' } },
           { url: { regex: 'contact|contacto|support|kontakt' } },
-          { element: { role: 'link', name: 'mailto' } },
+          { element: { role: 'link', url: 'mailto:' } },
+          { element: { role: 'link', url: 'tel:' } },
+          { element: { role: 'heading', name: 'contact' } },
         ],
       },
     ],
@@ -30,6 +32,7 @@ export const DEFAULT_TASKS: TaskDefinition[] = [
     safety: 'read-only',
     max_steps: 12,
     success: [
+      { navigated: true },
       {
         any_of: [
           { url: { regex: 'privacy|terms|legal|privacidade|termos' } },
@@ -46,6 +49,7 @@ export const DEFAULT_TASKS: TaskDefinition[] = [
     safety: 'read-only',
     max_steps: 12,
     success: [
+      { navigated: true },
       {
         any_of: [
           { url: { regex: 'about|help|docs|faq|support|sobre|ajuda' } },
