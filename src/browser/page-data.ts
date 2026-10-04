@@ -223,7 +223,7 @@ export const INJECTION_PATTERNS: string[] = [
   'ignore (all |any |the )?(previous|prior|above|earlier) (instructions|prompts|rules|messages)',
   'disregard (all |any |the )?(previous|prior|above) ',
   'you are (now |an? )?(ai|assistant|chatgpt|claude|gpt|llm|language model)',
-  '\\b(ai|llm|chatbot|assistant|agent)s?\\b[^.]{0,60}\\b(must|should|need to|have to|are required to)\\b',
+  '\\b(ai|llm|chatbot|assistant|agent|language model|model)s?\\b[^.]{0,60}\\b(must|should|need to|have to|are required to)\\b',
   'system prompt',
   'new instructions?:',
   'important instructions? for (ai|assistants?|agents?|llms?)',

@@ -134,9 +134,8 @@ export function robotsAllows(
   path: string,
 ): { allowed: boolean; group: string | null } {
   const a = agent.toLowerCase();
-  let group = rules.groups.find((g) =>
-    g.agents.some((t) => t !== '*' && (a.includes(t) || t.includes(a))),
-  );
+  // RFC 9309: a group applies when its product token is a case-insensitive substring of the UA.
+  let group = rules.groups.find((g) => g.agents.some((t) => t !== '*' && a.includes(t)));
   let groupName = group?.agents.join(',') ?? null;
   if (!group) {
     group = rules.groups.find((g) => g.agents.includes('*'));

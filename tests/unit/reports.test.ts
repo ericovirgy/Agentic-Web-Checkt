@@ -6,13 +6,19 @@ import { renderMarkdownSummary } from '../../src/report/markdown.js';
 import { renderTerminal } from '../../src/report/terminal.js';
 import { DIMENSION_WEIGHTS } from '../../src/scoring/index.js';
 import type { ScanResult } from '../../src/types.js';
-import { minimalScanResult, readExampleResult, xmlProblem } from '../helpers.js';
+import {
+  ANSI_RE,
+  minimalScanResult,
+  readExampleResult,
+  stripAnsi,
+  xmlProblem,
+} from '../helpers.js';
 
 const excellent = readExampleResult('results-excellent');
 const ambiguous = readExampleResult('results-ambiguous-ui');
 const minimal = minimalScanResult();
 
-const ANSI = /\u001b\[[0-9;]*m/;
+const ANSI = ANSI_RE;
 
 describe('example result files', () => {
   it('are complete scan results', () => {
@@ -50,7 +56,7 @@ describe('renderTerminal', () => {
     const out = renderTerminal(excellent, { color: true });
     if (pc.isColorSupported) expect(out).toMatch(ANSI);
     else expect(out).not.toMatch(ANSI);
-    expect(out.replace(/\u001b\[[0-9;]*m/g, '')).toBe(renderTerminal(excellent, { color: false }));
+    expect(stripAnsi(out)).toBe(renderTerminal(excellent, { color: false }));
   });
 
   it('lists FAIL and WARNING sections with check titles and ids, heaviest first', () => {

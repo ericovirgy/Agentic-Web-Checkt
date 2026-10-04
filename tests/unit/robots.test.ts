@@ -89,9 +89,10 @@ describe('robotsAllows', () => {
     });
   });
 
-  it('matches agent tokens as substrings in either direction', () => {
-    // "bot" is contained in the token "gptbot", so it lands in that group, not in *
-    expect(robotsAllows(rules, 'bot', '/products')).toEqual({
+  it('matches a group only when its token is contained in the agent string (RFC 9309)', () => {
+    // "bot" does not contain the token "gptbot", so it falls back to the * group
+    expect(robotsAllows(rules, 'bot', '/products').group).toBe('*');
+    expect(robotsAllows(rules, 'Mozilla/5.0 (compatible; GPTBot/1.1)', '/products')).toEqual({
       allowed: false,
       group: 'gptbot,claudebot',
     });

@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { type FixtureServer, startFixtureServer } from '../../fixtures/server.js';
 import { ALL_CHECKS } from '../../src/checks/index.js';
 import type { ScanResult } from '../../src/types.js';
-import { makeTmpDir, ROOT, xmlProblem } from '../helpers.js';
+import { ANSI_RE, makeTmpDir, ROOT, xmlProblem } from '../helpers.js';
 
 const TSX = join(ROOT, 'node_modules', '.bin', 'tsx');
 const CLI = join(ROOT, 'src', 'cli.ts');
@@ -75,7 +75,7 @@ describe('cli', { sequential: true }, () => {
       expect(r.stdout).toContain('AGENTIC WEB CHECK');
       expect(r.stdout).toContain('Agent Readiness');
       expect(r.stdout).toContain('Deterministic scan (no tasks run)');
-      expect(r.stdout).not.toMatch(/\u001b\[/);
+      expect(r.stdout).not.toMatch(ANSI_RE);
 
       const json = JSON.parse(readFileSync(jsonPath, 'utf8')) as ScanResult;
       expect(json.meta.schema).toBe('1');
@@ -143,7 +143,7 @@ describe('cli', { sequential: true }, () => {
     expect(r.stdout).toContain('AGENTIC WEB CHECK');
     expect(r.stdout).toMatch(new RegExp(`Agent Readiness\\s+${json.overall}/100`));
     expect(r.stdout).toContain(json.meta.url);
-    expect(r.stdout).not.toMatch(/\u001b\[/);
+    expect(r.stdout).not.toMatch(ANSI_RE);
   });
 
   it('report can re-render artifacts without a browser', async () => {

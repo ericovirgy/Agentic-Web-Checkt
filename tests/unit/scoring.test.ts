@@ -135,7 +135,7 @@ describe('computeScores', () => {
     const { dimensions } = computeScores(allPass, []);
     for (const d of dimensions) {
       if (d.dimension === 'task-success') continue;
-      expect(d.weight).toBe(DIMENSION_WEIGHTS[d.dimension]);
+      expect(d.weight).toBe(DIMENSION_WEIGHTS[d.dimension as keyof typeof DIMENSION_WEIGHTS]);
     }
     expect(Object.values(DIMENSION_WEIGHTS).reduce((a, b) => a + b, 0)).toBe(100);
   });
@@ -146,7 +146,9 @@ describe('computeScores', () => {
     ]);
     const det = dimensions.filter((d) => d.dimension !== 'task-success');
     for (const d of det)
-      expect(d.weight).toBe(Math.round(DIMENSION_WEIGHTS[d.dimension] * 70) / 100);
+      expect(d.weight).toBe(
+        Math.round(DIMENSION_WEIGHTS[d.dimension as keyof typeof DIMENSION_WEIGHTS] * 70) / 100,
+      );
     expect(det.reduce((a, d) => a + d.weight, 0)).toBeCloseTo(70, 5);
     const task = dimensions.find((d) => d.dimension === 'task-success');
     expect(task?.score).toBe(0);

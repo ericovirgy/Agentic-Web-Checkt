@@ -604,3 +604,12 @@ export function xmlProblem(xml: string): string | null {
   if (stack.length) return `unclosed <${stack[stack.length - 1]}>`;
   return null;
 }
+
+/* ------------------------------------------------------------------ ANSI */
+
+const ESC = String.fromCharCode(27);
+/** Matches one ANSI SGR colour sequence (built at runtime to keep control characters out of source). */
+export const ANSI_RE = new RegExp(`${ESC}\\[[0-9;]*m`);
+export function stripAnsi(s: string): string {
+  return s.replace(new RegExp(`${ESC}\\[[0-9;]*m`, 'g'), '');
+}
