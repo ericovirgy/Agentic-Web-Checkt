@@ -329,8 +329,9 @@ export async function startStaticServer(
 
 export function makeCheck(partial: Partial<CheckResult> & { id: string }): CheckResult {
   const status: CheckStatus = partial.status ?? 'pass';
+  // `score: undefined` passed explicitly is honoured (a check with a status but no score).
   const score =
-    partial.score !== undefined
+    'score' in partial
       ? partial.score
       : status === 'pass'
         ? 1
@@ -596,7 +597,7 @@ export function xmlProblem(xml: string): string | null {
     const m = /^([A-Za-z_][\w:.-]*)([\s\S]*)$/.exec(body);
     if (!m) return `bad tag <${tag.slice(0, 20)}>`;
     const attrs = m[2] ?? '';
-    const attrRe = /^\s*(?:[A-Za-z_:][\w:.-]*\s*=\s*(?:"[^"<]*"|'[^'<]*'))*\s*$/;
+    const attrRe = /^(?:\s+[A-Za-z_:][\w:.-]*\s*=\s*(?:"[^"<]*"|'[^'<]*'))*\s*$/;
     if (!attrRe.test(attrs)) return `bad attributes in <${m[1]}${attrs.slice(0, 40)}>`;
     if (!selfClosing) stack.push(m[1] as string);
   }

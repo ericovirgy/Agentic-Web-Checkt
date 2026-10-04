@@ -61,6 +61,7 @@ what a hijacked model can do:
 | Step cap | `max_steps` per task (default 15); the last step forces `finish` |
 | Wall-clock cap | max(60 s, 4 × `--timeout`) per task |
 | Same-origin navigation | the `navigate` tool rejects URLs whose origin differs from the scanned URL |
+| Popup handling | a new tab opened by an action is closed; its URL is opened in the main tab only when it is on the scanned origin, otherwise it is recorded and not followed |
 | Consequential-action guard | clicking a control whose name matches the consequential vocabulary, or submitting a non-GET form, is refused unless the task's `safety` class and the matching `--allow-*` flag opt in; the task ends BLOCKED |
 | Synthetic data only | the model is told to type only the task's `data`; the tool never has access to real user data, credentials or the API key inside the browser |
 | No credentials in the loop | the API key is sent only in the provider request header, never into the browser or the prompt |
@@ -76,9 +77,10 @@ LLM.
 
 Be aware of these before running behavioural tasks against sites you do not control:
 
-- **Clicks can leave the origin.** Only the `navigate` tool enforces same-origin. A click on a
-  link to another site is executed; the next snapshot comes from that site. The baseline agent only
-  clicks name-matched controls; the LLM agent clicks what it decides to click.
+- **Same-tab clicks can leave the origin.** The `navigate` tool and the popup handler enforce
+  same-origin, the `click` tool does not. A click on an ordinary link to another site is executed
+  and the next snapshot comes from that site. The baseline agent only clicks name-matched controls;
+  the LLM agent clicks what it decides to click.
 - **GET requests are unguarded.** Typing into a search box and pressing Enter, following links with
   query strings, or a hijacked model navigating to `https://<origin>/?q=<synthetic data>` sends the
   task's synthetic data to the target site. Nothing else is available to leak: there is no real data

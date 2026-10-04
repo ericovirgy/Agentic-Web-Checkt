@@ -118,7 +118,10 @@ describe('matchScore', () => {
   });
 
   it('only applies the stem rule to words of 4+ characters', () => {
-    expect(matchScore('Cart', undefined, ['car'])).toBe(0 + 0);
-    expect(matchScore('Carts', undefined, ['cart'])).toBe(2);
+    // "car" (3) is a substring of "cart" so the substring rule still fires
+    expect(matchScore('Cart', undefined, ['car'])).toBe(2);
+    // keyword longer than the name word: only the stem rule can match, and "car" is too short
+    expect(matchScore('Car', undefined, ['cart'])).toBe(0);
+    expect(matchScore('Cart', undefined, ['carts'])).toBe(2);
   });
 });

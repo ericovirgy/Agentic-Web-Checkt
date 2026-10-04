@@ -21,7 +21,10 @@ and the report header reads "Behavioural verification (N tasks, X agent)".
 `--tasks default` runs the built-in archetypes from `src/tasks/archetypes.ts`: `contact` (find an
 email address or phone number), `legal-policy` (find the privacy policy or terms), `help-or-about`
 (find a page explaining the company or product). All three are `read-only` with a 12-step budget
-and site-generic success criteria.
+and site-generic success criteria: `navigated: true` plus an `any_of` over common URL words
+(`contact|contacto|support|kontakt`, `privacy|terms|legal|...`, `about|help|docs|faq|...`) and
+heading names. Because `navigated` is required, a start page that already shows the information does
+not pass; the agent has to reach a destination page.
 
 ## Task file
 
@@ -62,14 +65,16 @@ Each list entry is an object with exactly one of the keys below. The fixture/ben
 | `title: { includes: s }` | document title contains `s` after normalisation |
 | `element: { role, name?, state? }` | the AI-mode accessibility snapshot of the final page has a node with that exact role whose name contains `name` (normalised); `state: checked` or `state: disabled` additionally requires that state |
 | `answer: { must_include: [..], exact_match: s }` | the agent's returned answer is non-empty, contains every `must_include` entry and, when given, equals `exact_match` (all normalised) |
+| `navigated: true` | the final URL differs from the task's start URL (trailing slashes ignored); use it so that a start page which merely contains the information does not pass |
 | `any_of: [ ... ]` | at least one nested assertion holds |
 
 Normalisation lowercases, strips accents and zero-width characters, and collapses whitespace.
 Assertions are evaluated on the page the agent ended on, so `url` assertions should match the
 destination, not a page passed on the way.
 
-Accepted but not evaluated in this version: `navigated: true` (parsed, always reported as not
-holding), `element.url` and `element.state: visible` (ignored). Do not rely on them yet.
+Accepted but not functional in this version: `element.url` is parsed, but the captured page state
+does not record link targets, so an assertion with `url` never matches (observed: `no link`);
+`element.state: visible` is ignored. Do not rely on them yet; use `url` or `text` assertions instead.
 
 The `answer` assertion needs an answer. The LLM agent supplies it in its `finish` call. The baseline
 agent has no language model, so when a task contains an `answer` assertion it uses the text of the
@@ -108,7 +113,9 @@ Both agents use the same `BrowserTools` surface (`src/tasks/tools.ts`): `snapsho
 `back()`, `finish(status, reason, answer?)`. Refs are the `[ref=eN]` identifiers from Playwright's
 AI-mode accessibility snapshot, resolved with `aria-ref=` locators. After every action the runner
 waits for `load` (up to 5 s) plus 300 ms, takes a fresh snapshot and records whether anything changed
-(`noFeedback`).
+(`noFeedback`). Links that open a new tab are handled for the single-tab agent: a same-origin popup is
+closed and its URL is opened in the main tab; a popup to another origin is closed and noted in the
+step result, not followed.
 
 ### baseline (default, no LLM)
 
@@ -124,8 +131,8 @@ success assertions hold. Otherwise, in order:
    expanded with synonyms from `src/tasks/keywords.ts`, plus `hints` (which get a bonus).
 4. If nothing matches, scroll down once; if that changes nothing, give up.
 
-It gives up when the same page state repeats three times (loop), the step budget or wall clock runs
-out, or no control matches. The step log then shows what it could see, which is the point: a
+It gives up when the same page state is seen three times (controls had no visible effect), the step
+budget or wall clock runs out, or no control matches. The step log then shows what it could see, which is the point: a
 baseline failure is attributable to a perception gap on the page, not to reasoning.
 
 ### llm

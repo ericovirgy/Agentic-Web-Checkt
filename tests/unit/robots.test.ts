@@ -89,10 +89,18 @@ describe('robotsAllows', () => {
     });
   });
 
+  it('matches agent tokens as substrings in either direction', () => {
+    // "bot" is contained in the token "gptbot", so it lands in that group, not in *
+    expect(robotsAllows(rules, 'bot', '/products')).toEqual({
+      allowed: false,
+      group: 'gptbot,claudebot',
+    });
+  });
+
   it('longest match wins', () => {
     // * group: Disallow /cart/ (6) vs Allow /cart/help (10)
-    expect(robotsAllows(rules, 'bot', '/cart/help/faq').allowed).toBe(true);
-    expect(robotsAllows(rules, 'bot', '/cart/items').allowed).toBe(false);
+    expect(robotsAllows(rules, 'Googlebot', '/cart/help/faq').allowed).toBe(true);
+    expect(robotsAllows(rules, 'Googlebot', '/cart/items').allowed).toBe(false);
     const r = parseRobots('User-agent: *\nAllow: /private\nDisallow: /private/secret\n');
     expect(robotsAllows(r, 'x', '/private/notes').allowed).toBe(true);
     expect(robotsAllows(r, 'x', '/private/secret/1').allowed).toBe(false);

@@ -55,9 +55,7 @@ WARNING
   ! Consequential actions require confirmation [consequential-actions-guarded, safety, weight 7]
     4 of 4 consequential actions execute without a visible confirmation step.
     · button "delete account" · observed: immediate action without confirmation signal · expected: confirmation dialog or review step
-  ! Visible labels are part of accessible names [label-in-name, perception, weight 3]
-  ! llms.txt is published and well-formed [llms-txt, machine-interfaces, weight 3]
-  ! Downloads and new windows are announced [download-and-popup-links, safety, weight 1]
+  [trimmed: 3 more warnings]
 
 BEHAVIOURAL TESTS
   Find the company's contact information (an email address or phone n…: BLOCKED (0 steps, 0.8 s)
@@ -69,11 +67,7 @@ Suggested fixes
   1. No overlay blocks the page at load [overlay-interference, weight 10]
      Avoid full-page overlays at load; if a consent dialog is required, make it a role="dialog"
      with a clearly named Accept/Reject button and let the rest of the page work beneath it.
-  2. Control names are specific, not repeated or generic [ambiguous-control-names, weight 3]
-     Make link and button text describe the destination or action ("Read the return policy",
-     "Add Trail Bike to cart"). Avoid "Click here"/"Read more"; use aria-label to disambiguate
-     when visual text must stay short.
-  [trimmed]
+  [trimmed: 7 more fixes]
 
 2 pages · 9.3 s · chromium 141.0.7390.37 · 2026-10-04T21:43:46.062Z
 ```
@@ -161,7 +155,6 @@ Options shared by `scan`, `test` and `ci`:
 | `--browser-path <path>` | | Chromium/Chrome executable (or `AWC_BROWSER_PATH`) |
 | `--headed` | off | visible browser window |
 | `--insecure` | off | accept invalid TLS certificates (staging hosts, corporate proxies; or `AWC_INSECURE=1`) |
-| `--only <ids>` | | run only these check ids (debug) |
 | `-q, --quiet`, `-v, --verbose`, `--no-color` | | output control |
 
 Threshold options (`scan` and `ci`; `test` has `--fail-on-task-fail` only): `--fail-under <score>`,
@@ -219,9 +212,10 @@ tasks:
 
 Assertions: `url` (`includes` | `equals` | `regex`), `text { includes }`, `title { includes }`,
 `element { role, name?, state? }` (`state`: `checked` | `disabled`), `answer { must_include |
-exact_match }` against the agent's returned answer, and `any_of [...]`. Text matching is
-case-insensitive with normalised whitespace and accents. All assertions must hold unless wrapped
-in `any_of`. Full reference: [docs/BEHAVIOURAL-TESTING.md](docs/BEHAVIOURAL-TESTING.md).
+exact_match }` against the agent's returned answer, `navigated: true` (final URL differs from the
+start URL), and `any_of [...]`. Text matching is case-insensitive with normalised whitespace and
+accents. All assertions must hold unless wrapped in `any_of`. Full reference:
+[docs/BEHAVIOURAL-TESTING.md](docs/BEHAVIOURAL-TESTING.md).
 
 Safety classes: `read-only` (default; submitting a non-GET form or clicking a control with a
 consequential name turns the task BLOCKED), `form-submit` (POST forms allowed with
@@ -253,8 +247,10 @@ mean of the dimensions.
 
 No single number hides failures: the report always lists every failed and warned check with its
 weight, the mode that produced the score (deterministic scan or behavioural verification), and the
-methodology version. Every number can be recomputed from `results.json`. The full check catalogue,
-detection rules and thresholds are in [docs/SCORING.md](docs/SCORING.md).
+methodology version. Every number can be recomputed from `results.json`. `page-load` is a gate: when
+the start page does not load, every other check except `challenge-or-bot-wall` is `na` and the
+overall is 0. The full check catalogue, detection rules and thresholds are in
+[docs/SCORING.md](docs/SCORING.md).
 
 ## Output formats
 
@@ -335,7 +331,6 @@ not been executed, and no numbers are claimed for it. Rules for running and publ
 ## Roadmap
 
 In rough order, none of it scheduled:
-
 - execute and publish the public benchmark run;
 - more task archetypes (pricing/product, docs lookup, add-to-cart to the last safe step);
 - an optional Lighthouse adapter attaching the `agentic-browsing` audits to the report;

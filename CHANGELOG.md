@@ -33,15 +33,20 @@ First release. Methodology v1, result schema v1.
   form transport, WebMCP tool annotations, authentication boundary signalling, secret-looking tokens
   (redacted), unannounced downloads and new windows.
 - Behavioural task runner with programmatic assertions (`url`, `text`, `title`, `element`, `answer`,
-  `any_of`), verdicts PASS / FAIL / BLOCKED / INCONCLUSIVE, blocker detection (CAPTCHA, bot wall,
-  login required, consent overlay without a named dismiss control, consequential step, HTTP error),
-  step log with truncated snapshots, screenshots and token usage.
+  `navigated`, `any_of`), verdicts PASS / FAIL / BLOCKED / INCONCLUSIVE, blocker detection (CAPTCHA,
+  bot wall, login required, consent overlay without a named dismiss control, consequential step,
+  HTTP error), step log with truncated snapshots, screenshots and token usage. New tabs opened by an
+  action are followed in the main tab when same-origin and closed otherwise.
+- `page-load` acts as a gate: when the start page does not load, every other check except
+  `challenge-or-bot-wall` is `na`; pages answering 4xx/5xx are excluded from check aggregation.
+- `--insecure` flag (`AWC_INSECURE=1`) to accept invalid TLS certificates on staging hosts.
 - Two agent backends over one tool surface: `baseline` (deterministic, no LLM, accessible-name
   matching) and `llm` (OpenAI-compatible chat/completions and Anthropic Messages API over `fetch`;
   `AWC_LLM_PROVIDER`, `AWC_LLM_MODEL`, `AWC_LLM_API_KEY`, `AWC_LLM_BASE_URL`).
 - Safety classes `read-only`, `form-submit` (`--allow-forms`) and `consequential`
   (`--allow-consequential`); same-origin `navigate` tool; synthetic task data only.
-- Built-in read-only task archetypes (`--tasks default`): contact, legal-policy, help-or-about.
+- Built-in read-only task archetypes (`--tasks default`): contact, legal-policy, help-or-about, each
+  requiring `navigated` plus a destination criterion.
 - Tasks YAML loader (`tasks:` list; `success` or `assert`; `{ type: ... }` assertion shorthand).
 - Scoring: 10/7/3/1 check weights, dimension weights 20/15/20/10/15/20, TASK SUCCESS at 30% when
   tasks run, overall as weighted mean over available dimensions; `suggestedFixes` ordered by
