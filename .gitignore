@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+.awc/
+awc-results/
+*.tgz
+.env
+.env.*
+!.env.example
+/tmp/
