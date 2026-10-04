@@ -27,17 +27,17 @@ PASS, FAIL, BLOCKED or INCONCLUSIVE, with a step log and screenshots.
 
 **4/6**
 
-No API key needed. The baseline agent is deterministic: it reads the accessibility tree and follows controls by name. If it finishes, your site is easy. If not, the log shows which gap stopped it.
+No API key required. The baseline agent is deterministic: it reads the accessibility tree and follows controls by name. If it finishes, your site is easy. If not, the log shows which gap stopped it.
 
-An LLM agent is optional: any OpenAI-compatible endpoint (Ollama works) or Anthropic.
+LLM agent optional: OpenAI-compatible endpoints (Ollama works) or Anthropic.
 
 **5/6**
 
 Lighthouse now has an Agentic Browsing category. We do not duplicate it.
 
-We add what it does not cover: behavioural verdicts, and a safety review for site owners (hidden text aimed at AI systems, delete or buy buttons with no confirmation step).
+We add what it does not cover: behavioural verdicts, and a safety review (hidden text aimed at AI systems, delete or buy buttons with no confirmation step).
 
-Local-first. No telemetry. No hosted service.
+No telemetry. No hosted service.
 
 **6/6**
 

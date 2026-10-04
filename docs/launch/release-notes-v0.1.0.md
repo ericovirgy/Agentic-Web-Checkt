@@ -46,7 +46,7 @@ npx agentic-web-check scan https://example.com --tasks default
 Node 20 or newer. Add `--out awc-results` for the HTML report, JSON, markdown, badge and screenshots. For CI:
 
 ```yaml
-- uses: ericovirgy/agentic-web-check/action@v1
+- uses: ericovirgy/agentic-web-check/action@v0
   with:
     url: https://preview.example.com
     tasks: default

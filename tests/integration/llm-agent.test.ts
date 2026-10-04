@@ -85,7 +85,13 @@ describe('llm agent on the excellent fixture', { sequential: true }, () => {
       pages: 1,
       tasks,
       agent: 'llm',
-      llm: { provider: 'openai', model: 'mock-model', apiKey: 'test-key', baseUrl: llm.openAiBaseUrl, maxSteps: 6 },
+      llm: {
+        provider: 'openai',
+        model: 'mock-model',
+        apiKey: 'test-key',
+        baseUrl: llm.openAiBaseUrl,
+        maxSteps: 6,
+      },
       browserPath: BROWSER_PATH,
     });
 
@@ -127,11 +133,15 @@ describe('llm agent on the excellent fixture', { sequential: true }, () => {
     expect(firstMessages[0]?.content).toContain('Safety level: read-only');
     expect(firstMessages[1]?.content).toContain(`Task: ${TASK.goal}`);
     expect(firstMessages[1]?.content).toContain(`Current URL: ${site.url}`);
-    expect((first.body.tools as { function: { name: string } }[]).map((t) => t.function.name)).toContain(
-      'finish',
-    );
+    expect(
+      (first.body.tools as { function: { name: string } }[]).map((t) => t.function.name),
+    ).toContain('finish');
     const second = llm.requests[1] as MockLlmRequest;
-    const secondMessages = second.body.messages as { role: string; tool_call_id?: string; content: string }[];
+    const secondMessages = second.body.messages as {
+      role: string;
+      tool_call_id?: string;
+      content: string;
+    }[];
     expect(secondMessages.at(-1)).toMatchObject({ role: 'tool', tool_call_id: 'call_click' });
     expect(secondMessages.at(-1)?.content).toContain('URL: ');
     expect(secondMessages.at(-1)?.content).toContain('contact.html');

@@ -109,14 +109,20 @@ describe('SECRET_PATTERNS', () => {
     expect(re('aws-access-key').test(`key=${'AKIA'}${'ABCDEFGHIJKLMNOP'}`)).toBe(true);
     expect(re('github-token').test(`${'ghp'}_${'f'.repeat(36)}`)).toBe(true);
     expect(re('github-token').test(`${'ghs'}_${'A1'.repeat(20)}`)).toBe(true);
-    expect(re('stripe-live-secret').test(`${['sk', 'live'].join('_')}_51${'X'.repeat(24)}`)).toBe(true);
+    expect(re('stripe-live-secret').test(`${['sk', 'live'].join('_')}_51${'X'.repeat(24)}`)).toBe(
+      true,
+    );
     expect(re('openai-key').test(`${'sk'}-${'a'.repeat(48)}`)).toBe(true);
     expect(re('anthropic-key').test(`${'sk'}-${'ant'}-${'api03-'}${'Z'.repeat(40)}`)).toBe(true);
     expect(re('slack-token').test(`${'xoxb'}-${'123456789012'}-${'abcdef'}`)).toBe(true);
     expect(re('google-api-key').test(`${'AIza'}${'Sy'}${'A'.repeat(33)}`)).toBe(true);
     expect(re('private-key-block').test(['-----BEGIN', 'PRIVATE KEY-----'].join(' '))).toBe(true);
-    expect(re('private-key-block').test(['-----BEGIN RSA', 'PRIVATE KEY-----'].join(' '))).toBe(true);
-    expect(re('private-key-block').test(['-----BEGIN OPENSSH', 'PRIVATE KEY-----'].join(' '))).toBe(true);
+    expect(re('private-key-block').test(['-----BEGIN RSA', 'PRIVATE KEY-----'].join(' '))).toBe(
+      true,
+    );
+    expect(re('private-key-block').test(['-----BEGIN OPENSSH', 'PRIVATE KEY-----'].join(' '))).toBe(
+      true,
+    );
     const jwt = `${'eyJ'}${'abcdefghijkl'}.${'eyJ'}${'mnopqrstuvwx'}.${'SflKxwRJSMeKKF2QT4fwpM'}`;
     expect(re('jwt').test(jwt)).toBe(true);
   });
@@ -126,8 +132,12 @@ describe('SECRET_PATTERNS', () => {
     expect(re('aws-access-key').test(`akia${'ABCDEFGHIJKLMNOP'}`)).toBe(false);
     expect(re('github-token').test(`${'ghp'}_${'f'.repeat(20)}`)).toBe(false);
     expect(re('github-token').test(`${'ghx'}_${'f'.repeat(36)}`)).toBe(false);
-    expect(re('stripe-live-secret').test(`${['sk', 'test'].join('_')}_51${'X'.repeat(24)}`)).toBe(false);
-    expect(re('stripe-live-secret').test(`${['pk', 'live'].join('_')}_51${'X'.repeat(24)}`)).toBe(false);
+    expect(re('stripe-live-secret').test(`${['sk', 'test'].join('_')}_51${'X'.repeat(24)}`)).toBe(
+      false,
+    );
+    expect(re('stripe-live-secret').test(`${['pk', 'live'].join('_')}_51${'X'.repeat(24)}`)).toBe(
+      false,
+    );
     expect(re('openai-key').test('sk-short')).toBe(false);
     expect(re('slack-token').test('xoxz-1234567890-abc')).toBe(false);
     expect(re('google-api-key').test(`${'AIza'}${'A'.repeat(10)}`)).toBe(false);
@@ -189,7 +199,7 @@ describe('isConsequentialName', () => {
       'Sender address',
       'Opening hours',
       'Postal address',
-      'Share price history',
+      'Shareholder information',
     ])
       expect(isConsequentialName(n), n).toBe(false);
   });

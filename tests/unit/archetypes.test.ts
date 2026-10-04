@@ -172,7 +172,8 @@ describe('parseTaskDefinition', () => {
   it('accepts all three safety levels', () => {
     for (const safety of ['read-only', 'form-submit', 'consequential'] as const)
       expect(
-        parseTaskDefinition({ name: 'n', goal: 'g', success: [{ navigated: true }], safety }).safety,
+        parseTaskDefinition({ name: 'n', goal: 'g', success: [{ navigated: true }], safety })
+          .safety,
       ).toBe(safety);
   });
 });
@@ -244,7 +245,10 @@ describe('loadTasksFile', () => {
     expect(() => loadTasksFile(noList)).toThrow(`${noList}: expected a top-level "tasks:" list`);
 
     const badTask = join(tmp.path, 'bad.yaml');
-    writeFileSync(badTask, 'tasks:\n  - name: ok\n    goal: g\n    success: [navigated: true]\n  - name: nogoal\n');
+    writeFileSync(
+      badTask,
+      'tasks:\n  - name: ok\n    goal: g\n    success: [navigated: true]\n  - name: nogoal\n',
+    );
     expect(() => loadTasksFile(badTask)).toThrow(`${badTask} tasks[1] (nogoal): goal is required`);
   });
 
@@ -281,7 +285,10 @@ describe('resolveTasks', () => {
     expect(resolveTasks('')).toEqual([]);
     expect(resolveTasks('default')).toBe(DEFAULT_TASKS);
     const file = join(tmp.path, 'resolve.yaml');
-    writeFileSync(file, 'tasks:\n  - name: a\n    goal: b\n    success:\n      - navigated: true\n');
+    writeFileSync(
+      file,
+      'tasks:\n  - name: a\n    goal: b\n    success:\n      - navigated: true\n',
+    );
     expect(resolveTasks(file)).toHaveLength(1);
     expect(() => resolveTasks(join(tmp.path, 'nope.yaml'))).toThrow();
   });

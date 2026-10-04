@@ -110,9 +110,8 @@ const FORM_TASK: TaskDefinition = {
 describe('POST contact form: --allow-forms gate', { sequential: true }, () => {
   let server: StaticServer;
   beforeAll(async () => {
-    server = await startStaticServer(
-      { '/': HOME_HTML, '/contact.html': CONTACT_HTML },
-      (path) => (path === '/contact.html' ? { body: THANKS_HTML } : { status: 404, body: 'no' }),
+    server = await startStaticServer({ '/': HOME_HTML, '/contact.html': CONTACT_HTML }, (path) =>
+      path === '/contact.html' ? { body: THANKS_HTML } : { status: 404, body: 'no' },
     );
   });
   afterAll(async () => {
@@ -126,7 +125,9 @@ describe('POST contact form: --allow-forms gate', { sequential: true }, () => {
       const t = await runTask(server.url, FORM_TASK);
       expect(t.verdict, t.reason).toBe('BLOCKED');
       expect(t.blocker).toBe('consequential-step');
-      expect(t.reason).toMatch(/submitting a POST form requires safety: form-submit and --allow-forms/);
+      expect(t.reason).toMatch(
+        /submitting a POST form requires safety: form-submit and --allow-forms/,
+      );
       expect(t.finalUrl).toContain('contact.html');
       // the form was never submitted
       expect(server.requests.filter((r) => r.method === 'POST').length).toBe(posts);
@@ -137,7 +138,11 @@ describe('POST contact form: --allow-forms gate', { sequential: true }, () => {
   it(
     'is BLOCKED when allowForms is set but the task is read-only',
     async () => {
-      const t = await runTask(server.url, { ...FORM_TASK, safety: 'read-only' }, { allowForms: true });
+      const t = await runTask(
+        server.url,
+        { ...FORM_TASK, safety: 'read-only' },
+        { allowForms: true },
+      );
       expect(t.verdict, t.reason).toBe('BLOCKED');
       expect(t.blocker).toBe('consequential-step');
     },
@@ -178,7 +183,10 @@ describe('excellent fixture: GET contact form', { sequential: true }, () => {
         start: '/contact.html',
         hints: ['send message'],
         max_steps: 4,
-        success: [{ url: { includes: 'contact.html' } }, { element: { role: 'button', name: 'Send message' } }],
+        success: [
+          { url: { includes: 'contact.html' } },
+          { element: { role: 'button', name: 'Send message' } },
+        ],
       });
       expect(t.verdict, t.reason).not.toBe('BLOCKED');
       expect(t.blocker).toBeUndefined();

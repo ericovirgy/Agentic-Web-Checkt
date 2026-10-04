@@ -41,7 +41,9 @@ describe('renderTerminal', () => {
       if (d.score === null) continue;
       expect(out).toMatch(new RegExp(`${d.label}\\s+${d.score}\\s`));
     }
-    expect(out).toContain(`Behavioural verification (${excellent.tasks.length} tasks, baseline agent)`);
+    expect(out).toContain(
+      `Behavioural verification (${excellent.tasks.length} tasks, baseline agent)`,
+    );
   });
 
   it('with colour follows picocolors (ANSI only where the terminal supports it)', () => {
@@ -59,8 +61,10 @@ describe('renderTerminal', () => {
     expect(out).toContain(`${warns.length} warnings`);
     expect(out).toMatch(/\nFAIL\n/);
     expect(out).toMatch(/\nWARNING\n/);
-    for (const c of fails) expect(out).toContain(`✗ ${c.title} [${c.id}, ${c.dimension}, weight ${c.weight}]`);
-    for (const c of warns) expect(out).toContain(`! ${c.title} [${c.id}, ${c.dimension}, weight ${c.weight}]`);
+    for (const c of fails)
+      expect(out).toContain(`✗ ${c.title} [${c.id}, ${c.dimension}, weight ${c.weight}]`);
+    for (const c of warns)
+      expect(out).toContain(`! ${c.title} [${c.id}, ${c.dimension}, weight ${c.weight}]`);
     const failBlock = out.slice(out.indexOf('\nFAIL\n'), out.indexOf('\nWARNING\n'));
     const weights = [...failBlock.matchAll(/weight (\d+)\]/g)].map((m) => Number(m[1]));
     expect(weights).toEqual([...weights].sort((a, b) => b - a));
@@ -118,10 +122,14 @@ describe('renderMarkdownSummary', () => {
     expect(md).toContain('|---|---:|---:|---:|---:|');
     for (const d of excellent.dimensions) {
       if (d.dimension === 'task-success' && d.score === null) continue;
-      expect(md).toContain(`| ${d.label} | ${d.score ?? 'n/a'} | ${d.passed} | ${d.warned} | ${d.failed} |`);
+      expect(md).toContain(
+        `| ${d.label} | ${d.score ?? 'n/a'} | ${d.passed} | ${d.warned} | ${d.failed} |`,
+      );
     }
     expect(md).toContain(`**${excellent.meta.url}**`);
-    expect(md).toContain(`behavioural verification, ${excellent.tasks.length} tasks (baseline agent)`);
+    expect(md).toContain(
+      `behavioural verification, ${excellent.tasks.length} tasks (baseline agent)`,
+    );
     expect(md).toContain('### Behavioural tests');
     expect(md).toContain('| Task | Verdict | Steps | Reason |');
     for (const t of excellent.tasks) expect(md).toContain(`| ${t.verdict} | ${t.steps.length} |`);
@@ -156,7 +164,9 @@ describe('renderMarkdownSummary', () => {
   });
 
   it('renders n/a for a null overall', () => {
-    expect(renderMarkdownSummary({ ...minimal, overall: null })).toContain('## Agentic Web Check: n/a/100');
+    expect(renderMarkdownSummary({ ...minimal, overall: null })).toContain(
+      '## Agentic Web Check: n/a/100',
+    );
   });
 });
 
@@ -167,7 +177,11 @@ describe('badgeLabel / renderBadgeSvg', () => {
       message: `${excellent.overall}/100 · v1`,
       color: '#2e7d32',
     });
-    const det: ScanResult = { ...minimal, meta: { ...minimal.meta, mode: 'deterministic' }, tasks: [] };
+    const det: ScanResult = {
+      ...minimal,
+      meta: { ...minimal.meta, mode: 'deterministic' },
+      tasks: [],
+    };
     expect(badgeLabel(det).label).toBe('Agent Ready · scan');
     expect(badgeLabel(det).label).not.toContain('verified');
     expect(badgeLabel(det).label.toLowerCase()).not.toContain('safe');
@@ -219,7 +233,9 @@ describe('renderHtml', () => {
     expect(html).not.toMatch(/<link\s+[^>]*rel="?stylesheet/i);
     expect(html).not.toMatch(/https?:\/\/[^"'\s]+\.(js|css)\b/);
     expect(html).toContain('<meta name="generator" content="agentic-web-check 0.1.0-test">');
-    expect(html).toContain('<title>Agentic Web Check report: http://127.0.0.1:1/?q=&lt;script&gt;alert(1)&lt;/script&gt;&amp;x=&quot;y&quot;</title>');
+    expect(html).toContain(
+      '<title>Agentic Web Check report: http://127.0.0.1:1/?q=&lt;script&gt;alert(1)&lt;/script&gt;&amp;x=&quot;y&quot;</title>',
+    );
   });
 
   it('escapes untrusted strings everywhere they appear', () => {

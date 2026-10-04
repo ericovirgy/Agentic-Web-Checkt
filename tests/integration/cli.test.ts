@@ -60,7 +60,16 @@ describe('cli', { sequential: true }, () => {
   it(
     'scan <url> --json <file> --no-color -q exits 0 and writes valid JSON',
     async () => {
-      const r = await runCli(['scan', server.url, '--json', jsonPath, '--no-color', '-q', '-p', '2']);
+      const r = await runCli([
+        'scan',
+        server.url,
+        '--json',
+        jsonPath,
+        '--no-color',
+        '-q',
+        '-p',
+        '2',
+      ]);
       expect(r.code, r.stderr).toBe(0);
       expect(r.stderr.trim()).toBe('');
       expect(r.stdout).toContain('AGENTIC WEB CHECK');
@@ -88,7 +97,17 @@ describe('cli', { sequential: true }, () => {
     async () => {
       const out = join(tmp.path, 'ci-out');
       // 101 cannot be reached, so the threshold always trips (the fixture may legitimately score 100).
-      const r = await runCli(['ci', server.url, '--fail-under', '101', '--out', out, '-q', '-p', '2']);
+      const r = await runCli([
+        'ci',
+        server.url,
+        '--fail-under',
+        '101',
+        '--out',
+        out,
+        '-q',
+        '-p',
+        '2',
+      ]);
       expect(r.code, r.stdout).toBe(1);
       expect(r.stdout).toContain('CI threshold not met');
       expect(r.stdout).toMatch(/overall score \d+ is below 101/);

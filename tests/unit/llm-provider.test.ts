@@ -43,8 +43,17 @@ const SYSTEM = 'You are a careful web agent.';
 /** A conversation after one tool round-trip. */
 const TURNS: Turn[] = [
   { role: 'user', text: 'Task: find the contact page\nSnapshot:\n- link "Contact" [ref=e16]' },
-  { role: 'assistant', text: 'I will click Contact.', toolCalls: [{ id: 'call_a', name: 'click', args: { ref: 'e16' } }] },
-  { role: 'tool', toolResults: [{ id: 'call_a', name: 'click', result: 'clicked link "Contact"\nURL: /contact.html' }] },
+  {
+    role: 'assistant',
+    text: 'I will click Contact.',
+    toolCalls: [{ id: 'call_a', name: 'click', args: { ref: 'e16' } }],
+  },
+  {
+    role: 'tool',
+    toolResults: [
+      { id: 'call_a', name: 'click', result: 'clicked link "Contact"\nURL: /contact.html' },
+    ],
+  },
 ];
 
 // The script is swapped per test through this mutable reference.
@@ -116,10 +125,18 @@ describe('OpenAiCompatibleProvider', () => {
         role: 'assistant',
         content: 'I will click Contact.',
         tool_calls: [
-          { id: 'call_a', type: 'function', function: { name: 'click', arguments: '{"ref":"e16"}' } },
+          {
+            id: 'call_a',
+            type: 'function',
+            function: { name: 'click', arguments: '{"ref":"e16"}' },
+          },
         ],
       },
-      { role: 'tool', tool_call_id: 'call_a', content: 'clicked link "Contact"\nURL: /contact.html' },
+      {
+        role: 'tool',
+        tool_call_id: 'call_a',
+        content: 'clicked link "Contact"\nURL: /contact.html',
+      },
     ]);
     expect((server.requests[0] as MockLlmRequest).headers.authorization).toBeUndefined();
     expect(out.text).toBe('Done.');
@@ -136,13 +153,22 @@ describe('OpenAiCompatibleProvider', () => {
       { role: 'tool', toolResults: [{ id: 'c', name: 'click', result: 'ok' }] },
     ];
     await make().complete(SYSTEM, turns, TOOLS);
-    const messages = (server.requests[0] as MockLlmRequest).body.messages as Record<string, unknown>[];
+    const messages = (server.requests[0] as MockLlmRequest).body.messages as Record<
+      string,
+      unknown
+    >[];
     expect(messages[2]).toMatchObject({ role: 'assistant', content: null });
   });
 
   it('forces a tool with tool_choice', async () => {
-    script = () => openAiToolCallResponse([{ name: 'finish', args: { status: 'gave_up', reason: 'x' } }]);
-    await make().complete(SYSTEM, TURNS, TOOLS.filter((t) => t.name === 'finish'), 'finish');
+    script = () =>
+      openAiToolCallResponse([{ name: 'finish', args: { status: 'gave_up', reason: 'x' } }]);
+    await make().complete(
+      SYSTEM,
+      TURNS,
+      TOOLS.filter((t) => t.name === 'finish'),
+      'finish',
+    );
     const body = (server.requests[0] as MockLlmRequest).body;
     expect(body.tool_choice).toEqual({ type: 'function', function: { name: 'finish' } });
     expect((body.tools as unknown[]).length).toBe(1);
@@ -264,7 +290,11 @@ describe('AnthropicProvider', () => {
       {
         role: 'user',
         content: [
-          { type: 'tool_result', tool_use_id: 'call_a', content: 'clicked link "Contact"\nURL: /contact.html' },
+          {
+            type: 'tool_result',
+            tool_use_id: 'call_a',
+            content: 'clicked link "Contact"\nURL: /contact.html',
+          },
         ],
       },
     ]);
@@ -282,7 +312,9 @@ describe('AnthropicProvider', () => {
       ],
       TOOLS,
     );
-    const messages = (server.requests[0] as MockLlmRequest).body.messages as { content: unknown[] }[];
+    const messages = (server.requests[0] as MockLlmRequest).body.messages as {
+      content: unknown[];
+    }[];
     expect(messages[1]?.content).toEqual([{ type: 'tool_use', id: 't', name: 'click', input: {} }]);
   });
 
@@ -303,7 +335,10 @@ describe('AnthropicProvider', () => {
     const out = await provider.complete(SYSTEM, TURNS, TOOLS);
     await provider.complete(SYSTEM, TURNS, TOOLS);
     expect(out.text).toBe('a\nb');
-    expect(out.toolCalls[0]).toMatchObject({ name: 'finish', args: { status: 'done', reason: 'r' } });
+    expect(out.toolCalls[0]).toMatchObject({
+      name: 'finish',
+      args: { status: 'done', reason: 'r' },
+    });
     expect(out.toolCalls[0]?.id).toMatch(/^toolu_\d+_0$/);
     expect(provider.usage).toEqual({ inputTokens: 21, outputTokens: 9, calls: 2 });
   });

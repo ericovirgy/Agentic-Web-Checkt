@@ -262,7 +262,7 @@ an existing `results.json` without rescanning.
 ## GitHub Action
 
 ```yaml
-- uses: ericovirgy/agentic-web-check/action@v1
+- uses: ericovirgy/agentic-web-check/action@v0
   with:
     url: https://preview.example.com
     tasks: default

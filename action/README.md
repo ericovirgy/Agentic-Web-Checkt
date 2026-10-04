@@ -11,7 +11,7 @@ set up on the runner, the CLI is installed from npm and executed there.
 ## Minimal usage
 
 ```yaml
-- uses: ericovirgy/agentic-web-check/action@v1
+- uses: ericovirgy/agentic-web-check/action@v0
   with:
     url: https://example.com
 ```
@@ -36,7 +36,7 @@ jobs:
 
       # Deploy a preview or start your app here, then point `url` at it.
 
-      - uses: ericovirgy/agentic-web-check/action@v1
+      - uses: ericovirgy/agentic-web-check/action@v0
         id: awc
         with:
           url: https://preview.example.com
@@ -60,7 +60,7 @@ suggested fixes. `report.html`, `results.json`, `summary.md` and `badge.svg` are
 The default `baseline` agent needs no API key. To run tasks with an LLM-driven agent:
 
 ```yaml
-- uses: ericovirgy/agentic-web-check/action@v1
+- uses: ericovirgy/agentic-web-check/action@v0
   with:
     url: https://preview.example.com
     tasks: .github/awc-tasks.yaml
@@ -144,12 +144,12 @@ There is no telemetry.
 
 ## Versioning
 
-Use the floating major tag `@v1` to receive compatible updates, or pin an exact release tag
-(`@v1.2.3`) or commit SHA. Each release:
+Use the floating major tag (`@v0` while the project is pre-1.0, `@v1` from 1.0.0 on) to receive
+compatible updates, or pin an exact release tag (`@v0.1.0`) or commit SHA. Each release:
 
 1. publishes `agentic-web-check@<version>` to npm with provenance;
 2. creates a GitHub release from the matching `CHANGELOG.md` section;
-3. force-moves the major tag (`v1`) to the release commit, so `@v1` always points at the latest
+3. force-moves the major tag (`v0`, later `v1`) to the release commit, so it always points at the latest
    `1.x` release (pre-releases such as `v1.3.0-beta.1` do not move it).
 
 The action installs the CLI version given by the `version` input (`latest` by default), so the

@@ -121,7 +121,8 @@ for (const site of fixtureSites()) {
           expect(r.assertions.length).toBe(task.success.length);
           expect(r.assertions.every((a) => a.holds)).toBe(true);
         }
-        if (r?.verdict === 'FAIL') expect(r.assertions.some((a) => !a.holds) || r.steps.length > 0).toBe(true);
+        if (r?.verdict === 'FAIL')
+          expect(r.assertions.some((a) => !a.holds) || r.steps.length > 0).toBe(true);
       });
     }
   });
