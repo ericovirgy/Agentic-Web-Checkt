@@ -1,0 +1,70 @@
+{
+  "name": "inaccessible",
+  "description": "Visually fine but tree-hostile: icon-only buttons without names, aria-label mismatching visible labels, aria-hidden main nav, positive tabindex, role=button divs without tabindex, div-built listbox/date picker/slider (no aria-valuenow), duplicate ids, role=img without a name.",
+  "pages": [
+    "index.html",
+    "form.html",
+    "robots.txt"
+  ],
+  "expect": {
+    "control-accessible-name": "fail",
+    "label-in-name": "fail",
+    "aria-validity": "fail",
+    "image-alt": "fail",
+    "fake-interactive-elements": "fail",
+    "keyboard-operability": "fail",
+    "native-controls": "fail",
+    "form-fields-labelled": "fail",
+    "navigation-links-usable": "fail",
+    "document-title-lang": "pass",
+    "heading-structure": "pass",
+    "hidden-instructions": "pass",
+    "exposed-secrets": "pass",
+    "overlay-interference": "pass",
+    "page-load": "pass"
+  },
+  "notes": {
+    "control-accessible-name": "Three icon-only <button><svg/></button> in the header on index.html, one on form.html.",
+    "label-in-name": "form.html: 'Full name' input has aria-label 'Customer'; 'Email address' input has aria-label 'Where to send the receipt'.",
+    "aria-validity": "role=listbox with plain div children (aria-required-children); role=slider without aria-valuenow (aria-required-attr).",
+    "navigation-links-usable": "The only nav landmark is aria-hidden=true, so its links are absent from the accessibility snapshot.",
+    "keyboard-operability": "Positive tabindex 1..3 on the Quick links on index.html; role=button divs have no tabindex.",
+    "form-fields-labelled": "Phone input on form.html has no label association and no name attribute.",
+    "image-alt": "<div class=hero role=img> with no accessible name (axe role-img-alt).",
+    "duplicate-ids": "Two h2 elements share id=duplicate on index.html.",
+    "open-order-form": "The nav is aria-hidden, but the Quick links section still exposes a real link named Order form, so a tree agent can reach form.html."
+  },
+  "tasks": [
+    {
+      "name": "find-contact-email",
+      "goal": "Find the email address for contacting Northwind Bikes.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        {
+          "type": "answer",
+          "must_include": [
+            "hello@northwind.example"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "open-order-form",
+      "goal": "Open the order form page.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        {
+          "type": "url",
+          "includes": "form.html"
+        },
+        {
+          "type": "element",
+          "role": "heading",
+          "name": "Order form"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northwind Bikes - Home</title>
+<meta name="description" content="Misleading interactive UI fixture.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="consent">
+  <div class="panel">
+    <div class="x" onclick="document.getElementById('consent').remove()">&times;</div>
+    <h2>We use cookies</h2>
+    <p>This fixture shows a consent overlay whose only dismiss control is an unlabelled div.</p>
+  </div>
+</div>
+<header>
+  <a href="index.html"><strong>Northwind Bikes</strong></a>
+  <nav aria-label="Main">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#products">Products</a>
+        <ul>
+          <li><a href="index.html#trail">Trail 29</a></li>
+          <li><a href="index.html#city">City 7</a></li>
+          <li><a href="index.html#kids">Kids 20</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#support">Support</a>
+        <ul>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="index.html#returns">Returns</a></li>
+          <li><a href="index.html#faq">FAQ</a></li>
+        </ul>
+      </li>
+      <li><a href="index.html#pricing" aria-label="Plans">Pricing</a></li>
+      <li><a href="index.html">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+<main id="main">
+  <h1>Bikes built for every road</h1>
+  <p>Northwind Bikes is a fictional bike shop. Returns are accepted within 30 days.</p>
+  <button type="button" onclick="location.href='contact.html'">Home</button>
+
+  <h2 id="products">Products</h2>
+  <p id="trail">Northwind Trail 29 - $1299.00</p>
+  <p id="city">Northwind City 7 - $749.00</p>
+  <p id="kids">Northwind Kids 20 - $329.00</p>
+
+  <h2 id="pricing">Plans</h2>
+  <p>Monthly service plan: $9 per month.</p>
+
+  <h2>Forms</h2>
+  <div class="row">
+    <label for="q">Search</label>
+    <input type="search" id="q" name="q">
+    <button type="button" onclick="submitSearch()">Submit</button>
+  </div>
+  <div class="row">
+    <label for="newsletter">Newsletter email</label>
+    <input type="email" id="newsletter" name="newsletter">
+    <button type="button" onclick="submitNewsletter()">Submit</button>
+  </div>
+  <div class="row">
+    <p>Close your account:</p>
+    <button type="button" onclick="submitDelete()">Submit</button>
+  </div>
+
+  <h2>Account</h2>
+  <button type="button" id="delete-account">Delete account</button>
+  <button type="button" id="fake-disabled" class="fake-disabled">Save changes</button>
+
+  <h2>Buy</h2>
+  <form id="buy-form" action="index.html" method="post">
+    <label for="qty">Quantity</label>
+    <input type="number" id="qty" name="qty" value="1" min="1">
+    <button type="submit">Buy now</button>
+  </form>
+
+  <h2 id="support">Support</h2>
+  <p id="returns">Returns are accepted within 30 days.</p>
+  <p id="faq"><a href="brochure.zip" download>Get it</a></p>
+  <p id="status" role="status"></p>
+</main>
+<footer>
+  <p>Northwind Bikes is a fictional company. Email hello@northwind.example.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

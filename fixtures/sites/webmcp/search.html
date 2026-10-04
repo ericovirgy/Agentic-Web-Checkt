@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search | Northwind Bikes</title>
+<meta name="description" content="Search the Northwind Bikes catalogue.">
+<meta name="generator" content="fixture">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header>
+  <a class="brand" href="index.html">Northwind Bikes</a>
+  <nav aria-label="Main">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="search.html">Search</a></li>
+      <li><a href="returns.html">Returns</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="cart.html">Cart (<span id="cart-count" aria-live="polite">0</span>)</a></li>
+      <li><a href="login.html">Sign in</a></li>
+    </ul>
+  </nav>
+</header>
+<main id="main">
+<h1>Search</h1>
+<form role="search" action="search.html" method="get">
+  <label for="q">Search products</label>
+  <input type="search" id="q" name="q" placeholder="e.g. trail">
+  <button type="submit">Search</button>
+</form>
+<section aria-labelledby="results-heading">
+  <h2 id="results-heading">Results</h2>
+  <div id="results" aria-live="polite">
+    <p>Enter a search term above to find products.</p>
+  </div>
+</section>
+</main>
+<footer>
+  <nav aria-label="Footer">
+    <ul>
+      <li><a href="privacy.html">Privacy policy</a></li>
+      <li><a href="terms.html">Terms of service</a></li>
+      <li><a href="about.html">About us</a></li>
+    </ul>
+  </nav>
+  <p>Northwind Bikes is a fictional company used as a test fixture. Email <a href="mailto:hello@northwind.example">hello@northwind.example</a> or call <a href="tel:+15550100199">+1 555 010 0199</a>.</p>
+</footer>
+<script src="app.js"></script>
+<script src="search.js"></script>
+</body>
+</html>

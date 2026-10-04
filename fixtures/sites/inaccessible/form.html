@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northwind Bikes - Order form</title>
+<meta name="description" content="Order form with mislabelled and custom controls.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <a href="index.html"><strong>Northwind Bikes</strong></a>
+  <nav aria-label="Main" aria-hidden="true">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="form.html">Order form</a></li>
+    </ul>
+  </nav>
+  <div class="icon-row">
+    <button type="button" onclick="openCart()"><svg viewBox="0 0 24 24"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM3 2v2h2l3.6 7.6L7.2 14A2 2 0 0 0 9 17h11v-2H9.4l1-2H18l3-7H6.2L5.3 2H3z"/></svg></button>
+  </div>
+</header>
+<main id="main">
+  <h1>Order form</h1>
+  <form action="form.html" method="get">
+    <label for="fullname">Full name</label>
+    <input type="text" id="fullname" name="fullname" aria-label="Customer">
+
+    <label for="email">Email address</label>
+    <input type="email" id="email" name="email" aria-label="Where to send the receipt">
+
+    <label>Phone number</label>
+    <input type="tel" placeholder="Phone">
+
+    <label id="model-label">Bike model</label>
+    <div class="listbox" role="listbox" aria-labelledby="model-label">
+      <div>Northwind Trail 29</div>
+      <div>Northwind City 7</div>
+      <div>Northwind Kids 20</div>
+    </div>
+    <p id="listbox-value"></p>
+
+    <label id="date-label">Delivery date</label>
+    <div class="datepicker" aria-labelledby="date-label">
+      <div class="day">1</div><div class="day">2</div><div class="day">3</div><div class="day">4</div><div class="day">5</div><div class="day">6</div><div class="day">7</div>
+      <div class="day">8</div><div class="day">9</div><div class="day">10</div><div class="day">11</div><div class="day">12</div><div class="day">13</div><div class="day">14</div>
+    </div>
+    <p id="date-value"></p>
+
+    <label id="qty-label">Quantity</label>
+    <div class="slider" role="slider" aria-labelledby="qty-label"><div class="thumb"></div></div>
+
+    <label for="notes">Notes</label>
+    <textarea id="notes" name="notes" rows="3"></textarea>
+
+    <div class="icon-row">
+      <button type="button" id="save-btn"><svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H5V5h10v4z"/></svg></button>
+      <button type="submit">Submit order</button>
+    </div>
+  </form>
+  <p id="status" role="status"></p>
+</main>
+<footer>
+  <p>Northwind Bikes is a fictional company used as a test fixture.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

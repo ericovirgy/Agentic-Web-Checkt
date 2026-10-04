@@ -1,0 +1,1574 @@
+{
+  "meta": {
+    "tool": "agentic-web-check",
+    "version": "0.1.0",
+    "methodology": "1",
+    "schema": "1",
+    "mode": "behavioural",
+    "startedAt": "2026-10-04T21:23:22.285Z",
+    "finishedAt": "2026-10-04T21:23:35.664Z",
+    "durationMs": 13379,
+    "url": "http://127.0.0.1:4311/",
+    "browser": {
+      "name": "chromium",
+      "version": "141.0.7390.37",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 AgenticWebCheck/0.1.0"
+    },
+    "options": {
+      "pages": 3,
+      "timeoutMs": 30000,
+      "agent": "baseline",
+      "model": null,
+      "tasks": 3,
+      "allowForms": false,
+      "allowConsequential": false
+    },
+    "node": "v22.22.0"
+  },
+  "overall": 99,
+  "dimensions": [
+    {
+      "dimension": "perception",
+      "label": "PERCEPTION",
+      "score": 100,
+      "weight": 14,
+      "checks": [
+        "control-accessible-name",
+        "fake-interactive-elements",
+        "aria-validity",
+        "ambiguous-control-names",
+        "label-in-name",
+        "document-title-lang",
+        "heading-structure",
+        "image-alt",
+        "snapshot-budget"
+      ],
+      "passed": 9,
+      "warned": 0,
+      "failed": 0
+    },
+    {
+      "dimension": "navigation",
+      "label": "NAVIGATION",
+      "score": 98,
+      "weight": 10.5,
+      "checks": [
+        "landmarks",
+        "navigation-links-usable",
+        "hover-only-menus",
+        "key-pages-discoverable",
+        "search-available",
+        "sitemap",
+        "breadcrumbs"
+      ],
+      "passed": 6,
+      "warned": 1,
+      "failed": 0
+    },
+    {
+      "dimension": "interaction",
+      "label": "INTERACTION",
+      "score": 100,
+      "weight": 14,
+      "checks": [
+        "form-fields-labelled",
+        "overlay-interference",
+        "native-controls",
+        "required-fields-marked",
+        "keyboard-operability",
+        "cross-origin-iframe-controls",
+        "closed-shadow-roots",
+        "canvas-only-ui",
+        "target-size"
+      ],
+      "passed": 9,
+      "warned": 0,
+      "failed": 0
+    },
+    {
+      "dimension": "machine-interfaces",
+      "label": "MACHINE INTERFACES",
+      "score": 100,
+      "weight": 7,
+      "checks": [
+        "robots-agent-access",
+        "server-rendered-content",
+        "structured-data",
+        "llms-txt",
+        "webmcp",
+        "agent-manifests"
+      ],
+      "passed": 4,
+      "warned": 0,
+      "failed": 0
+    },
+    {
+      "dimension": "reliability",
+      "label": "RELIABILITY",
+      "score": 95,
+      "weight": 10.5,
+      "checks": [
+        "page-load",
+        "challenge-or-bot-wall",
+        "dom-stability",
+        "network-settles",
+        "console-errors"
+      ],
+      "passed": 4,
+      "warned": 1,
+      "failed": 0
+    },
+    {
+      "dimension": "safety",
+      "label": "SAFETY",
+      "score": 100,
+      "weight": 14,
+      "checks": [
+        "hidden-instructions",
+        "consequential-actions-guarded",
+        "forms-safe-transport",
+        "webmcp-tool-annotations",
+        "auth-boundary-signalled",
+        "exposed-secrets",
+        "download-and-popup-links"
+      ],
+      "passed": 3,
+      "warned": 0,
+      "failed": 0
+    },
+    {
+      "dimension": "task-success",
+      "label": "TASK SUCCESS",
+      "score": 100,
+      "weight": 30,
+      "checks": [
+        "task:contact",
+        "task:legal-policy",
+        "task:help-or-about"
+      ],
+      "passed": 3,
+      "warned": 0,
+      "failed": 0
+    }
+  ],
+  "checks": [
+    {
+      "id": "page-load",
+      "title": "Page loads successfully",
+      "dimension": "reliability",
+      "weight": 10,
+      "status": "pass",
+      "score": 1,
+      "summary": "HTTP 200 in 564 ms.",
+      "rationale": "Prerequisite for everything else: a 2xx response and a load event within the budget.",
+      "references": [
+        "HTTP semantics (RFC 9110)"
+      ],
+      "remediation": "Fix the HTTP error or slow load; make the page reach load within the timeout.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/",
+          "observed": "HTTP 200, load 564 ms",
+          "expected": "2xx within 10 s"
+        }
+      ],
+      "metrics": {
+        "status": 200,
+        "loadMs": 564
+      },
+      "pages": [
+        "http://127.0.0.1:4311/"
+      ],
+      "durationMs": 1
+    },
+    {
+      "id": "challenge-or-bot-wall",
+      "title": "No bot challenge blocks automated browsers",
+      "dimension": "reliability",
+      "weight": 10,
+      "status": "pass",
+      "score": 1,
+      "summary": "No bot challenge detected.",
+      "rationale": "Access errors, CAPTCHAs and loading failures are the largest failure class for agents on live sites (Online-Mind2Web: 51%). A challenge page is a hard stop for every agent.",
+      "references": [
+        "WCAG 2.2 SC 3.3.8 Accessible Authentication",
+        "Online-Mind2Web error analysis",
+        "Web Bot Auth drafts (research/02 §14)"
+      ],
+      "remediation": "Exempt well-behaved agents (honest UA, Web Bot Auth signatures) from challenges on public pages, or serve a machine-readable alternative.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/",
+          "observed": "browser: HTTP 200, no challenge markers",
+          "expected": "page content"
+        },
+        {
+          "url": "http://127.0.0.1:4311/",
+          "observed": "plain fetch: HTTP 200",
+          "expected": "same content as the browser",
+          "note": "UA-parity probe with the tool's own user agent"
+        }
+      ],
+      "metrics": {
+        "browserChallenge": false,
+        "fetchChallenge": false
+      },
+      "pages": [
+        "http://127.0.0.1:4311/"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "dom-stability",
+      "title": "The DOM settles after load",
+      "dimension": "reliability",
+      "weight": 7,
+      "status": "pass",
+      "score": 1,
+      "summary": "Worst page: 0 late mutations, CLS 0.",
+      "rationale": "Agents act on a snapshot; if the DOM keeps mutating or shifting, refs go stale and clicks land on moved elements (documented for Playwright MCP and agent-browser).",
+      "references": [
+        "Playwright MCP stale-ref semantics",
+        "Lighthouse cumulative-layout-shift in Agentic Browsing",
+        "INFERENCE thresholds: 50/300 mutations in 2 s, CLS 0.1/0.25"
+      ],
+      "remediation": "Finish rendering before load, avoid late-inserted banners/ads, reserve space for async content, stop polling updates when idle.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/",
+          "observed": "0 mutations in the 2 s after settle, CLS 0",
+          "expected": "< 50 mutations, CLS < 0.1"
+        },
+        {
+          "url": "http://127.0.0.1:4311/search.html",
+          "observed": "0 mutations in the 2 s after settle, CLS 0",
+          "expected": "< 50 mutations, CLS < 0.1"
+        },
+        {
+          "url": "http://127.0.0.1:4311/contact.html",
+          "observed": "0 mutations in the 2 s after settle, CLS 0",
+          "expected": "< 50 mutations, CLS < 0.1"
+        }
+      ],
+      "metrics": {
+        "maxLateMutations": 0,
+        "maxCls": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "network-settles",
+      "title": "Network activity settles",
+      "dimension": "reliability",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "Network idle reached on all pages.",
+      "rationale": "Agent harnesses wait for network idle; pages that never go idle (polling, SSE, WebSockets) hang or time out those waits.",
+      "references": [
+        "agent-browser README: networkidle hangs on SSE/WebSockets",
+        "Playwright waitForLoadState(\"networkidle\")"
+      ],
+      "remediation": "Defer long-polling/streaming connections until after first interaction, or keep them off the initial load.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/",
+          "observed": "network idle reached",
+          "expected": "idle within 10 s"
+        },
+        {
+          "url": "http://127.0.0.1:4311/search.html",
+          "observed": "network idle reached",
+          "expected": "idle within 10 s"
+        },
+        {
+          "url": "http://127.0.0.1:4311/contact.html",
+          "observed": "network idle reached",
+          "expected": "idle within 10 s"
+        }
+      ],
+      "metrics": {
+        "pagesNotIdle": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "console-errors",
+      "title": "No runtime errors during load",
+      "dimension": "reliability",
+      "weight": 3,
+      "status": "warn",
+      "score": 0.5,
+      "summary": "1 runtime errors or failed scripts.",
+      "rationale": "Uncaught exceptions and failed script loads correlate with controls that do nothing when activated (INFERENCE).",
+      "references": [
+        "Lighthouse errors-in-console"
+      ],
+      "remediation": "Fix uncaught exceptions and failed script requests reported during load.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/",
+          "observed": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+          "expected": "no uncaught errors"
+        }
+      ],
+      "metrics": {
+        "errors": 1
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "control-accessible-name",
+      "title": "Interactive controls have accessible names",
+      "dimension": "perception",
+      "weight": 10,
+      "status": "pass",
+      "score": 1,
+      "summary": "0 of 58 interactive controls (0%) have no accessible name.",
+      "rationale": "Accessibility-tree agents (Playwright MCP, Chrome DevTools MCP, agent-browser) select controls by role and accessible name; an unnamed control is unselectable and grounding errors are a top failure cause in WebVoyager/Online-Mind2Web.",
+      "references": [
+        "WCAG 2.2 SC 4.1.2 Name, Role, Value",
+        "Lighthouse agent-accessibility-tree (button-name, link-name, label, select-name)"
+      ],
+      "remediation": "Give every button, link and form control a visible text label or an aria-label/aria-labelledby. For icon buttons use aria-label; for inputs use <label for>.",
+      "evidence": [],
+      "metrics": {
+        "interactive": 58,
+        "unnamed": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 1
+    },
+    {
+      "id": "fake-interactive-elements",
+      "title": "Clickable elements are real controls, not generic elements",
+      "dimension": "perception",
+      "weight": 7,
+      "status": "pass",
+      "score": 1,
+      "summary": "All clickable elements expose a control role.",
+      "rationale": "A div/span with a click handler appears in the accessibility tree as \"generic\" (at best with cursor=pointer). Tree-based agents list controls by role, so such elements are invisible or ambiguous to them.",
+      "references": [
+        "WCAG 2.2 SC 4.1.2",
+        "Playwright aria snapshot [cursor=pointer] marker",
+        "agent-browser interactive-role filter"
+      ],
+      "remediation": "Use <button> or <a href> for actions and navigation. If a custom element must stay, add role=\"button\", tabindex=\"0\", a name and keyboard handlers.",
+      "evidence": [],
+      "metrics": {
+        "semanticControls": 58,
+        "nonSemanticClickables": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "aria-validity",
+      "title": "ARIA attributes and roles are valid",
+      "dimension": "perception",
+      "weight": 7,
+      "status": "pass",
+      "score": 1,
+      "summary": "No ARIA validity violations.",
+      "rationale": "Invalid ARIA produces a misleading tree: wrong roles, missing required children, hidden-but-focusable nodes. Lighthouse's agent tree audit fails on these rules.",
+      "references": [
+        "WCAG 2.2 SC 4.1.2",
+        "axe-core aria-* rules",
+        "Lighthouse agent-accessibility-tree"
+      ],
+      "remediation": "Fix the reported ARIA usage: valid roles, required attributes/children, no aria-hidden on focusable content.",
+      "evidence": [],
+      "metrics": {
+        "violations": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "ambiguous-control-names",
+      "title": "Control names are specific, not repeated or generic",
+      "dimension": "perception",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "Control names are specific.",
+      "rationale": "Several links named \"Read more\" leading to different pages, or buttons all named \"Submit\", force an agent to guess; benchmarks attribute many wrong clicks to such ambiguity.",
+      "references": [
+        "WCAG 2.2 SC 2.4.4 Link Purpose (In Context)",
+        "WCAG 2.2 SC 2.4.9 Link Purpose (Link Only)"
+      ],
+      "remediation": "Make link and button text describe the destination or action (\"Read the return policy\", \"Add Trail Bike to cart\"). Avoid \"Click here\"/\"Read more\"; use aria-label to disambiguate when visual text must stay short.",
+      "evidence": [],
+      "metrics": {
+        "controls": 53,
+        "generic": 0,
+        "duplicateNames": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "label-in-name",
+      "title": "Visible labels are part of accessible names",
+      "dimension": "perception",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "Visible labels match accessible names.",
+      "rationale": "Vision-based agents read the visible label and tree-based agents read the accessible name; when they differ, agents fail to agree on which control to use.",
+      "references": [
+        "WCAG 2.2 SC 2.5.3 Label in Name",
+        "axe-core label-content-name-mismatch"
+      ],
+      "remediation": "Ensure the accessible name (aria-label) contains the visible text of the control.",
+      "evidence": [],
+      "metrics": {
+        "mismatches": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "document-title-lang",
+      "title": "Pages have a descriptive title and a language",
+      "dimension": "perception",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "Titles and language are set.",
+      "rationale": "Agents use the title to confirm navigation succeeded and the language to interpret content; generic titles (\"Home\") make URL/title-based verification unreliable.",
+      "references": [
+        "WCAG 2.2 SC 2.4.2 Page Titled",
+        "WCAG 2.2 SC 3.1.1 Language of Page",
+        "Lighthouse document-title, html-has-lang"
+      ],
+      "remediation": "Set a unique, descriptive <title> per page (\"Return policy – Northwind Bikes\") and <html lang=\"…\">.",
+      "evidence": [],
+      "metrics": {
+        "problems": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "heading-structure",
+      "title": "Headings form a usable outline",
+      "dimension": "perception",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "Heading outline is sound.",
+      "rationale": "Agents and screen readers navigate by headings; a missing h1 or skipped levels hide the page structure.",
+      "references": [
+        "WCAG 2.2 SC 2.4.6 Headings and Labels",
+        "WCAG 2.2 SC 1.3.1",
+        "axe-core page-has-heading-one, heading-order, empty-heading"
+      ],
+      "remediation": "One h1 per page naming the page; nest h2/h3 without skipping levels; no empty headings.",
+      "evidence": [],
+      "metrics": {
+        "problems": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 1
+    },
+    {
+      "id": "image-alt",
+      "title": "Images carry alternative text",
+      "dimension": "perception",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "Images have alternative text.",
+      "rationale": "Tree-based agents only know an image by its alt text; images inside links/buttons without alt leave the control unnamed.",
+      "references": [
+        "WCAG 2.2 SC 1.1.1 Non-text Content",
+        "Lighthouse image-alt"
+      ],
+      "remediation": "Add alt text to informative images (alt=\"\" for decorative ones); name SVG icons with aria-label or <title>.",
+      "evidence": [],
+      "metrics": {
+        "missingAlt": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "snapshot-budget",
+      "title": "Accessibility snapshot fits an agent context budget",
+      "dimension": "perception",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "Largest snapshot: 3,645 chars.",
+      "rationale": "Agent harnesses truncate or reject very large accessibility trees; pages above roughly 10k tokens are partially invisible to the agent.",
+      "references": [
+        "Playwright MCP / agent-browser snapshot filtering docs",
+        "INFERENCE: thresholds 40k/100k chars"
+      ],
+      "remediation": "Reduce DOM size on key pages: paginate long lists, lazy-render off-screen sections, remove duplicated hidden menus.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/",
+          "observed": "3645 chars, 67 nodes",
+          "expected": "< 40,000 chars"
+        },
+        {
+          "url": "http://127.0.0.1:4311/search.html",
+          "observed": "2259 chars, 44 nodes",
+          "expected": "< 40,000 chars"
+        },
+        {
+          "url": "http://127.0.0.1:4311/contact.html",
+          "observed": "3527 chars, 69 nodes",
+          "expected": "< 40,000 chars"
+        }
+      ],
+      "metrics": {
+        "maxSnapshotChars": 3645
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 33
+    },
+    {
+      "id": "landmarks",
+      "title": "Page regions are exposed as landmarks",
+      "dimension": "navigation",
+      "weight": 7,
+      "status": "pass",
+      "score": 1,
+      "summary": "Main and navigation landmarks present.",
+      "rationale": "A single main landmark and a navigation landmark let an agent skip chrome and find content; agent snapshots group nodes by landmark.",
+      "references": [
+        "WCAG 2.2 SC 1.3.1 Info and Relationships",
+        "WCAG 2.2 SC 2.4.1 Bypass Blocks",
+        "axe-core landmark-one-main, bypass, region"
+      ],
+      "remediation": "Wrap primary content in <main>, site navigation in <nav aria-label=\"…\">, and header/footer in <header>/<footer>.",
+      "evidence": [],
+      "metrics": {
+        "problems": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 1
+    },
+    {
+      "id": "navigation-links-usable",
+      "title": "Navigation links are named and resolvable",
+      "dimension": "navigation",
+      "weight": 7,
+      "status": "pass",
+      "score": 1,
+      "summary": "30 navigation links are named and resolvable.",
+      "rationale": "Agents prefer navigating by following named links or by URL; nav links with href=\"#\" or javascript: cannot be followed by URL and unnamed ones cannot be chosen.",
+      "references": [
+        "WCAG 2.2 SC 2.4.4 Link Purpose",
+        "WebVoyager error analysis: navigation stuck 44%"
+      ],
+      "remediation": "Use real URLs in href for navigation items; name every nav link; if JavaScript handles navigation, keep a working href as fallback.",
+      "evidence": [],
+      "metrics": {
+        "navLinks": 30,
+        "bad": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "hover-only-menus",
+      "title": "Menus do not depend on hover",
+      "dimension": "navigation",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "No hover-only navigation detected.",
+      "rationale": "Hover-revealed submenus are absent from the accessibility snapshot until a pointer hovers; text-first agents never see them (INFERENCE heuristic: nav links in the DOM but not in the snapshot, with no toggle button).",
+      "references": [
+        "WCAG 2.2 SC 1.4.13 Content on Hover or Focus",
+        "Agent tooling docs: hover-only menus listed as a failure mode"
+      ],
+      "remediation": "Expose submenus through a <button aria-expanded> toggle, or render submenu links in the page (footer sitemap) so they are reachable without hover.",
+      "evidence": [],
+      "metrics": {
+        "hoverOnlyLinks": 0,
+        "hiddenButTogglable": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "key-pages-discoverable",
+      "title": "Common destinations are discoverable from the start page",
+      "dimension": "navigation",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "Found contact, about, privacy, terms, search; missing help.",
+      "rationale": "The most common agent goals on a site (contact, help, policies, search, pricing) should be reachable through recognisably named links from the entry page.",
+      "references": [
+        "Benchmark task archetypes (WebVoyager, Mind2Web): find contact/policy/help pages"
+      ],
+      "remediation": "Link contact, help/FAQ, privacy/terms, and search from the header or footer with their conventional names.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/",
+          "observed": "discoverable: contact, about, privacy, terms, search",
+          "expected": "contact, help, privacy/terms, about, search"
+        }
+      ],
+      "metrics": {
+        "found": 5,
+        "missing": 1
+      },
+      "pages": [
+        "http://127.0.0.1:4311/"
+      ],
+      "durationMs": 1
+    },
+    {
+      "id": "search-available",
+      "title": "Site search is exposed",
+      "dimension": "navigation",
+      "weight": 1,
+      "status": "pass",
+      "score": 1,
+      "summary": "Search exposed via SearchAction.",
+      "rationale": "A labelled search box (or a schema.org SearchAction) is the fastest route for an agent to locate content on larger sites.",
+      "references": [
+        "ARIA search landmark",
+        "schema.org WebSite potentialAction SearchAction"
+      ],
+      "remediation": "Expose search as <form role=\"search\"> with a labelled <input type=\"search\">, and declare a SearchAction in WebSite JSON-LD.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/",
+          "observed": "search available",
+          "expected": "role=search form or SearchAction"
+        }
+      ],
+      "metrics": {
+        "searchAction": true,
+        "searchbox": false,
+        "landmark": false
+      },
+      "pages": [
+        "http://127.0.0.1:4311/"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "sitemap",
+      "title": "A sitemap is published",
+      "dimension": "navigation",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "Sitemap found (declared in robots.txt).",
+      "rationale": "Crawling agents discover pages through sitemap.xml; it is the cheapest structural map of a site.",
+      "references": [
+        "sitemaps.org protocol",
+        "RFC 9309 Sitemap directive"
+      ],
+      "remediation": "Publish /sitemap.xml and reference it with a Sitemap: line in robots.txt.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/sitemap.xml",
+          "observed": "HTTP 200, robots.txt Sitemap: present",
+          "expected": "urlset/sitemapindex XML"
+        }
+      ],
+      "metrics": {
+        "status": 200,
+        "robotsDirective": true
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "breadcrumbs",
+      "title": "Inner pages expose breadcrumbs",
+      "dimension": "navigation",
+      "weight": 1,
+      "status": "warn",
+      "score": 0.5,
+      "summary": "0 of 2 inner pages have breadcrumbs.",
+      "rationale": "Breadcrumbs tell an agent where it is in the hierarchy and how to go up; schema.org BreadcrumbList does the same for fetch-based agents.",
+      "references": [
+        "WCAG 2.2 SC 2.4.8 Location",
+        "schema.org BreadcrumbList"
+      ],
+      "remediation": "Add <nav aria-label=\"Breadcrumb\"> with links on inner pages and BreadcrumbList JSON-LD.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/search.html",
+          "observed": "no breadcrumbs",
+          "expected": "breadcrumb navigation"
+        },
+        {
+          "url": "http://127.0.0.1:4311/contact.html",
+          "observed": "no breadcrumbs",
+          "expected": "breadcrumb navigation"
+        }
+      ],
+      "metrics": {
+        "innerPages": 2,
+        "withBreadcrumbs": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "form-fields-labelled",
+      "title": "Form fields have labels and names",
+      "dimension": "interaction",
+      "weight": 10,
+      "status": "pass",
+      "score": 1,
+      "summary": "5 form fields are labelled and named.",
+      "rationale": "Agents fill forms by matching field labels to the data they hold; unlabelled fields force guessing and write tasks already succeed far less often than read tasks in benchmarks.",
+      "references": [
+        "WCAG 2.2 SC 3.3.2 Labels or Instructions",
+        "WCAG 2.2 SC 4.1.2",
+        "Lighthouse label, select-name",
+        "Web Bench: write tasks 46.6% vs read >70%"
+      ],
+      "remediation": "Associate every input/select/textarea with a <label for>, give fields a name attribute, and use autocomplete tokens for common data.",
+      "evidence": [],
+      "metrics": {
+        "fields": 5,
+        "labelViolations": 0,
+        "unnamedFields": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "overlay-interference",
+      "title": "No overlay blocks the page at load",
+      "dimension": "interaction",
+      "weight": 10,
+      "status": "pass",
+      "score": 1,
+      "summary": "No blocking overlays at load.",
+      "rationale": "Consent banners and modals intercept clicks; agents whose click lands on the overlay loop or fail. A dismiss control with a clear name is the minimum for recovery.",
+      "references": [
+        "agent-browser README: clicks fail under consent banners",
+        "BrowserArena / GUI-Robust: pop-up and cookie-consent anomalies"
+      ],
+      "remediation": "Avoid full-page overlays at load; if a consent dialog is required, make it a role=\"dialog\" with a clearly named Accept/Reject button and let the rest of the page work beneath it.",
+      "evidence": [],
+      "metrics": {
+        "blocking": 0,
+        "dismissable": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 1
+    },
+    {
+      "id": "native-controls",
+      "title": "Controls are native or complete ARIA widgets",
+      "dimension": "interaction",
+      "weight": 7,
+      "status": "pass",
+      "score": 1,
+      "summary": "No custom-only widgets detected.",
+      "rationale": "Custom sliders, date pickers, drag-and-drop and div-based dropdowns are the controls agents fail on most (WILBUR, WebGames); native inputs are operable through standard actions.",
+      "references": [
+        "WAI-ARIA Authoring Practices",
+        "WebGames / WILBUR failure analyses: sliders, date pickers, drag-drop"
+      ],
+      "remediation": "Prefer native <select>, <input type=\"date|range|number\">; when custom widgets are unavoidable, implement the full ARIA pattern (roles, states such as aria-valuenow/aria-expanded, keyboard support).",
+      "evidence": [],
+      "metrics": {
+        "customWidgets": 0,
+        "draggables": 0,
+        "interactive": 58
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "required-fields-marked",
+      "title": "Required fields are marked programmatically",
+      "dimension": "interaction",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "Required fields are marked programmatically.",
+      "rationale": "An asterisk in the label is invisible to tree agents; required/aria-required tells them which fields must be filled before submitting.",
+      "references": [
+        "WCAG 2.2 SC 3.3.2 Labels or Instructions"
+      ],
+      "remediation": "Add the required attribute (or aria-required=\"true\") to mandatory fields.",
+      "evidence": [],
+      "metrics": {
+        "forms": 2,
+        "unmarkedRequired": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "keyboard-operability",
+      "title": "Controls are keyboard operable",
+      "dimension": "interaction",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "No keyboard operability problems detected.",
+      "rationale": "Agents press keys to submit forms and operate menus; positive tabindex and unfocusable controls break that sequence.",
+      "references": [
+        "WCAG 2.2 SC 2.1.1 Keyboard",
+        "Lighthouse tabindex"
+      ],
+      "remediation": "Remove positive tabindex values; make custom controls focusable with tabindex=\"0\" and handle Enter/Space.",
+      "evidence": [],
+      "metrics": {
+        "problems": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "cross-origin-iframe-controls",
+      "title": "Controls are not confined to cross-origin iframes",
+      "dimension": "interaction",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "No controls confined to cross-origin iframes.",
+      "rationale": "Several agents cannot act inside cross-origin iframes (documented for Comet; refs are frame-scoped in Playwright), so controls there are unreachable.",
+      "references": [
+        "Research/01 §13: Comet cannot act in cross-origin iframes",
+        "Playwright aria-ref frame prefix semantics"
+      ],
+      "remediation": "Keep primary actions (search, checkout, contact) in the top document; if an embedded widget is required, offer an equivalent same-origin path.",
+      "evidence": [],
+      "metrics": {
+        "controlsInCrossOriginFrames": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "closed-shadow-roots",
+      "title": "No controls hidden in closed shadow roots",
+      "dimension": "interaction",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "No closed shadow roots.",
+      "rationale": "Closed shadow roots are not traversable by DOM-based agents; some tree agents cannot act on their content.",
+      "references": [
+        "Research/01 §14: closed shadow DOM failure mode",
+        "DOM Standard: attachShadow mode"
+      ],
+      "remediation": "Use open shadow roots for components that contain controls.",
+      "evidence": [],
+      "metrics": {
+        "closedShadowRoots": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "canvas-only-ui",
+      "title": "The UI is not rendered only on canvas",
+      "dimension": "interaction",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "No canvas-only UI.",
+      "rationale": "Canvas/WebGL interfaces expose no accessibility tree, so tree-based agents see nothing to act on.",
+      "references": [
+        "Research/01 §14: canvas/SVG without text",
+        "WCAG 2.2 SC 1.1.1"
+      ],
+      "remediation": "Provide DOM equivalents (fallback content, ARIA, or a parallel HTML UI) for canvas-rendered controls.",
+      "evidence": [],
+      "metrics": {
+        "maxCanvasCoverage": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "target-size",
+      "title": "Targets are large enough",
+      "dimension": "interaction",
+      "weight": 1,
+      "status": "pass",
+      "score": 1,
+      "summary": "Targets meet the minimum size.",
+      "rationale": "Vision-based agents (screenshot + coordinates) miss tiny targets; documented in computer-use guidance.",
+      "references": [
+        "WCAG 2.2 SC 2.5.8 Target Size (Minimum)",
+        "axe-core target-size"
+      ],
+      "remediation": "Make interactive targets at least 24×24 CSS px with spacing.",
+      "evidence": [],
+      "metrics": {
+        "undersized": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "robots-agent-access",
+      "title": "robots.txt lets user-triggered agents fetch the page",
+      "dimension": "machine-interfaces",
+      "weight": 7,
+      "status": "pass",
+      "score": 1,
+      "summary": "User-triggered agents may fetch this page.",
+      "rationale": "User-triggered agent fetchers (ChatGPT-User, Claude-User, search bots) honour robots.txt; disallowing them makes the site unusable to those agents regardless of its UI. Training crawler policy is a separate owner choice and is reported as info.",
+      "references": [
+        "RFC 9309 Robots Exclusion Protocol",
+        "OpenAI/Anthropic/Perplexity crawler documentation (research/02 §12)",
+        "Cloudflare Content-Signal robots.txt extension"
+      ],
+      "remediation": "Allow the user-triggered agent tokens (or at least * for public pages). Keep training-crawler rules separate: User-agent: GPTBot / ClaudeBot groups.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/robots.txt",
+          "observed": "* allowed for /",
+          "expected": "allowed"
+        },
+        {
+          "observed": "user-triggered agents blocked: none",
+          "expected": "none blocked"
+        },
+        {
+          "observed": "training crawlers blocked: none",
+          "note": "informational: training policy is the owner's choice"
+        }
+      ],
+      "metrics": {
+        "present": true,
+        "starAllowed": true,
+        "blockedUserAgents": 0,
+        "blockedTrainers": 0,
+        "contentSignal": ""
+      },
+      "durationMs": 1
+    },
+    {
+      "id": "server-rendered-content",
+      "title": "Content is available without executing JavaScript",
+      "dimension": "machine-interfaces",
+      "weight": 7,
+      "status": "pass",
+      "score": 1,
+      "summary": "100% of rendered text is present without JavaScript.",
+      "rationale": "Fetch-based agents and most AI crawlers read the HTML response without running scripts (INFERENCE from vendor documentation); a client-only app is empty to them.",
+      "references": [
+        "Vendor crawler documentation (research/02)",
+        "Lighthouse agentic-browsing rationale"
+      ],
+      "remediation": "Server-render or pre-render the primary content; keep key text, links and forms in the initial HTML.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/",
+          "observed": "623 chars of text in raw HTML vs 597 rendered (104%)",
+          "expected": "≥ 50% of the rendered text present in HTML"
+        }
+      ],
+      "metrics": {
+        "rawTextChars": 623,
+        "renderedTextChars": 597,
+        "ratio": 1.04
+      },
+      "pages": [
+        "http://127.0.0.1:4311/"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "structured-data",
+      "title": "Structured data (JSON-LD) describes the page",
+      "dimension": "machine-interfaces",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "3 JSON-LD blocks (0 invalid), relevant types: Organization, ContactPoint, WebSite, SearchAction.",
+      "rationale": "schema.org JSON-LD gives fetch-based agents entities (organisation, products, offers, contact points, FAQs) without parsing the layout.",
+      "references": [
+        "schema.org",
+        "Google structured data guidelines"
+      ],
+      "remediation": "Add JSON-LD for Organization/WebSite on the home page and Product/Offer, FAQPage, ContactPoint or BreadcrumbList on inner pages.",
+      "evidence": [
+        {
+          "observed": "types: Organization, PostalAddress, ContactPoint, WebSite, SearchAction, EntryPoint",
+          "expected": "Organization, WebSite, WebPage, Product, Offer, FAQPage"
+        }
+      ],
+      "metrics": {
+        "blocks": 3,
+        "invalid": 0,
+        "relevantTypes": 4
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 1
+    },
+    {
+      "id": "llms-txt",
+      "title": "llms.txt is published and well-formed",
+      "dimension": "machine-interfaces",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "llms.txt published with 8 links (agent usage not verified).",
+      "rationale": "llms.txt is a proposed index of a site for language models. Publication is cheap and checked by Lighthouse; actual consumption by agents is UNVERIFIED (Ahrefs: 97% of files get no requests), hence the low weight.",
+      "references": [
+        "llmstxt.org specification",
+        "Lighthouse llms-txt audit",
+        "research/02 §10 adoption evidence"
+      ],
+      "remediation": "Publish /llms.txt with an H1, a one-paragraph blockquote and H2 sections of markdown links to the most useful pages.",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/llms.txt",
+          "observed": "H1: true, links: 8, 741 bytes",
+          "expected": "H1 + markdown link list"
+        }
+      ],
+      "metrics": {
+        "present": true,
+        "h1": true,
+        "links": 8
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "webmcp",
+      "title": "WebMCP tools are exposed",
+      "dimension": "machine-interfaces",
+      "weight": 3,
+      "status": "info",
+      "summary": "No WebMCP tools detected.",
+      "rationale": "WebMCP (W3C WebML Community Group draft, Chrome origin trial) lets a page register typed tools for agents. It is early, so absence is informational; presence is a strong signal of agent intent.",
+      "references": [
+        "W3C WebML CG WebMCP explainer/spec (document.modelContext.registerTool, form[toolname])",
+        "Lighthouse webmcp-registered-tools / webmcp-form-coverage"
+      ],
+      "remediation": "Optional: register tools via document.modelContext.registerTool({ name, description, inputSchema, execute, annotations }) or annotate forms with toolname/tooldescription.",
+      "evidence": [
+        {
+          "observed": "no document.modelContext.registerTool calls, no form[toolname]",
+          "note": "WebMCP is an origin trial; absence is not penalised"
+        }
+      ],
+      "metrics": {
+        "tools": 0,
+        "declarativeForms": 0,
+        "polyfill": false
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "agent-manifests",
+      "title": "Agent manifests (agent-card, UCP, ARD) are published",
+      "dimension": "machine-interfaces",
+      "weight": 1,
+      "status": "info",
+      "summary": "No agent manifests (optional).",
+      "rationale": "Emerging discovery files: A2A agent-card.json, Universal Commerce Protocol /.well-known/ucp, Agentic Resource Discovery ai-catalog.json. All are early; presence is informational.",
+      "references": [
+        "A2A protocol agent card",
+        "UCP (Google/Shopify) /.well-known/ucp",
+        "Lighthouse ard-schema audit"
+      ],
+      "remediation": "Optional: publish the manifest relevant to your domain (commerce: UCP; agent services: A2A agent card).",
+      "evidence": [
+        {
+          "url": "http://127.0.0.1:4311/.well-known/agent-card.json",
+          "observed": "HTTP 404",
+          "expected": "optional JSON manifest"
+        },
+        {
+          "url": "http://127.0.0.1:4311/.well-known/ucp",
+          "observed": "HTTP 404",
+          "expected": "optional JSON manifest"
+        },
+        {
+          "url": "http://127.0.0.1:4311/ai-catalog.json",
+          "observed": "HTTP 404",
+          "expected": "optional JSON manifest"
+        }
+      ],
+      "metrics": {
+        "found": 0
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "hidden-instructions",
+      "title": "No hidden instructions aimed at AI agents",
+      "dimension": "safety",
+      "weight": 10,
+      "status": "pass",
+      "score": 1,
+      "summary": "No instruction-like hidden text (3 hidden blocks inspected).",
+      "rationale": "Indirect prompt injection through hidden page text is the top LLM application risk and has been demonstrated against browser agents (Brave/Comet). Text humans cannot see but agents receive is the attack surface.",
+      "references": [
+        "OWASP Top 10 for LLM Applications 2025: LLM01 Prompt Injection",
+        "Brave Research on Perplexity Comet (2025-08)",
+        "WebMCP untrustedContentHint"
+      ],
+      "remediation": "Remove hidden text that addresses AI systems; keep hidden content limited to layout helpers; do not place instructions in HTML comments or aria-hidden text.",
+      "evidence": [],
+      "metrics": {
+        "injectionHits": 0,
+        "hiddenBlocks": 3
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 2
+    },
+    {
+      "id": "consequential-actions-guarded",
+      "title": "Consequential actions require confirmation",
+      "dimension": "safety",
+      "weight": 7,
+      "status": "na",
+      "summary": "No consequential actions found on the scanned pages.",
+      "rationale": "Vendors converge on a taxonomy of actions that need human confirmation (purchase, pay, transfer, send, delete, cancel, grant). A site that executes them on a single click gives an agent no safe stopping point.",
+      "references": [
+        "OWASP LLM01 mitigation: human approval for high-risk operations",
+        "OpenAI Operator / Anthropic Claude for Chrome confirmation policies",
+        "WebMCP consequentialHint"
+      ],
+      "remediation": "Put consequential actions behind a confirmation dialog (aria-haspopup=\"dialog\" + <dialog>) or a review step; never auto-submit them.",
+      "evidence": [],
+      "durationMs": 0
+    },
+    {
+      "id": "forms-safe-transport",
+      "title": "Forms submit safely",
+      "dimension": "safety",
+      "weight": 7,
+      "status": "pass",
+      "score": 1,
+      "summary": "2 forms submit to the same origin over HTTPS.",
+      "rationale": "An agent filling a form that posts over plain HTTP or to a third-party origin leaks data it was trusted with.",
+      "references": [
+        "OWASP ASVS V3/V9 (transport)",
+        "HTML form action/method semantics"
+      ],
+      "remediation": "Serve pages over HTTPS, post forms to the same origin over HTTPS, and never send passwords with method=\"get\".",
+      "evidence": [],
+      "metrics": {
+        "forms": 2,
+        "problems": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "webmcp-tool-annotations",
+      "title": "WebMCP tools declare safety annotations",
+      "dimension": "safety",
+      "weight": 3,
+      "status": "na",
+      "summary": "No WebMCP tools.",
+      "rationale": "The WebMCP draft defines readOnlyHint, consequentialHint and untrustedContentHint so agents can ask for confirmation; a mutating tool without consequentialHint, or a declarative form with toolautosubmit on a consequential action, removes that safeguard.",
+      "references": [
+        "WebMCP spec: Security and Privacy considerations, ToolAnnotations",
+        "WebMCP declarative API toolautosubmit"
+      ],
+      "remediation": "Add annotations: { readOnlyHint: true } for read tools and { consequentialHint: true } for mutating tools; do not use toolautosubmit on consequential forms.",
+      "evidence": [],
+      "durationMs": 0
+    },
+    {
+      "id": "auth-boundary-signalled",
+      "title": "Authentication boundaries are clearly signalled",
+      "dimension": "safety",
+      "weight": 3,
+      "status": "na",
+      "summary": "No authentication forms on the scanned pages.",
+      "rationale": "Agents must recognise a login wall to stop and ask the user; an unlabelled password field or a credential input outside a form hides that boundary.",
+      "references": [
+        "GUI-Robust anomaly taxonomy: login page",
+        "WCAG 2.2 SC 3.3.8",
+        "HTML autocomplete tokens username/current-password"
+      ],
+      "remediation": "Place credentials in a <form> with labelled fields, autocomplete=\"username\"/\"current-password\", a named submit button and a heading such as \"Sign in\".",
+      "evidence": [],
+      "durationMs": 1
+    },
+    {
+      "id": "exposed-secrets",
+      "title": "No secret-looking tokens in page source",
+      "dimension": "safety",
+      "weight": 3,
+      "status": "pass",
+      "score": 1,
+      "summary": "No secret-looking tokens found.",
+      "rationale": "An agent that reads the page source can be led to use or leak embedded credentials; patterns for common providers are detected and redacted.",
+      "references": [
+        "OWASP LLM02:2025 Sensitive Information Disclosure",
+        "Common secret patterns (AWS, GitHub, Stripe, OpenAI, Anthropic, Slack, private keys)"
+      ],
+      "remediation": "Remove secrets from HTML and inline scripts; use server-side proxies or short-lived scoped tokens.",
+      "evidence": [],
+      "metrics": {
+        "hits": 0
+      },
+      "pages": [
+        "http://127.0.0.1:4311/",
+        "http://127.0.0.1:4311/search.html",
+        "http://127.0.0.1:4311/contact.html"
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "download-and-popup-links",
+      "title": "Downloads and new windows are announced",
+      "dimension": "safety",
+      "weight": 1,
+      "status": "na",
+      "summary": "No download or new-window links.",
+      "rationale": "Unexpected downloads and new windows break the single-tab model most browser agents run with; naming them lets the agent decide.",
+      "references": [
+        "agent-browser / Playwright MCP tab model",
+        "WCAG 2.2 G201 (advance warning for new windows)"
+      ],
+      "remediation": "Say \"(PDF)\", \"(download)\" or \"(opens in new tab)\" in the link text or aria-label.",
+      "evidence": [],
+      "durationMs": 0
+    }
+  ],
+  "tasks": [
+    {
+      "name": "contact",
+      "goal": "Find the company's contact information (an email address or phone number).",
+      "agent": "baseline",
+      "safety": "read-only",
+      "startUrl": "http://127.0.0.1:4311/",
+      "steps": [],
+      "screenshots": [
+        {
+          "label": "start",
+          "path": "/tmp/claude-0/out-excellent/screenshots/contact-start.png"
+        },
+        {
+          "label": "end",
+          "path": "/tmp/claude-0/out-excellent/screenshots/contact-end.png"
+        }
+      ],
+      "consoleErrors": [],
+      "verdict": "PASS",
+      "reason": "success criteria satisfied after 0 actions",
+      "finalUrl": "http://127.0.0.1:4311/",
+      "finalTitle": "Home | Northwind Bikes",
+      "assertions": [
+        {
+          "assertion": {
+            "any_of": [
+              {
+                "text": {
+                  "includes": "@"
+                }
+              },
+              {
+                "url": {
+                  "regex": "contact|contacto|support|kontakt"
+                }
+              },
+              {
+                "element": {
+                  "role": "link",
+                  "name": "mailto"
+                }
+              }
+            ]
+          },
+          "holds": true,
+          "observed": "text found | url=http://127.0.0.1:4311/ | no link named \"mailto\""
+        }
+      ],
+      "durationMs": 789
+    },
+    {
+      "name": "legal-policy",
+      "goal": "Find the page describing the privacy policy or terms of service.",
+      "agent": "baseline",
+      "safety": "read-only",
+      "startUrl": "http://127.0.0.1:4311/",
+      "steps": [
+        {
+          "index": 1,
+          "tool": "click",
+          "args": {
+            "ref": "e57"
+          },
+          "result": "clicked link \"Privacy policy\"",
+          "url": "http://127.0.0.1:4311/",
+          "durationMs": 76,
+          "snapshotBefore": "- generic [active] [ref=e1]:\n  - link \"Skip to main content\" [ref=e2] [cursor=pointer]:\n    - /url: \"#main\"\n  - banner [ref=e3]:\n    - link \"Northwind Bikes\" [ref=e4] [cursor=pointer]:\n      - /url: index.html\n    - navigation \"Main\" [ref=e5]:\n      - list [ref=e6]:\n        - listitem [ref=e7]:\n          - link \"Home\" [ref=e8] [cursor=pointer]:\n            - /url: index.html\n        - listitem [ref=e9]:\n          - link \"Products\" [ref=e10] [cursor=pointer]:\n            - /url: products.html\n        - listitem [ref=e11]:\n          - link \"Search\" [ref=e12] [cursor=pointer]:\n            - /url: search.html\n        - listitem [ref=e13]:\n          - link \"Returns\" [ref=e14] [cursor=pointer]:\n            - /url: returns.html\n        - listitem [ref=e15]:\n          - link \"Contact\" [ref=e16] [cursor=pointer]:\n            - /url: contact.html\n        - listitem [ref=e17]:\n          - link \"Cart (0)\" [ref=e18] [cursor=pointer]:\n            - /url: cart.html\n        - listitem [ref=e19]:\n          - link \"Sign in\" [ref=e20] [cursor=pointer]:\n            - /url: login.html\n  - main [ref=e21]:\n    - heading \"Bikes built for every road\" [level=1] [ref=e22]\n    - paragraph [ref=e23]: Northwind Bikes is a small, fictional bike shop. We sell three models, ship within two working days and accept returns within 30 days.\n    - region [ref=e24]:\n      - heading \"Featured products\" [level=2] [ref=e25]\n      - list [ref=e26]:\n        - listitem [ref=e27]:\n          - img \"Northwind Trail 29\" [re\n… [truncated 2145 chars]",
+          "noFeedback": false
+        }
+      ],
+      "screenshots": [
+        {
+          "label": "start",
+          "path": "/tmp/claude-0/out-excellent/screenshots/legal-policy-start.png"
+        },
+        {
+          "label": "end",
+          "path": "/tmp/claude-0/out-excellent/screenshots/legal-policy-end.png"
+        }
+      ],
+      "consoleErrors": [],
+      "verdict": "PASS",
+      "reason": "success criteria satisfied after 1 actions",
+      "finalUrl": "http://127.0.0.1:4311/privacy.html",
+      "finalTitle": "Privacy policy | Northwind Bikes",
+      "assertions": [
+        {
+          "assertion": {
+            "any_of": [
+              {
+                "url": {
+                  "regex": "privacy|terms|legal|privacidade|termos"
+                }
+              },
+              {
+                "element": {
+                  "role": "heading",
+                  "name": "privacy"
+                }
+              },
+              {
+                "element": {
+                  "role": "heading",
+                  "name": "terms"
+                }
+              }
+            ]
+          },
+          "holds": true,
+          "observed": "url=http://127.0.0.1:4311/privacy.html | 1 matching heading | no heading named \"terms\""
+        }
+      ],
+      "durationMs": 1252
+    },
+    {
+      "name": "help-or-about",
+      "goal": "Find a page that explains what the company or product does (about, help or documentation).",
+      "agent": "baseline",
+      "safety": "read-only",
+      "startUrl": "http://127.0.0.1:4311/",
+      "steps": [],
+      "screenshots": [
+        {
+          "label": "start",
+          "path": "/tmp/claude-0/out-excellent/screenshots/help-or-about-start.png"
+        },
+        {
+          "label": "end",
+          "path": "/tmp/claude-0/out-excellent/screenshots/help-or-about-end.png"
+        }
+      ],
+      "consoleErrors": [],
+      "verdict": "PASS",
+      "reason": "success criteria satisfied after 0 actions",
+      "finalUrl": "http://127.0.0.1:4311/",
+      "finalTitle": "Home | Northwind Bikes",
+      "assertions": [
+        {
+          "assertion": {
+            "any_of": [
+              {
+                "url": {
+                  "regex": "about|help|docs|faq|support|sobre|ajuda"
+                }
+              },
+              {
+                "element": {
+                  "role": "heading",
+                  "name": "about"
+                }
+              },
+              {
+                "element": {
+                  "role": "heading",
+                  "name": "help"
+                }
+              },
+              {
+                "element": {
+                  "role": "heading",
+                  "name": "faq"
+                }
+              }
+            ]
+          },
+          "holds": true,
+          "observed": "url=http://127.0.0.1:4311/ | no heading named \"about\" | 1 matching heading | no heading named \"faq\""
+        }
+      ],
+      "durationMs": 747
+    }
+  ],
+  "pages": [
+    {
+      "url": "http://127.0.0.1:4311/",
+      "finalUrl": "http://127.0.0.1:4311/",
+      "status": 200,
+      "title": "Home | Northwind Bikes",
+      "loadMs": 564,
+      "interactiveCount": 21,
+      "snapshotChars": 3645,
+      "consoleErrors": 1
+    },
+    {
+      "url": "http://127.0.0.1:4311/search.html",
+      "finalUrl": "http://127.0.0.1:4311/search.html",
+      "status": 200,
+      "title": "Search | Northwind Bikes",
+      "loadMs": 526,
+      "interactiveCount": 16,
+      "snapshotChars": 2259,
+      "consoleErrors": 0
+    },
+    {
+      "url": "http://127.0.0.1:4311/contact.html",
+      "finalUrl": "http://127.0.0.1:4311/contact.html",
+      "status": 200,
+      "title": "Contact | Northwind Bikes",
+      "loadMs": 540,
+      "interactiveCount": 21,
+      "snapshotChars": 3527,
+      "consoleErrors": 0
+    }
+  ],
+  "suggestedFixes": [
+    {
+      "checkId": "console-errors",
+      "title": "No runtime errors during load",
+      "remediation": "Fix uncaught exceptions and failed script requests reported during load.",
+      "weight": 3
+    },
+    {
+      "checkId": "breadcrumbs",
+      "title": "Inner pages expose breadcrumbs",
+      "remediation": "Add <nav aria-label=\"Breadcrumb\"> with links on inner pages and BreadcrumbList JSON-LD.",
+      "weight": 1
+    }
+  ]
+}

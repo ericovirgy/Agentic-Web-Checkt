@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northwind Bikes - My account</title>
+<meta name="description" content="Account page; redirects to login unless localStorage.loggedIn is set.">
+<link rel="stylesheet" href="style.css">
+<script src="auth.js" defer></script>
+</head>
+<body data-requires-login="redirect">
+<header>
+  <a href="index.html"><strong>Northwind Bikes</strong></a>
+  <nav aria-label="Main">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="account.html">My account</a></li>
+      <li><a href="members.html">Members area</a></li>
+    </ul>
+  </nav>
+</header>
+<main id="main">
+  <h1>My account</h1>
+  <p>Signed in as <strong>member@northwind.example</strong> (synthetic account).</p>
+  <h2>Orders</h2>
+  <p>Order NW-1001: Northwind City 7, delivered.</p>
+  <button type="button" id="sign-out">Sign out</button>
+</main>
+<footer>
+  <p>Northwind Bikes is a fictional company used as a test fixture.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "name": "webmcp",
+  "description": "Northwind Bikes with WebMCP: two declarative tool forms (search_products, and place_order with toolautosubmit) on index.html and an inline script registering get_return_policy (readOnlyHint), delete_account (mutating, no consequentialHint) and add_to_cart (consequentialHint) via document.modelContext ?? navigator.modelContext at load time.",
+  "pages": [
+    "index.html", "products.html", "product-trail.html", "product-city.html", "product-kids.html",
+    "contact.html", "returns.html", "search.html", "order.html", "privacy.html", "terms.html", "about.html",
+    "login.html", "cart.html", "webmcp.js", "robots.txt", "sitemap.xml", "llms.txt"
+  ],
+  "expect": {
+    "webmcp": "pass",
+    "webmcp-tool-annotations": "fail",
+    "control-accessible-name": "pass",
+    "form-fields-labelled": "pass",
+    "landmarks": "pass",
+    "heading-structure": "pass",
+    "document-title-lang": "pass",
+    "structured-data": "pass",
+    "llms-txt": "pass",
+    "sitemap": "pass",
+    "robots-agent-access": "pass",
+    "hidden-instructions": "pass",
+    "exposed-secrets": "pass",
+    "forms-safe-transport": "pass"
+  },
+  "notes": {
+    "webmcp": "Expected tool list: declarative search_products, place_order; imperative get_return_policy, delete_account, add_to_cart. The imperative script is webmcp.js, loaded only on index.html, and executes synchronously at load (no event gating). <meta name=generator content=fixture> is present on every page.",
+    "webmcp-tool-annotations": "Two intentional defects: delete_account has a mutating name and no consequentialHint; place_order is a declarative form with toolautosubmit."
+  },
+  "tasks": [
+    {
+      "name": "find-return-window",
+      "goal": "Find out how many days customers have to return a bike.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        { "type": "text", "includes": "30 days" },
+        { "type": "answer", "must_include": ["30 days"] }
+      ]
+    }
+  ]
+}

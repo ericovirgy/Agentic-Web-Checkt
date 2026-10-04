@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in | Northwind Bikes</title>
+<meta name="description" content="Sign in to your Northwind Bikes account.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header>
+  <a class="brand" href="index.html">Northwind Bikes</a>
+  <nav aria-label="Main">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="search.html">Search</a></li>
+      <li><a href="returns.html">Returns</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="cart.html">Cart (<span id="cart-count" aria-live="polite">0</span>)</a></li>
+      <li><a href="login.html">Sign in</a></li>
+    </ul>
+  </nav>
+</header>
+<main id="main">
+<h1 id="login-heading">Sign in to your account</h1>
+<form id="login-form" action="login.html" method="post" aria-labelledby="login-heading">
+  <p><label for="username">Email address</label>
+    <input type="email" id="username" name="username" required autocomplete="username"></p>
+  <p><label for="password">Password</label>
+    <input type="password" id="password" name="password" required autocomplete="current-password"></p>
+  <p><input type="checkbox" id="remember" name="remember"> <label for="remember">Keep me signed in</label></p>
+  <button type="submit">Sign in</button>
+</form>
+<p><a href="login.html#forgot">Forgot your password?</a> · <a href="contact.html">Contact support</a></p>
+<p role="status" id="login-status"></p>
+</main>
+<footer>
+  <nav aria-label="Footer">
+    <ul>
+      <li><a href="privacy.html">Privacy policy</a></li>
+      <li><a href="terms.html">Terms of service</a></li>
+      <li><a href="about.html">About us</a></li>
+    </ul>
+  </nav>
+  <p>Northwind Bikes is a fictional company used as a test fixture. Email <a href="mailto:hello@northwind.example">hello@northwind.example</a> or call <a href="tel:+15550100199">+1 555 010 0199</a>.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

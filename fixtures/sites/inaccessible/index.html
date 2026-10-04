@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northwind Bikes - Home</title>
+<meta name="description" content="Visually fine but tree-hostile fixture page.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <a href="index.html"><strong>Northwind Bikes</strong></a>
+  <nav aria-label="Main" aria-hidden="true">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="form.html">Order form</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </nav>
+  <div class="icon-row">
+    <button type="button" onclick="openCart()"><svg viewBox="0 0 24 24"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM3 2v2h2l3.6 7.6L7.2 14A2 2 0 0 0 9 17h11v-2H9.4l1-2H18l3-7H6.2L5.3 2H3z"/></svg></button>
+    <button type="button" onclick="location.href='index.html'"><svg viewBox="0 0 24 24"><path d="M12 3 2 12h3v8h5v-6h4v6h5v-8h3L12 3z"/></svg></button>
+    <button type="button" onclick="history.back()"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8 1.5-1.5L10 12l6.5-6.5L15 4z"/></svg></button>
+  </div>
+</header>
+<main id="main">
+  <h1>Bikes built for every road</h1>
+  <p>Northwind Bikes is a fictional bike shop. We sell three models, ship within two working days and accept returns within 30 days.</p>
+  <div class="hero" role="img"></div>
+  <h2>Featured products</h2>
+  <div role="button" class="btn" onclick="location.href='form.html'">Order the Trail 29</div>
+  <div role="button" class="btn" onclick="location.href='form.html'">Order the City 7</div>
+  <div class="btn" onclick="location.href='form.html'">Order the Kids 20</div>
+  <h2 id="duplicate">Quick links</h2>
+  <p>
+    <a href="form.html" tabindex="3">Order form</a>
+    <a href="index.html#contact" tabindex="1">Contact details</a>
+    <a href="index.html#returns" tabindex="2">Returns</a>
+  </p>
+  <h2 id="contact">Contact</h2>
+  <p>Email <a href="mailto:hello@northwind.example">hello@northwind.example</a> or call +1 555 010 0199.</p>
+  <h2 id="duplicate">Returns</h2>
+  <p id="returns">Returns are accepted within 30 days.</p>
+  <p id="status" role="status"></p>
+</main>
+<footer>
+  <p>Northwind Bikes is a fictional company used as a test fixture.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

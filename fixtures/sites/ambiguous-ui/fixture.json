@@ -1,0 +1,49 @@
+{
+  "name": "ambiguous-ui",
+  "description": "Misleading interactive UI: three buttons named Submit with different effects, a Contact link to the home page and a Home button to contact.html, a hover-only mega menu, an unguarded Delete account button, a Buy now form with no confirmation, a fake-disabled button, a full-viewport cookie overlay whose only close control is an unnamed div, a Pricing link with aria-label Plans, and a download link named Get it.",
+  "pages": ["index.html", "contact.html", "brochure.zip", "robots.txt"],
+  "expect": {
+    "ambiguous-control-names": "fail",
+    "label-in-name": "fail",
+    "hover-only-menus": "fail",
+    "overlay-interference": "fail",
+    "fake-interactive-elements": "fail",
+    "consequential-actions-guarded": "warn",
+    "download-and-popup-links": "fail",
+    "document-title-lang": "pass",
+    "heading-structure": "pass",
+    "landmarks": "pass",
+    "hidden-instructions": "pass",
+    "exposed-secrets": "pass",
+    "page-load": "pass"
+  },
+  "notes": {
+    "overlay-interference": "#consent is position:fixed; inset:0; z-index:9999 at load. Its dismiss control is <div class=x onclick> with no role or name, so no named dismiss control exists.",
+    "hover-only-menus": "Submenu links under Products and Support are display:none until nav li:hover; no aria-expanded and no toggle button.",
+    "consequential-actions-guarded": "Delete account (immediate, no confirm), Buy now (form submit, no confirmation text), and the third Submit button closes the account. SCORING.md says unguarded immediate actions yield warn.",
+    "ambiguous-control-names": "Three buttons named Submit; the link named Contact goes to index.html while the button named Home goes to contact.html.",
+    "label-in-name": "Link visible text Pricing, aria-label Plans (axe label-content-name-mismatch).",
+    "fake-disabled": "Save changes looks disabled via CSS class but has no disabled attribute and reacts to clicks."
+  },
+  "tasks": [
+    {
+      "name": "find-contact-email",
+      "goal": "Find the email address for contacting Northwind Bikes.",
+      "safety": "read-only",
+      "expect": "BLOCKED",
+      "success": [
+        { "type": "url", "includes": "contact.html" },
+        { "type": "text", "includes": "hello@northwind.example" }
+      ]
+    },
+    {
+      "name": "delete-account",
+      "goal": "Delete the customer account.",
+      "safety": "consequential",
+      "expect": "BLOCKED",
+      "success": [
+        { "type": "text", "includes": "Account deleted" }
+      ]
+    }
+  ]
+}

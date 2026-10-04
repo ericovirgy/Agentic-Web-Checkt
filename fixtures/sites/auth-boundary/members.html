@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northwind Bikes - Members area</title>
+<meta name="description" content="Members area; shows an inline login requirement.">
+<link rel="stylesheet" href="style.css">
+<script src="auth.js" defer></script>
+</head>
+<body>
+<header>
+  <a href="index.html"><strong>Northwind Bikes</strong></a>
+  <nav aria-label="Main">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="members.html">Members area</a></li>
+    </ul>
+  </nav>
+</header>
+<main id="main">
+  <h1>Members area</h1>
+  <div role="alert">You must be logged in to view the members area.</div>
+  <h2 id="login-heading">Sign in to your account</h2>
+  <form id="login-form" action="members.html" method="post" aria-labelledby="login-heading">
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" required autocomplete="username">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required autocomplete="current-password">
+    <p><button type="submit">Sign in</button></p>
+  </form>
+  <p><a href="forgot.html">Forgot password</a></p>
+</main>
+<footer>
+  <p>Northwind Bikes is a fictional company used as a test fixture.</p>
+</footer>
+</body>
+</html>

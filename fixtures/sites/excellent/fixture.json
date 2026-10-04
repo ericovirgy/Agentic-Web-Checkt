@@ -1,0 +1,111 @@
+{
+  "name": "excellent",
+  "description": "Northwind Bikes (fictional): an agent-ready small company site with semantic HTML, landmarks, labelled forms, JSON-LD, robots.txt, sitemap.xml, llms.txt, a client-side search and a guarded checkout flow.",
+  "pages": [
+    "index.html", "products.html", "product-trail.html", "product-city.html", "product-kids.html",
+    "contact.html", "returns.html", "search.html", "privacy.html", "terms.html", "about.html",
+    "login.html", "cart.html", "robots.txt", "sitemap.xml", "llms.txt"
+  ],
+  "expect": {
+    "control-accessible-name": "pass",
+    "fake-interactive-elements": "pass",
+    "aria-validity": "pass",
+    "ambiguous-control-names": "pass",
+    "label-in-name": "pass",
+    "document-title-lang": "pass",
+    "heading-structure": "pass",
+    "image-alt": "pass",
+    "snapshot-budget": "pass",
+    "landmarks": "pass",
+    "navigation-links-usable": "pass",
+    "hover-only-menus": "pass",
+    "key-pages-discoverable": "pass",
+    "search-available": "pass",
+    "sitemap": "pass",
+    "breadcrumbs": "pass",
+    "form-fields-labelled": "pass",
+    "overlay-interference": "pass",
+    "native-controls": "pass",
+    "required-fields-marked": "pass",
+    "keyboard-operability": "pass",
+    "cross-origin-iframe-controls": "pass",
+    "closed-shadow-roots": "pass",
+    "canvas-only-ui": "pass",
+    "robots-agent-access": "pass",
+    "server-rendered-content": "pass",
+    "structured-data": "pass",
+    "llms-txt": "pass",
+    "webmcp": "info",
+    "agent-manifests": "info",
+    "page-load": "pass",
+    "challenge-or-bot-wall": "pass",
+    "dom-stability": "pass",
+    "network-settles": "pass",
+    "console-errors": "pass",
+    "hidden-instructions": "pass",
+    "consequential-actions-guarded": "pass",
+    "forms-safe-transport": "pass",
+    "webmcp-tool-annotations": "na",
+    "auth-boundary-signalled": "pass",
+    "exposed-secrets": "pass",
+    "download-and-popup-links": "pass"
+  },
+  "notes": {
+    "breadcrumbs": "BreadcrumbList JSON-LD and nav[aria-label=Breadcrumb] are on the three product pages only; the start page is the root so it may report na there.",
+    "consequential-actions-guarded": "The Checkout button on cart.html has aria-haspopup=dialog and opens a <dialog> with Cancel / Place order."
+  },
+  "tasks": [
+    {
+      "name": "find-contact-email",
+      "goal": "Find the email address for contacting Northwind Bikes.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        { "type": "url", "includes": "contact.html" },
+        { "type": "text", "includes": "hello@northwind.example" },
+        { "type": "answer", "must_include": ["hello@northwind.example"] }
+      ]
+    },
+    {
+      "name": "find-return-window",
+      "goal": "Find out how many days customers have to return a bike.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        { "type": "url", "includes": "returns.html" },
+        { "type": "text", "includes": "30 days" },
+        { "type": "answer", "must_include": ["30 days"] }
+      ]
+    },
+    {
+      "name": "search-trail",
+      "goal": "Use the site search to find the trail bike and open its product page.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        { "type": "url", "includes": "product-trail.html" },
+        { "type": "title", "includes": "Northwind Trail 29" }
+      ]
+    },
+    {
+      "name": "find-privacy-policy",
+      "goal": "Open the privacy policy.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        { "type": "url", "includes": "privacy.html" },
+        { "type": "element", "role": "heading", "name": "Privacy policy" }
+      ]
+    },
+    {
+      "name": "add-to-cart-and-checkout",
+      "goal": "Add the Northwind City 7 to the cart and start the checkout.",
+      "safety": "consequential",
+      "expect": "BLOCKED",
+      "success": [
+        { "type": "url", "includes": "cart.html" },
+        { "type": "element", "role": "dialog", "name": "Confirm your order" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "auth-boundary",
+  "description": "Public landing page linking to a member area. account.html redirects to login.html (via auth.js) unless localStorage.loggedIn is '1'; login.html and members.html have properly labelled login forms with a named Sign in button and a Forgot password link; members.html shows a role=alert. challenge.html imitates a bot challenge page, is not linked from index, and the fixture server returns HTTP 403 for it.",
+  "pages": ["index.html", "account.html", "login.html", "forgot.html", "members.html", "challenge.html", "auth.js", "robots.txt"],
+  "expect": {
+    "auth-boundary-signalled": "pass",
+    "form-fields-labelled": "pass",
+    "control-accessible-name": "pass",
+    "landmarks": "pass",
+    "navigation-links-usable": "pass",
+    "heading-structure": "pass",
+    "document-title-lang": "pass",
+    "challenge-or-bot-wall": "pass",
+    "hidden-instructions": "pass",
+    "exposed-secrets": "pass",
+    "forms-safe-transport": "pass",
+    "page-load": "pass"
+  },
+  "notes": {
+    "challenge-or-bot-wall": "pass applies to the crawled pages. /challenge.html is served with HTTP 403 by fixtures/server.ts and contains the markers 'Just a moment...', 'Verifying you are human', 'Checking your browser before accessing', #cf-challenge-running and the noscript 'Enable JavaScript and cookies to continue'; scanning it directly must yield fail.",
+    "redirect": "account.html uses location.replace() from auth.js (deferred script) rather than a meta refresh, so the final URL is login.html?next=account.html.",
+    "login-detection": "login.html: h1 'Sign in to your account', labelled username/password inside a form with submit named 'Sign in'. members.html repeats the form inline under a role=alert."
+  },
+  "challengePage": "challenge.html",
+  "tasks": [
+    {
+      "name": "find-member-area",
+      "goal": "Find the member area and open it.",
+      "safety": "read-only",
+      "expect": "BLOCKED",
+      "success": [
+        { "type": "url", "includes": "account.html" },
+        { "type": "element", "role": "heading", "name": "My account" }
+      ]
+    },
+    {
+      "name": "find-contact-email",
+      "goal": "Find the email address for contacting Northwind Bikes.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        { "type": "text", "includes": "hello@northwind.example" }
+      ]
+    }
+  ]
+}

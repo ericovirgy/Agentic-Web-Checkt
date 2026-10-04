@@ -1,0 +1,16 @@
+body { margin: 0; font-family: system-ui, sans-serif; color: #1f2937; line-height: 1.5; }
+header { display: flex; gap: 24px; align-items: center; padding: 12px 16px; border-bottom: 1px solid #ddd; }
+nav > ul { display: flex; gap: 16px; list-style: none; margin: 0; padding: 0; }
+nav li { position: relative; }
+nav li > ul { display: none; position: absolute; top: 100%; left: 0; background: #fff; border: 1px solid #ddd; list-style: none; padding: 8px; margin: 0; min-width: 180px; z-index: 5; }
+nav li:hover > ul { display: block; }
+main { max-width: 960px; margin: 0 auto; padding: 16px; }
+footer { border-top: 1px solid #ddd; padding: 16px; font-size: 0.9rem; }
+button { background: #2a7f62; color: #fff; border: 0; padding: 10px 16px; border-radius: 4px; font-size: 1rem; cursor: pointer; margin-right: 8px; }
+.fake-disabled { background: #d1d5db; color: #6b7280; cursor: not-allowed; }
+.row { margin: 16px 0; }
+label { display: block; font-weight: 600; }
+input { padding: 8px; font-size: 1rem; max-width: 320px; }
+#consent { position: fixed; inset: 0; z-index: 9999; background: rgba(17, 24, 39, 0.75); display: flex; align-items: center; justify-content: center; }
+#consent .panel { background: #fff; padding: 32px; border-radius: 8px; max-width: 480px; position: relative; }
+#consent .x { position: absolute; top: 8px; right: 12px; font-size: 1.5rem; cursor: pointer; }

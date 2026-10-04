@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cart | Northwind Bikes</title>
+<meta name="description" content="Review your cart and check out.">
+<meta name="generator" content="fixture">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header>
+  <a class="brand" href="index.html">Northwind Bikes</a>
+  <nav aria-label="Main">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="search.html">Search</a></li>
+      <li><a href="returns.html">Returns</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="cart.html">Cart (<span id="cart-count" aria-live="polite">0</span>)</a></li>
+      <li><a href="login.html">Sign in</a></li>
+    </ul>
+  </nav>
+</header>
+<main id="main">
+<h1>Your cart</h1>
+<table id="cart-table">
+  <caption>Items in your cart</caption>
+  <thead><tr><th scope="col">Product</th><th scope="col">Quantity</th><th scope="col">Price</th><th scope="col">Actions</th></tr></thead>
+  <tbody id="cart-items"><tr><td colspan="4">Your cart is empty.</td></tr></tbody>
+  <tfoot><tr><th scope="row" colspan="2">Total</th><td id="cart-total">$0.00</td><td></td></tr></tfoot>
+</table>
+<p>
+  <a href="products.html">Continue shopping</a>
+  <button type="button" id="checkout" aria-haspopup="dialog" aria-controls="confirm-dialog">Checkout</button>
+</p>
+<dialog id="confirm-dialog" aria-labelledby="confirm-heading">
+  <h2 id="confirm-heading">Confirm your order</h2>
+  <p>You are about to place an order for <span id="confirm-total">$0.00</span>. This is a test fixture; no payment is taken.</p>
+  <form method="dialog">
+    <button type="submit" value="cancel">Cancel</button>
+    <button type="submit" value="confirm" id="place-order">Place order</button>
+  </form>
+</dialog>
+<p role="status" id="order-status"></p>
+</main>
+<footer>
+  <nav aria-label="Footer">
+    <ul>
+      <li><a href="privacy.html">Privacy policy</a></li>
+      <li><a href="terms.html">Terms of service</a></li>
+      <li><a href="about.html">About us</a></li>
+    </ul>
+  </nav>
+  <p>Northwind Bikes is a fictional company used as a test fixture. Email <a href="mailto:hello@northwind.example">hello@northwind.example</a> or call <a href="tel:+15550100199">+1 555 010 0199</a>.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

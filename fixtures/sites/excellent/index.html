@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home | Northwind Bikes</title>
+<meta name="description" content="Northwind Bikes sells trail, city and kids bikes with a 30-day return policy.">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Northwind Bikes",
+  "url": "https://northwind.example/",
+  "email": "hello@northwind.example",
+  "telephone": "+1-555-010-0199",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "12 Harbour Lane",
+    "addressLocality": "Portsmouth",
+    "postalCode": "NW1 2AB",
+    "addressCountry": "GB"
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "email": "hello@northwind.example",
+      "telephone": "+1-555-010-0199",
+      "availableLanguage": "en"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Northwind Bikes",
+  "url": "https://northwind.example/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://northwind.example/search.html?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header>
+  <a class="brand" href="index.html">Northwind Bikes</a>
+  <nav aria-label="Main">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="search.html">Search</a></li>
+      <li><a href="returns.html">Returns</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="cart.html">Cart (<span id="cart-count" aria-live="polite">0</span>)</a></li>
+      <li><a href="login.html">Sign in</a></li>
+    </ul>
+  </nav>
+</header>
+<main id="main">
+<h1>Bikes built for every road</h1>
+<p>Northwind Bikes is a small, fictional bike shop. We sell three models, ship within two working days and accept returns within 30 days.</p>
+<section aria-labelledby="featured-heading">
+  <h2 id="featured-heading">Featured products</h2>
+  <ul class="cards">
+    <li class="card"><img src="img/trail.svg" alt="Northwind Trail 29" width="160" height="100"><h3><a href="product-trail.html">Northwind Trail 29</a></h3><p>$1299.00</p></li>
+    <li class="card"><img src="img/city.svg" alt="Northwind City 7" width="160" height="100"><h3><a href="product-city.html">Northwind City 7</a></h3><p>$749.00</p></li>
+    <li class="card"><img src="img/kids.svg" alt="Northwind Kids 20" width="160" height="100"><h3><a href="product-kids.html">Northwind Kids 20</a></h3><p>$329.00</p></li>
+  </ul>
+  <p><a href="products.html">See all products</a></p>
+</section>
+<section aria-labelledby="help-heading">
+  <h2 id="help-heading">Need help?</h2>
+  <ul>
+    <li><a href="contact.html">Contact our team</a></li>
+    <li><a href="returns.html">Read the return policy</a></li>
+    <li><a href="search.html">Search the catalogue</a></li>
+  </ul>
+</section>
+</main>
+<footer>
+  <nav aria-label="Footer">
+    <ul>
+      <li><a href="privacy.html">Privacy policy</a></li>
+      <li><a href="terms.html">Terms of service</a></li>
+      <li><a href="about.html">About us</a></li>
+    </ul>
+  </nav>
+  <p>Northwind Bikes is a fictional company used as a test fixture. Email <a href="mailto:hello@northwind.example">hello@northwind.example</a> or call <a href="tel:+15550100199">+1 555 010 0199</a>.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

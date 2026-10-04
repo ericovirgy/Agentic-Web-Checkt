@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Products | Northwind Bikes</title>
+<meta name="description" content="All Northwind Bikes models with prices.">
+<meta name="generator" content="fixture">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "Product",
+        "name": "Northwind Trail 29",
+        "sku": "NW-TRAIL-29",
+        "url": "https://northwind.example/product-trail.html",
+        "description": "A hardtail mountain bike with 29-inch wheels, hydraulic disc brakes and a 12-speed drivetrain.",
+        "offers": {
+          "@type": "Offer",
+          "price": "1299.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "Product",
+        "name": "Northwind City 7",
+        "sku": "NW-CITY-7",
+        "url": "https://northwind.example/product-city.html",
+        "description": "A commuter bike with a 7-speed internal hub, mudguards, a rear rack and integrated lights.",
+        "offers": {
+          "@type": "Offer",
+          "price": "749.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "item": {
+        "@type": "Product",
+        "name": "Northwind Kids 20",
+        "sku": "NW-KIDS-20",
+        "url": "https://northwind.example/product-kids.html",
+        "description": "A lightweight 20-inch bike for riders aged six to nine, with a low standover height and easy-reach brakes.",
+        "offers": {
+          "@type": "Offer",
+          "price": "329.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header>
+  <a class="brand" href="index.html">Northwind Bikes</a>
+  <nav aria-label="Main">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="search.html">Search</a></li>
+      <li><a href="returns.html">Returns</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="cart.html">Cart (<span id="cart-count" aria-live="polite">0</span>)</a></li>
+      <li><a href="login.html">Sign in</a></li>
+    </ul>
+  </nav>
+</header>
+<main id="main">
+<h1>Products</h1>
+<p>Three models, all in stock. Prices include tax.</p>
+<ul class="cards">
+  <li class="card">
+    <img src="img/trail.svg" alt="Northwind Trail 29" width="160" height="100">
+    <h2><a href="product-trail.html">Northwind Trail 29</a></h2>
+    <p class="price">$1299.00</p>
+    <button type="button" class="add-to-cart" data-sku="NW-TRAIL-29" data-name="Northwind Trail 29" data-price="1299.00">Add Northwind Trail 29 to cart</button>
+  </li>
+  <li class="card">
+    <img src="img/city.svg" alt="Northwind City 7" width="160" height="100">
+    <h2><a href="product-city.html">Northwind City 7</a></h2>
+    <p class="price">$749.00</p>
+    <button type="button" class="add-to-cart" data-sku="NW-CITY-7" data-name="Northwind City 7" data-price="749.00">Add Northwind City 7 to cart</button>
+  </li>
+  <li class="card">
+    <img src="img/kids.svg" alt="Northwind Kids 20" width="160" height="100">
+    <h2><a href="product-kids.html">Northwind Kids 20</a></h2>
+    <p class="price">$329.00</p>
+    <button type="button" class="add-to-cart" data-sku="NW-KIDS-20" data-name="Northwind Kids 20" data-price="329.00">Add Northwind Kids 20 to cart</button>
+  </li>
+</ul>
+<p role="status" id="cart-message"></p>
+</main>
+<footer>
+  <nav aria-label="Footer">
+    <ul>
+      <li><a href="privacy.html">Privacy policy</a></li>
+      <li><a href="terms.html">Terms of service</a></li>
+      <li><a href="about.html">About us</a></li>
+    </ul>
+  </nav>
+  <p>Northwind Bikes is a fictional company used as a test fixture. Email <a href="mailto:hello@northwind.example">hello@northwind.example</a> or call <a href="tel:+15550100199">+1 555 010 0199</a>.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

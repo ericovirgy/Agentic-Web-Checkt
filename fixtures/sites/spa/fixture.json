@@ -1,0 +1,47 @@
+{
+  "name": "spa",
+  "description": "Single-page app: index.html ships an empty #app div plus noscript; app.js renders a semantically correct page after 300 ms, routes via hash (#/, #/products, #/contact, #/returns), mutates an aria-live=off ticker every 200 ms for 3 s, and inserts a banner above the header 800 ms after load (layout shift).",
+  "pages": ["index.html", "app.js", "robots.txt"],
+  "expect": {
+    "server-rendered-content": "fail",
+    "landmarks": "pass",
+    "control-accessible-name": "pass",
+    "navigation-links-usable": "pass",
+    "heading-structure": "pass",
+    "document-title-lang": "pass",
+    "form-fields-labelled": "pass",
+    "key-pages-discoverable": "pass",
+    "hidden-instructions": "pass",
+    "exposed-secrets": "pass",
+    "network-settles": "pass",
+    "console-errors": "pass",
+    "page-load": "pass"
+  },
+  "notes": {
+    "dom-stability": "Designed to trip this check: about 10 mutations per 2 s window after load plus a layout shift at 800 ms. Expected warn or fail depending on the implemented thresholds.",
+    "server-rendered-content": "Raw HTML text content is only the noscript sentence; rendered DOM has several hundred characters of text.",
+    "routing": "Hash routes, so url assertions should use the fragment (e.g. '#/contact')."
+  },
+  "tasks": [
+    {
+      "name": "find-contact-email",
+      "goal": "Find the email address for contacting Northwind Bikes.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        { "type": "url", "includes": "#/contact" },
+        { "type": "text", "includes": "hello@northwind.example" }
+      ]
+    },
+    {
+      "name": "find-return-window",
+      "goal": "Find out how many days customers have to return a bike.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        { "type": "url", "includes": "#/returns" },
+        { "type": "text", "includes": "30 days" }
+      ]
+    }
+  ]
+}

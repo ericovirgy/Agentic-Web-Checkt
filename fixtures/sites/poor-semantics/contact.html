@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="header">
+  <div class="logo" onclick="location.href='index.html'">Northwind Bikes</div>
+  <div class="nav">
+    <div class="nav-item" onclick="location.href='index.html'">Home</div>
+    <div class="nav-item" onclick="location.href='products.html'">Products</div>
+    <div class="nav-item" onclick="location.href='contact.html'">Contact</div>
+    <div class="nav-item">Cart (<span id="cartCount">0</span>)</div>
+  </div>
+</div>
+<div class="content">
+  <h3>Contact</h3>
+  <p>Our contact details:</p>
+  <canvas id="contactCanvas" width="420" height="110"></canvas>
+  <h4>Send us a message</h4>
+  <div class="form">
+    <input type="text" placeholder="Your name">
+    <input type="text" placeholder="Email">
+    <textarea rows="4" placeholder="Message"></textarea>
+    <span class="btn" onclick="sendForm()">Send</span>
+  </div>
+  <p id="msg"></p>
+</div>
+<div class="footer">
+  <span class="link" onclick="location.href='index.html'">Home</span>
+  <div>Northwind Bikes is a fictional company used as a test fixture.</div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

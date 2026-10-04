@@ -1,0 +1,20 @@
+# Northwind Bikes
+
+> Northwind Bikes is a fictional bike shop selling three models (trail, city, kids). Orders ship within two working days and returns are accepted within 30 days.
+
+## Products
+
+- [All products](products.html): the three models with prices
+- [Northwind Trail 29](product-trail.html): hardtail mountain bike, $1299
+- [Northwind City 7](product-city.html): commuter bike, $749
+- [Northwind Kids 20](product-kids.html): children's bike, $329
+
+## Policies
+
+- [Return policy](returns.html): 30-day returns, prepaid labels
+- [Privacy policy](privacy.html): what data is collected and why
+- [Terms of service](terms.html): orders, delivery, warranty
+
+## Contact
+
+- [Contact](contact.html): hello@northwind.example, +1 555 010 0199

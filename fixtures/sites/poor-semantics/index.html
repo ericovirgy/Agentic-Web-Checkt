@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="header">
+  <div class="logo" onclick="location.href='index.html'">Northwind Bikes</div>
+  <div class="nav">
+    <div class="nav-item" onclick="location.href='index.html'">Home</div>
+    <div class="nav-item" onclick="location.href='products.html'">Products</div>
+    <div class="nav-item" onclick="location.href='contact.html'">Contact</div>
+    <div class="nav-item">Cart (<span id="cartCount">0</span>)</div>
+  </div>
+</div>
+<div class="content">
+  <h3>Bikes built for every road</h3>
+  <p>Northwind Bikes is a small, fictional bike shop. We sell three models, ship within two working days and accept returns within 30 days.</p>
+  <img src="img/trail.svg" width="320" height="200">
+  <h4>Featured products</h4>
+  <div class="cards">
+    <div class="card">
+      <img src="img/trail.svg" width="160" height="100">
+      <div><b>Northwind Trail 29</b></div>
+      <div>$1299.00</div>
+      <a href="#" class="link" onclick="location.href='products.html#trail';return false;">Read more</a>
+    </div>
+    <div class="card">
+      <img src="img/city.svg" width="160" height="100">
+      <div><b>Northwind City 7</b></div>
+      <div>$749.00</div>
+      <a href="javascript:void(0)" class="link" onclick="location.href='products.html#city'">Read more</a>
+    </div>
+    <div class="card">
+      <img src="img/kids.svg" width="160" height="100">
+      <div><b>Northwind Kids 20</b></div>
+      <div>$329.00</div>
+      <a href="products.html#kids" class="link">Read more</a>
+    </div>
+  </div>
+  <h4>Need help?</h4>
+  <p>Our return policy gives you 30 days. <a href="contact.html">Click here</a> to get in touch, or <a href="products.html">click here</a> to browse bikes.</p>
+  <span class="btn" onclick="location.href='products.html'">Shop now</span>
+  <p id="msg"></p>
+</div>
+<div class="footer">
+  <span class="link" onclick="location.href='contact.html'">Contact</span> ·
+  <span class="link" onclick="alert('Privacy policy is not available')">Privacy</span>
+  <div>Northwind Bikes is a fictional company used as a test fixture.</div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

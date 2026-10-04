@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact | Northwind Bikes</title>
+<meta name="description" content="Contact Northwind Bikes by email, phone or the contact form.">
+<meta name="generator" content="fixture">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Northwind Bikes",
+  "url": "https://northwind.example/",
+  "email": "hello@northwind.example",
+  "telephone": "+1-555-010-0199",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "12 Harbour Lane",
+    "addressLocality": "Portsmouth",
+    "postalCode": "NW1 2AB",
+    "addressCountry": "GB"
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "email": "hello@northwind.example",
+      "telephone": "+1-555-010-0199",
+      "availableLanguage": "en"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header>
+  <a class="brand" href="index.html">Northwind Bikes</a>
+  <nav aria-label="Main">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="search.html">Search</a></li>
+      <li><a href="returns.html">Returns</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="cart.html">Cart (<span id="cart-count" aria-live="polite">0</span>)</a></li>
+      <li><a href="login.html">Sign in</a></li>
+    </ul>
+  </nav>
+</header>
+<main id="main">
+<h1>Contact us</h1>
+<section aria-labelledby="details-heading">
+  <h2 id="details-heading">Contact details</h2>
+  <address>
+    <p>Email: <a href="mailto:hello@northwind.example">hello@northwind.example</a></p>
+    <p>Phone: <a href="tel:+15550100199">+1 555 010 0199</a> (Monday to Friday, 9:00 to 17:00)</p>
+    <p>Northwind Bikes, 12 Harbour Lane, Portsmouth NW1 2AB, United Kingdom</p>
+  </address>
+</section>
+<section aria-labelledby="form-heading">
+  <h2 id="form-heading">Send us a message</h2>
+  <form id="contact-form" action="contact.html" method="get" aria-labelledby="form-heading">
+    <p><label for="name">Your name <span aria-hidden="true">*</span></label>
+      <input type="text" id="name" name="name" required autocomplete="name" placeholder="Alex Example"></p>
+    <p><label for="email">Email address <span aria-hidden="true">*</span></label>
+      <input type="email" id="email" name="email" required autocomplete="email" placeholder="alex@example.com"></p>
+    <p><label for="topic">Topic</label>
+      <select id="topic" name="topic">
+        <option value="order">Order question</option>
+        <option value="returns">Returns</option>
+        <option value="other">Something else</option>
+      </select></p>
+    <p><label for="message">Message <span aria-hidden="true">*</span></label>
+      <textarea id="message" name="message" required rows="5" placeholder="How can we help?"></textarea></p>
+    <p class="hint">Fields marked with * are required.</p>
+    <button type="submit">Send message</button>
+  </form>
+  <p role="status" id="contact-status"></p>
+</section>
+</main>
+<footer>
+  <nav aria-label="Footer">
+    <ul>
+      <li><a href="privacy.html">Privacy policy</a></li>
+      <li><a href="terms.html">Terms of service</a></li>
+      <li><a href="about.html">About us</a></li>
+    </ul>
+  </nav>
+  <p>Northwind Bikes is a fictional company used as a test fixture. Email <a href="mailto:hello@northwind.example">hello@northwind.example</a> or call <a href="tel:+15550100199">+1 555 010 0199</a>.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{
+  "name": "agentic-web-check",
+  "version": "0.1.0",
+  "description": "Lighthouse for AI agents: scan a website, measure how usable it is for AI agents, verify real tasks, get actionable fixes.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "agentic-web-check": "./dist/cli.js",
+    "awc": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "docs/SCORING.md"
+  ],
+  "keywords": [
+    "ai-agents",
+    "agentic-web",
+    "accessibility",
+    "playwright",
+    "lighthouse",
+    "webmcp",
+    "llms-txt",
+    "audit",
+    "agent-readiness"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ericovirgy/agentic-web-check"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "fixtures:serve": "tsx fixtures/server.ts",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "axe-core": "^4.13.0",
+    "commander": "^15.0.0",
+    "picocolors": "^1.1.1",
+    "playwright": "^1.63.0",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@types/node": "^22.18.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  }
+}

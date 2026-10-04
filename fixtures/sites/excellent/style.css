@@ -1,0 +1,26 @@
+:root { --ink: #1f2937; --accent: #2a7f62; --bg: #ffffff; --muted: #f3f4f6; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.5; }
+.skip-link { position: absolute; left: -999px; top: 0; background: var(--accent); color: #fff; padding: 8px; }
+.skip-link:focus { left: 8px; z-index: 10; }
+header { display: flex; align-items: center; gap: 24px; padding: 12px 16px; border-bottom: 1px solid #ddd; }
+.brand { font-weight: 700; text-decoration: none; color: var(--ink); font-size: 1.2rem; }
+nav ul { display: flex; gap: 16px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+nav a { color: var(--accent); }
+main { max-width: 960px; margin: 0 auto; padding: 16px; }
+footer { border-top: 1px solid #ddd; padding: 16px; font-size: 0.9rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; list-style: none; padding: 0; }
+.card { border: 1px solid #ddd; padding: 12px; border-radius: 6px; }
+.price { font-weight: 700; }
+button { background: var(--accent); color: #fff; border: 0; padding: 10px 16px; border-radius: 4px; font-size: 1rem; cursor: pointer; min-height: 44px; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+label { display: block; font-weight: 600; }
+input, select, textarea { width: 100%; max-width: 420px; padding: 8px; font-size: 1rem; border: 1px solid #999; border-radius: 4px; }
+input[type=checkbox] { width: auto; }
+.hint { font-size: 0.9rem; color: #555; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+.breadcrumb { list-style: none; display: flex; gap: 8px; padding: 0; }
+.breadcrumb li + li::before { content: "/"; margin-right: 8px; color: #999; }
+dialog { border: 1px solid #999; border-radius: 6px; padding: 24px; max-width: 420px; }
+dialog::backdrop { background: rgba(0, 0, 0, 0.4); }

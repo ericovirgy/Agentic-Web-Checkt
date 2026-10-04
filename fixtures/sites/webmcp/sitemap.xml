@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://northwind.example/index.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/products.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/product-trail.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/product-city.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/product-kids.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/contact.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/returns.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/search.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/privacy.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/terms.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/about.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/login.html</loc><changefreq>monthly</changefreq></url>
+  <url><loc>https://northwind.example/cart.html</loc><changefreq>monthly</changefreq></url>
+</urlset>

@@ -1,7 +1,17 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": { "includes": ["src/**", "tests/**", "benchmark/**", "fixtures/**/*.ts", "action/**/*.ts", "*.ts", "*.json"] },
+  "files": {
+    "includes": [
+      "src/**",
+      "tests/**",
+      "benchmark/**",
+      "fixtures/**/*.ts",
+      "action/**/*.ts",
+      "*.ts",
+      "*.json"
+    ]
+  },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
   "linter": {
     "enabled": true,
@@ -11,5 +21,7 @@
       "style": { "noNonNullAssertion": "off" }
     }
   },
-  "javascript": { "formatter": { "quoteStyle": "single", "semicolons": "always", "trailingCommas": "all" } }
+  "javascript": {
+    "formatter": { "quoteStyle": "single", "semicolons": "always", "trailingCommas": "all" }
+  }
 }

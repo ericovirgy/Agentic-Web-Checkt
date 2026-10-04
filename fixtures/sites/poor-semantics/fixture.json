@@ -1,0 +1,64 @@
+{
+  "name": "poor-semantics",
+  "description": "Same Northwind Bikes content built with divs and spans: onclick navigation, no landmarks, no h1, no lang, generic title, unlabelled inputs without names, images without alt, no JSON-LD, no sitemap, no robots.txt, contact details drawn into a canvas.",
+  "pages": [
+    "index.html",
+    "products.html",
+    "contact.html"
+  ],
+  "expect": {
+    "fake-interactive-elements": "fail",
+    "ambiguous-control-names": "fail",
+    "document-title-lang": "fail",
+    "heading-structure": "fail",
+    "image-alt": "fail",
+    "landmarks": "fail",
+    "key-pages-discoverable": "fail",
+    "search-available": "fail",
+    "sitemap": "fail",
+    "breadcrumbs": "fail",
+    "form-fields-labelled": "fail",
+    "structured-data": "fail",
+    "llms-txt": "fail",
+    "canvas-only-ui": "pass",
+    "hidden-instructions": "pass",
+    "exposed-secrets": "pass",
+    "overlay-interference": "pass",
+    "page-load": "pass",
+    "challenge-or-bot-wall": "pass"
+  },
+  "notes": {
+    "robots-agent-access": "robots.txt is intentionally absent (404). Per RFC 9309 that means everything is allowed, so the check should not fail; expectation left open.",
+    "navigation-links-usable": "There is no navigation landmark at all (nav is a div with onclick items), so the check may report fail or na.",
+    "images": "Images in img/ are local copies and load fine; they simply have no alt attribute.",
+    "contact": "Email and phone are only present inside the canvas drawing (app.js), never as DOM text, so a text-based agent cannot find them."
+  },
+  "tasks": [
+    {
+      "name": "find-contact-email",
+      "goal": "Find the email address for contacting Northwind Bikes.",
+      "safety": "read-only",
+      "expect": "FAIL",
+      "success": [
+        {
+          "type": "text",
+          "includes": "hello@northwind.example"
+        }
+      ]
+    },
+    {
+      "name": "find-return-window",
+      "goal": "Find out how many days customers have to return a bike.",
+      "safety": "read-only",
+      "expect": "PASS",
+      "success": [
+        {
+          "type": "answer",
+          "must_include": [
+            "30 days"
+          ]
+        }
+      ]
+    }
+  ]
+}
