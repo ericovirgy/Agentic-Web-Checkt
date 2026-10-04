@@ -35,6 +35,7 @@ interface CommonFlags {
   out?: string;
   browserPath?: string;
   headed?: boolean;
+  insecure?: boolean;
   quiet?: boolean;
   verbose?: boolean;
   color?: boolean;
@@ -78,6 +79,10 @@ function addCommonFlags(cmd: Command): Command {
     )
     .option('--browser-path <path>', 'path to a Chromium/Chrome executable (or AWC_BROWSER_PATH)')
     .option('--headed', 'run the browser with a visible window')
+    .option(
+      '--insecure',
+      'accept invalid TLS certificates (staging hosts, corporate proxies); or AWC_INSECURE=1',
+    )
     .option('--only <ids>', 'comma-separated check ids to run (debug)')
     .option('-q, --quiet', 'no progress output')
     .option('-v, --verbose', 'show passed checks, evidence and task steps')
@@ -105,6 +110,7 @@ async function execute(url: string, flags: CommonFlags, ciMode: boolean): Promis
     outputDir: out,
     browserPath: flags.browserPath,
     headless: !flags.headed,
+    ignoreHttpsErrors: !!flags.insecure,
     onlyChecks: flags.only ? flags.only.split(',').map((s) => s.trim()) : undefined,
     log,
   };

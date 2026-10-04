@@ -95,14 +95,27 @@ export const reliabilityChecks: CheckDefinition[] = [
           note: "UA-parity probe with the tool's own user agent",
         },
       ];
-      const status = browserHits.length ? 'fail' : fetchHits.length ? 'warn' : 'pass';
+      if (p.error && fetchHits.length === 0)
+        return {
+          status: 'na',
+          summary: 'Start page did not load; no challenge markers in the plain fetch either.',
+          evidence,
+        };
+      const status =
+        browserHits.length || (p.error && fetchHits.length)
+          ? 'fail'
+          : fetchHits.length
+            ? 'warn'
+            : 'pass';
       return {
         status,
         summary: browserHits.length
           ? 'The browser hit a bot challenge or access denial.'
-          : fetchHits.length
-            ? 'The browser loaded the page but a plain HTTP fetch was challenged or denied.'
-            : 'No bot challenge detected.',
+          : p.error && fetchHits.length
+            ? 'The browser could not load the page and a plain HTTP fetch was challenged or denied.'
+            : fetchHits.length
+              ? 'The browser loaded the page but a plain HTTP fetch was challenged or denied.'
+              : 'No bot challenge detected.',
         evidence,
         metrics: { browserChallenge: browserHits.length > 0, fetchChallenge: fetchHits.length > 0 },
         pages: [p.finalUrl],

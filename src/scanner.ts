@@ -76,6 +76,7 @@ export async function scan(options: ScanOptions): Promise<ScanResult> {
     headless: options.headless,
     userAgent: options.userAgent,
     version,
+    ignoreHttpsErrors: options.ignoreHttpsErrors ?? process.env.AWC_INSECURE === '1',
   });
   const pages: LoadedPage[] = [];
   let tasks: TaskResult[] = [];

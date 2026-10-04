@@ -14,6 +14,7 @@ export interface BrowserOptions {
   headless?: boolean;
   userAgent?: string;
   version: string;
+  ignoreHttpsErrors?: boolean;
 }
 
 export function resolveBrowserPath(explicit?: string): string | undefined {
@@ -48,7 +49,10 @@ export async function launchBrowser(opts: BrowserOptions): Promise<BrowserSessio
       '--disable-sync',
       '--no-first-run',
       '--no-default-browser-check',
-      '--disable-features=OptimizationHints,MediaRouter,Translate,InterestFeedContentSuggestions',
+      '--disable-domain-reliability',
+      '--disable-client-side-phishing-detection',
+      '--metrics-recording-only',
+      '--disable-features=OptimizationHints,OptimizationGuideModelDownloading,MediaRouter,Translate,InterestFeedContentSuggestions,CalculateNativeWinOcclusion,AutofillServerCommunication',
     ],
   });
   const probe = await browser.newContext();
@@ -63,7 +67,7 @@ export async function launchBrowser(opts: BrowserOptions): Promise<BrowserSessio
     userAgent,
     viewport: { width: 1280, height: 800 },
     locale: 'en-US',
-    ignoreHTTPSErrors: false,
+    ignoreHTTPSErrors: opts.ignoreHttpsErrors ?? false,
   });
   await context.addInitScript(INIT_SCRIPT);
   return {
@@ -256,7 +260,7 @@ export async function loadPage(page: Page, url: string, opts: LoadOptions): Prom
   page.off('requestfailed', onRequestFailed);
   page.off('response', onResponse);
 
-  const finalUrl = page.url();
+  const finalUrl = error || page.url() === 'about:blank' ? url : page.url();
   const summary: PageSummary = {
     url,
     finalUrl,

@@ -218,6 +218,8 @@ export interface ScanOptions {
   timeoutMs?: number;
   browserPath?: string;
   headless?: boolean;
+  /** Accept invalid TLS certificates (staging hosts, corporate MITM proxies). Off by default. */
+  ignoreHttpsErrors?: boolean;
   userAgent?: string;
   tasks?: TaskDefinition[];
   agent?: AgentKind;

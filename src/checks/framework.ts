@@ -96,6 +96,17 @@ export async function runChecks(
   for (const def of defs) {
     if (only?.length && !only.includes(def.id)) continue;
     const t = Date.now();
+    // Gate: when the start page did not load, only the load/challenge checks are meaningful.
+    if (ctx.start.error && def.id !== 'page-load' && def.id !== 'challenge-or-bot-wall') {
+      results.push(
+        finalize(
+          def,
+          { status: 'na', summary: `Not evaluated: start page did not load (${ctx.start.error}).` },
+          0,
+        ),
+      );
+      continue;
+    }
     try {
       const out = await def.run(ctx);
       results.push(finalize(def, out, Date.now() - t));
