@@ -51,10 +51,41 @@ export class BrowserTools {
   private snapshot: Snapshot | null = null;
   private lastSnapshotText = '';
 
+  private pendingPopups: Page[] = [];
+
   constructor(
     readonly page: Page,
     private policy: ToolPolicy,
-  ) {}
+  ) {
+    // Links with target=_blank open a new tab; single-tab agents lose the thread. We follow
+    // same-origin popups in the main tab and record cross-origin ones without following them.
+    page.on('popup', (popup) => {
+      this.pendingPopups.push(popup);
+    });
+  }
+
+  /** Adopt popups opened by the last action: follow same-origin ones, close the rest. */
+  private async settlePopups(): Promise<string> {
+    if (this.pendingPopups.length === 0) return '';
+    const popups = this.pendingPopups.splice(0);
+    const notes: string[] = [];
+    for (const popup of popups) {
+      await popup.waitForLoadState('load', { timeout: 8000 }).catch(() => {});
+      const target = popup.url();
+      await popup.close().catch(() => {});
+      let sameOrigin = false;
+      try {
+        sameOrigin = new URL(target).origin === this.policy.origin;
+      } catch {}
+      if (sameOrigin && target !== 'about:blank') {
+        await this.page.goto(target, { waitUntil: 'load', timeout: 20_000 }).catch(() => {});
+        notes.push(`opened a new tab; followed ${target} in the main tab`);
+      } else {
+        notes.push(`opened a new tab to ${target} (outside ${this.policy.origin}; not followed)`);
+      }
+    }
+    return ` (${notes.join('; ')})`;
+  }
 
   get currentSnapshot(): Snapshot | null {
     return this.snapshot;
@@ -195,6 +226,7 @@ export class BrowserTools {
       if (tool !== 'snapshot' && tool !== 'finish') {
         await this.page.waitForLoadState('load', { timeout: 5000 }).catch(() => {});
         await this.page.waitForTimeout(300);
+        step.result += await this.settlePopups();
         const after = await this.takeSnapshot();
         step.noFeedback = after.text === before && this.page.url() === url;
         if (step.noFeedback) step.result += ' (no visible change)';

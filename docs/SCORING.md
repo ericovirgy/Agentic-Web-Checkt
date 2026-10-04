@@ -21,7 +21,9 @@ defensible, documented scale rather than an invented one. The impact assigned to
 the catalogue below with the failure mode it maps to.
 
 Dimension score = round(100 × Σ(score × weight) / Σ(weight)) over checks with status `pass|warn|fail`.
-A dimension with no scorable checks is reported as `n/a` and excluded from the overall.
+A dimension with no scorable checks is reported as `n/a` and excluded from the overall. Pages that answer
+with HTTP 4xx/5xx are listed but excluded from check aggregation, and consequential links (delete, pay,
+unsubscribe…) are never followed when selecting additional pages.
 
 ## 2. Dimensions and overall
 
@@ -107,7 +109,7 @@ Abbreviations: WCAG = WCAG 2.2 success criterion; LH = Lighthouse audit id; FM =
 
 | id | w | Why | Detection |
 |---|---|---|---|
-| `page-load` | 10 | prerequisite | final HTTP status 2xx/3xx→2xx, load event within budget; on failure the other dimensions are `na` |
+| `page-load` | 10 | prerequisite (gate) | final HTTP status 2xx/3xx→2xx, load event within budget. When the start page does not load, every other check except `challenge-or-bot-wall` is `na`, so RELIABILITY is the only scored dimension and the overall is 0 |
 | `challenge-or-bot-wall` | 10 | WCAG 3.3.8; FM: access/CAPTCHA/loading errors are 51% of Online-Mind2Web failures | 403/429/503 with challenge markers (`cf-challenge`, `recaptcha`, `hcaptcha`, `turnstile`, "verify you are human"); UA-parity probe: plain `fetch` with our UA vs rendered browser |
 | `dom-stability` | 7 | FM: stale refs after mutations (Playwright MCP, agent-browser) | mutation count in the 2 s after `load`+network idle; layout shift score via `PerformanceObserver` |
 | `network-settles` | 3 | FM: `networkidle` never reached on SSE/WebSocket sites | network idle reached within 10 s |
@@ -135,9 +137,14 @@ Abbreviations: WCAG = WCAG 2.2 success criterion; LH = Lighthouse audit id; FM =
 | INCONCLUSIVE | navigation error, browser crash, provider error, or assertions impossible to evaluate |
 
 Assertions (all must hold unless `any_of` is used): `url` (`includes`/`equals`/`regex`), `text` (`includes`,
-normalised whitespace/case), `element` (`role`+`name` present, optional `state`), `title` (`includes`),
-`answer` (`must_include` / `exact_match` against the agent's returned answer, normalised). This is the
-WebArena shape (FACT, research/04 §1) without LLM judges.
+normalised whitespace/case), `element` (`role` present, optional `name`, `url` and `state`), `title`
+(`includes`), `answer` (`must_include` / `exact_match` against the agent's returned answer, normalised) and
+`navigated` (the final URL differs from the task start URL, so a PASS needs at least one navigation). This is
+the WebArena shape (FACT, research/04 §1) without LLM judges. The built-in archetypes all require `navigated`
+plus a destination criterion, so a start page that merely contains the information does not pass.
+
+The baseline agent knows the success criteria and stops as soon as they hold; what it measures is whether the
+site's accessible names let the weakest reasonable agent reach the goal state.
 
 ## 5. What the score is not
 

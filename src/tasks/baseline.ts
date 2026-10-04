@@ -82,7 +82,11 @@ export async function runBaselineAgent(
     const hash = `${state.url}|${snap.text.length}|${snap.text.slice(0, 400)}`;
     stateHashes.push(hash);
     if (stateHashes.filter((h) => h === hash).length >= 3)
-      return { status: 'gave_up', reason: 'page state repeated three times (loop)' };
+      return {
+        status: 'gave_up',
+        reason:
+          'page state unchanged after three actions (controls had no visible effect or opened new tabs)',
+      };
 
     // 1. Overlay in the way? Try a named dismiss control once.
     if (!dismissed) {
