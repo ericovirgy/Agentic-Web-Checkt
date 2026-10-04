@@ -111,7 +111,9 @@ async function handle(root: string, req: IncomingMessage, res: ServerResponse): 
   const status = STATUS_OVERRIDES[servedPath] ?? 200;
   const type = MIME[extname(filePath).toLowerCase()] ?? 'application/octet-stream';
   // Secret-shaped strings are generated at serve time so the repository never contains one.
-  const html = type.startsWith('text/html') ? substituteFixtureSecrets(readFileSync(filePath, 'utf8')) : null;
+  const html = type.startsWith('text/html')
+    ? substituteFixtureSecrets(readFileSync(filePath, 'utf8'))
+    : null;
   res.writeHead(status, {
     'Content-Type': type,
     'Content-Length': html === null ? info.size : Buffer.byteLength(html),
@@ -134,11 +136,15 @@ const FIXTURE_SECRETS: Record<string, () => string> = {
   stripe: () => `${['sk', 'live'].join('_')}_51${'X'.repeat(24)}`,
   aws: () => `${'AKIA'}${'FIXTURE0'.repeat(2)}`,
   github: () => `${'ghp'}_${'f'.repeat(36)}`,
-  privatekey: () => `${BEGIN}\n${'MIIBVAIBADANBgkqhkiG9w0BAQEFAASCAT4wggE6AgEAAkEAfixture'}\n${END}`,
+  privatekey: () =>
+    `${BEGIN}\n${'MIIBVAIBADANBgkqhkiG9w0BAQEFAASCAT4wggE6AgEAAkEAfixture'}\n${END}`,
 };
 
 export function substituteFixtureSecrets(html: string): string {
-  return html.replace(/\{\{FIXTURE_SECRET:(\w+)\}\}/g, (_m, kind: string) => FIXTURE_SECRETS[kind]?.() ?? '');
+  return html.replace(
+    /\{\{FIXTURE_SECRET:(\w+)\}\}/g,
+    (_m, kind: string) => FIXTURE_SECRETS[kind]?.() ?? '',
+  );
 }
 
 /** Start serving `fixtures/sites/<site>` on 127.0.0.1. */

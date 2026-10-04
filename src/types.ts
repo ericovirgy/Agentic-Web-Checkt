@@ -96,7 +96,16 @@ export type Assertion =
   | { url: { includes?: string; equals?: string; regex?: string } }
   | { text: { includes: string } }
   | { title: { includes: string } }
-  | { element: { role: string; name?: string; state?: 'visible' | 'checked' | 'disabled' } }
+  | {
+      element: {
+        role: string;
+        name?: string;
+        url?: string;
+        state?: 'visible' | 'checked' | 'disabled';
+      };
+    }
+  /** Final URL differs from the task start URL (at least one navigation happened). */
+  | { navigated: true }
   | { answer: { must_include?: string[]; exact_match?: string } }
   | { any_of: Assertion[] };
 

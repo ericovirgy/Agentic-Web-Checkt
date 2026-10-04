@@ -22,6 +22,18 @@ export interface SnapshotNode {
   depth: number;
   /** Frame prefix (e.g. "f1") when the node lives in an iframe. */
   frame?: string;
+  /** Name was empty in the snapshot and derived from descendant text. */
+  nameFromDescendants?: boolean;
+}
+
+export function descendantText(n: SnapshotNode): string {
+  const parts: string[] = [];
+  const walk = (x: SnapshotNode) => {
+    if (x !== n && (x.name || x.text)) parts.push(x.name || x.text || '');
+    for (const c of x.children) walk(c);
+  };
+  walk(n);
+  return parts.join(' ').replace(/\s+/g, ' ');
 }
 
 export const INTERACTIVE_ROLES = new Set([
@@ -117,6 +129,17 @@ export function buildSnapshot(raw: unknown, text: string): Snapshot {
     return node;
   };
   const rootNodes = roots.map((r) => convert(r, undefined, 0));
+  // Playwright exposes <strong>/<em>/<code> inside a control as child nodes and leaves the control
+  // unnamed; agents still see the text, so derive the name from descendants (tracked in nameFromDescendants).
+  for (const n of nodes) {
+    if (!n.name && INTERACTIVE_ROLES.has(n.role) && n.children.length) {
+      const derived = descendantText(n).trim();
+      if (derived) {
+        n.name = derived;
+        n.nameFromDescendants = true;
+      }
+    }
+  }
   return { roots: rootNodes, nodes, text, chars: text.length };
 }
 

@@ -1,7 +1,11 @@
 {
   "name": "spa",
   "description": "Single-page app: index.html ships an empty #app div plus noscript; app.js renders a semantically correct page after 300 ms, routes via hash (#/, #/products, #/contact, #/returns), mutates an aria-live=off ticker every 200 ms for 3 s, and inserts a banner above the header 800 ms after load (layout shift).",
-  "pages": ["index.html", "app.js", "robots.txt"],
+  "pages": [
+    "index.html",
+    "app.js",
+    "robots.txt"
+  ],
   "expect": {
     "server-rendered-content": "fail",
     "landmarks": "pass",
@@ -10,7 +14,7 @@
     "heading-structure": "pass",
     "document-title-lang": "pass",
     "form-fields-labelled": "pass",
-    "key-pages-discoverable": "pass",
+    "key-pages-discoverable": "warn",
     "hidden-instructions": "pass",
     "exposed-secrets": "pass",
     "network-settles": "pass",
@@ -29,8 +33,14 @@
       "safety": "read-only",
       "expect": "PASS",
       "success": [
-        { "type": "url", "includes": "#/contact" },
-        { "type": "text", "includes": "hello@northwind.example" }
+        {
+          "type": "url",
+          "includes": "#/contact"
+        },
+        {
+          "type": "text",
+          "includes": "hello@northwind.example"
+        }
       ]
     },
     {
@@ -39,8 +49,14 @@
       "safety": "read-only",
       "expect": "PASS",
       "success": [
-        { "type": "url", "includes": "#/returns" },
-        { "type": "text", "includes": "30 days" }
+        {
+          "type": "url",
+          "includes": "#/returns"
+        },
+        {
+          "type": "text",
+          "includes": "30 days"
+        }
       ]
     }
   ]

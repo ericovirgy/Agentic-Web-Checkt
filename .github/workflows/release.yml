@@ -1,0 +1,113 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    name: Publish to npm and create the GitHub release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check that the tag matches package.json
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          pkg_version="$(node -p "require('./package.json').version")"
+          if [ "$version" != "$pkg_version" ]; then
+            echo "::error::Tag $TAG does not match package.json version $pkg_version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          case "$version" in
+            *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *)   echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
+          echo "major=v${version%%.*}" >> "$GITHUB_OUTPUT"
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Pack tarball for the release assets
+        run: npm pack
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TAG: ${{ steps.version.outputs.prerelease == 'true' && 'next' || 'latest' }}
+        run: npm publish --provenance --access public --tag "$NPM_TAG"
+
+      - name: Extract release notes from CHANGELOG.md
+        id: notes
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          notes_file="$RUNNER_TEMP/release-notes.md"
+          : > "$notes_file"
+          if [ -f CHANGELOG.md ]; then
+            # Copy the "## [x.y.z]" / "## x.y.z" section for this version, up to the next "## " heading.
+            awk -v v="$VERSION" '
+              /^## / {
+                if (found) exit
+                if (index($0, "[" v "]") || index($0, "## " v " ") || $0 == "## " v || index($0, "## v" v)) { found = 1; next }
+              }
+              found { print }
+            ' CHANGELOG.md > "$notes_file"
+          fi
+          if [ -s "$notes_file" ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No CHANGELOG.md section for $VERSION; GitHub will generate the release notes."
+          fi
+          echo "file=$notes_file" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          body_path: ${{ steps.notes.outputs.found == 'true' && steps.notes.outputs.file || '' }}
+          generate_release_notes: ${{ steps.notes.outputs.found != 'true' }}
+          prerelease: ${{ steps.version.outputs.prerelease == 'true' }}
+          files: |
+            ./*.tgz
+
+      - name: Move the major version tag
+        if: ${{ steps.version.outputs.prerelease != 'true' }}
+        env:
+          MAJOR: ${{ steps.version.outputs.major }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f "$MAJOR" "$GITHUB_SHA"
+          git push -f origin "refs/tags/$MAJOR"
+          echo "Moved $MAJOR to $GITHUB_SHA"

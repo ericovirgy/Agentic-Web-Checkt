@@ -13,13 +13,21 @@ export function normaliseText(s: string): string {
 
 export interface PageState {
   url: string;
+  /** URL the task started from (set by the runner). */
+  startUrl?: string;
   title: string;
   text: string;
   /** role/name pairs from the AI snapshot. */
-  elements: { role: string; name: string; checked?: boolean | 'mixed'; disabled?: boolean }[];
+  elements: {
+    role: string;
+    name: string;
+    url?: string;
+    checked?: boolean | 'mixed';
+    disabled?: boolean;
+  }[];
 }
 
-export async function capturePageState(page: Page): Promise<PageState> {
+export async function capturePageState(page: Page, startUrl?: string): Promise<PageState> {
   const url = page.url();
   const title = await page.title().catch(() => '');
   const text = await page
@@ -48,7 +56,7 @@ export async function capturePageState(page: Page): Promise<PageState> {
     for (const c of o.children ?? []) walk(c);
   };
   for (const r of json) walk(r);
-  return { url, title, text: text.slice(0, 200_000), elements };
+  return { url, startUrl, title, text: text.slice(0, 200_000), elements };
 }
 
 export function evaluateAssertion(

@@ -321,10 +321,14 @@ export const navigationChecks: CheckDefinition[] = [
     remediation:
       'Add <nav aria-label="Breadcrumb"> with links on inner pages and BreadcrumbList JSON-LD.',
     run(ctx) {
-      const inner = okPages(ctx).filter(
-        (p) => new URL(p.finalUrl).pathname !== '/' && new URL(p.finalUrl).pathname !== '',
-      );
-      if (inner.length === 0) return { status: 'na', summary: 'Only the root page was scanned.' };
+      // Breadcrumbs are expected on pages at least two levels deep (/section/page).
+      const depth = (u: string) => new URL(u).pathname.split('/').filter(Boolean).length;
+      const inner = okPages(ctx).filter((p) => depth(p.finalUrl) >= 2);
+      if (inner.length === 0)
+        return {
+          status: 'na',
+          summary: 'No pages deeper than one level were scanned; breadcrumbs not expected.',
+        };
       const withCrumbs = inner.filter(
         (p) =>
           p.data.jsonLd.some((j) => j.types.includes('BreadcrumbList')) ||

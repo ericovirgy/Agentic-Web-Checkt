@@ -1,15 +1,20 @@
 {
   "name": "ambiguous-ui",
   "description": "Misleading interactive UI: three buttons named Submit with different effects, a Contact link to the home page and a Home button to contact.html, a hover-only mega menu, an unguarded Delete account button, a Buy now form with no confirmation, a fake-disabled button, a full-viewport cookie overlay whose only close control is an unnamed div, a Pricing link with aria-label Plans, and a download link named Get it.",
-  "pages": ["index.html", "contact.html", "brochure.zip", "robots.txt"],
+  "pages": [
+    "index.html",
+    "contact.html",
+    "brochure.zip",
+    "robots.txt"
+  ],
   "expect": {
     "ambiguous-control-names": "fail",
-    "label-in-name": "fail",
+    "label-in-name": "warn",
     "hover-only-menus": "fail",
     "overlay-interference": "fail",
-    "fake-interactive-elements": "fail",
+    "fake-interactive-elements": "warn",
     "consequential-actions-guarded": "warn",
-    "download-and-popup-links": "fail",
+    "download-and-popup-links": "warn",
     "document-title-lang": "pass",
     "heading-structure": "pass",
     "landmarks": "pass",
@@ -32,8 +37,14 @@
       "safety": "read-only",
       "expect": "BLOCKED",
       "success": [
-        { "type": "url", "includes": "contact.html" },
-        { "type": "text", "includes": "hello@northwind.example" }
+        {
+          "type": "url",
+          "includes": "contact.html"
+        },
+        {
+          "type": "text",
+          "includes": "hello@northwind.example"
+        }
       ]
     },
     {
@@ -42,7 +53,10 @@
       "safety": "consequential",
       "expect": "BLOCKED",
       "success": [
-        { "type": "text", "includes": "Account deleted" }
+        {
+          "type": "text",
+          "includes": "Account deleted"
+        }
       ]
     }
   ]

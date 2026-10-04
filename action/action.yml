@@ -1,0 +1,328 @@
+name: 'Agentic Web Check'
+description: >-
+  Lighthouse for AI agents: scan a website inside the runner, score how usable it is for AI agents,
+  verify real tasks, post a sticky PR comment and a job summary, and fail the job on thresholds.
+author: 'ericovirgy'
+
+branding:
+  icon: 'activity'
+  color: 'blue'
+
+inputs:
+  url:
+    description: 'URL to scan (the start page; same-origin pages are discovered from it).'
+    required: true
+  pages:
+    description: 'Number of same-origin pages to scan (start page + linked pages).'
+    required: false
+    default: '3'
+  tasks:
+    description: >-
+      Behavioural tasks: '' (none, deterministic scan only), 'default' for the built-in archetypes,
+      or a path to a tasks YAML file relative to the workspace.
+    required: false
+    default: ''
+  agent:
+    description: "Task agent: 'baseline' (no LLM) or 'llm'."
+    required: false
+    default: 'baseline'
+  fail-under:
+    description: 'Fail the job when the overall score is below this value (0-100).'
+    required: false
+    default: '0'
+  fail-on-task-fail:
+    description: "Fail the job when any behavioural task is FAIL or BLOCKED ('true'/'false')."
+    required: false
+    default: 'false'
+  fail-on:
+    description: 'Comma-separated check ids that fail the job when they fail (append :warn to include warnings).'
+    required: false
+    default: ''
+  timeout:
+    description: 'Navigation timeout in milliseconds.'
+    required: false
+    default: '30000'
+  allow-forms:
+    description: "Allow tasks marked 'form-submit' to submit POST forms with synthetic data ('true'/'false')."
+    required: false
+    default: 'false'
+  version:
+    description: >-
+      npm version or dist-tag of agentic-web-check to run (for example 'latest', '0.1.0', 'next'),
+      or 'local' to build and run the checked-out repository (used by this repository's own CI).
+    required: false
+    default: 'latest'
+  comment:
+    description: "Post or update a sticky pull request comment with the summary ('true'/'false')."
+    required: false
+    default: 'true'
+  summary:
+    description: "Append the markdown summary to the job summary ('true'/'false')."
+    required: false
+    default: 'true'
+  artifact:
+    description: "Upload the results directory as a workflow artifact ('true'/'false')."
+    required: false
+    default: 'true'
+  artifact-name:
+    description: 'Name of the uploaded artifact.'
+    required: false
+    default: 'agentic-web-check'
+  output-dir:
+    description: 'Directory (relative to the workspace) where results.json, report.html, summary.md and badge.svg are written.'
+    required: false
+    default: 'awc-results'
+  llm-api-key:
+    description: 'API key for the LLM provider (only used with agent: llm). Passed to the CLI as AWC_LLM_API_KEY.'
+    required: false
+    default: ''
+  llm-provider:
+    description: "LLM provider for agent: llm ('openai' for any OpenAI-compatible endpoint, or 'anthropic')."
+    required: false
+    default: ''
+  llm-model:
+    description: 'LLM model id for agent: llm.'
+    required: false
+    default: ''
+  github-token:
+    description: 'Token used to post the pull request comment. Defaults to the workflow GITHUB_TOKEN.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  score:
+    description: 'Overall score (0-100), empty when the scan did not produce results.'
+    value: ${{ steps.results.outputs.score }}
+  mode:
+    description: "Scoring mode reported by the scanner: 'deterministic' or 'behavioural'."
+    value: ${{ steps.results.outputs.mode }}
+  results-path:
+    description: 'Absolute path to results.json.'
+    value: ${{ steps.results.outputs.results-path }}
+  report-path:
+    description: 'Absolute path to report.html.'
+    value: ${{ steps.results.outputs.report-path }}
+  badge-path:
+    description: 'Absolute path to badge.svg.'
+    value: ${{ steps.results.outputs.badge-path }}
+  passed:
+    description: "'true' when the scan ran and every threshold was met, otherwise 'false'."
+    value: ${{ steps.results.outputs.passed }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Resolve paths
+      id: paths
+      shell: bash
+      env:
+        INPUT_OUTPUT_DIR: ${{ inputs.output-dir }}
+        INPUT_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        case "$INPUT_OUTPUT_DIR" in
+          /*) out_dir="$INPUT_OUTPUT_DIR" ;;
+          *)  out_dir="$GITHUB_WORKSPACE/$INPUT_OUTPUT_DIR" ;;
+        esac
+        mkdir -p "$out_dir"
+        echo "out-dir=$out_dir" >> "$GITHUB_OUTPUT"
+        if [ "$INPUT_VERSION" = "local" ]; then
+          # github.action_path is <repo>/action when the action is used as ./action
+          echo "awc-home=$(cd "$GITHUB_ACTION_PATH/.." && pwd)" >> "$GITHUB_OUTPUT"
+        else
+          echo "awc-home=$RUNNER_TEMP/agentic-web-check" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Install agentic-web-check
+      shell: bash
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
+        AWC_HOME: ${{ steps.paths.outputs.awc-home }}
+      run: |
+        set -euo pipefail
+        if [ "$INPUT_VERSION" = "local" ]; then
+          echo "Building agentic-web-check from the checked-out repository at $AWC_HOME"
+          cd "$AWC_HOME"
+          if [ ! -d node_modules ]; then
+            if [ -f package-lock.json ]; then
+              npm ci --no-audit --no-fund
+            elif [ -f pnpm-lock.yaml ] && command -v pnpm >/dev/null 2>&1; then
+              pnpm install --frozen-lockfile
+            else
+              npm install --no-audit --no-fund
+            fi
+          fi
+          if [ ! -f dist/cli.js ]; then
+            npm run build
+          fi
+          echo "AWC_BIN=node $AWC_HOME/dist/cli.js" >> "$GITHUB_ENV"
+        else
+          echo "Installing agentic-web-check@$INPUT_VERSION into $AWC_HOME"
+          mkdir -p "$AWC_HOME"
+          cd "$AWC_HOME"
+          if [ ! -f package.json ]; then
+            printf '{"name":"agentic-web-check-runner","private":true}\n' > package.json
+          fi
+          npm install --no-audit --no-fund --no-package-lock "agentic-web-check@$INPUT_VERSION"
+          echo "AWC_BIN=$AWC_HOME/node_modules/.bin/agentic-web-check" >> "$GITHUB_ENV"
+        fi
+        echo "Installing Playwright Chromium"
+        npx playwright install --with-deps chromium
+
+    - name: Run agentic-web-check ci
+      id: run
+      shell: bash
+      continue-on-error: true
+      working-directory: ${{ github.workspace }}
+      env:
+        INPUT_URL: ${{ inputs.url }}
+        INPUT_PAGES: ${{ inputs.pages }}
+        INPUT_TASKS: ${{ inputs.tasks }}
+        INPUT_AGENT: ${{ inputs.agent }}
+        INPUT_FAIL_UNDER: ${{ inputs.fail-under }}
+        INPUT_FAIL_ON_TASK_FAIL: ${{ inputs.fail-on-task-fail }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_TIMEOUT: ${{ inputs.timeout }}
+        INPUT_ALLOW_FORMS: ${{ inputs.allow-forms }}
+        INPUT_LLM_API_KEY: ${{ inputs.llm-api-key }}
+        INPUT_LLM_PROVIDER: ${{ inputs.llm-provider }}
+        INPUT_LLM_MODEL: ${{ inputs.llm-model }}
+        OUT_DIR: ${{ steps.paths.outputs.out-dir }}
+      run: |
+        set -uo pipefail
+        if [ -n "$INPUT_LLM_API_KEY" ]; then export AWC_LLM_API_KEY="$INPUT_LLM_API_KEY"; fi
+        if [ -n "$INPUT_LLM_PROVIDER" ]; then export AWC_LLM_PROVIDER="$INPUT_LLM_PROVIDER"; fi
+        if [ -n "$INPUT_LLM_MODEL" ]; then export AWC_LLM_MODEL="$INPUT_LLM_MODEL"; fi
+
+        args=(ci "$INPUT_URL" --out "$OUT_DIR" --no-color
+              --pages "$INPUT_PAGES" --timeout "$INPUT_TIMEOUT" --agent "$INPUT_AGENT"
+              --fail-under "$INPUT_FAIL_UNDER")
+        if [ -n "$INPUT_TASKS" ]; then args+=(--tasks "$INPUT_TASKS"); fi
+        if [ "$INPUT_FAIL_ON_TASK_FAIL" = "true" ]; then args+=(--fail-on-task-fail); fi
+        if [ -n "$INPUT_FAIL_ON" ]; then args+=(--fail-on "$INPUT_FAIL_ON"); fi
+        if [ "$INPUT_ALLOW_FORMS" = "true" ]; then args+=(--allow-forms); fi
+
+        echo "+ $AWC_BIN ${args[*]}"
+        # The runner starts bash with -e; disable it so a non-zero CLI exit (1 thresholds, 2 runtime)
+        # still reaches the lines below that record it for the later steps.
+        set +e
+        # AWC_BIN is intentionally word-split: it is either a bin path or "node <path>/dist/cli.js".
+        # shellcheck disable=SC2086
+        $AWC_BIN "${args[@]}"
+        code=$?
+        set -e
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+        exit "$code"
+
+    - name: Read results
+      id: results
+      shell: bash
+      env:
+        OUT_DIR: ${{ steps.paths.outputs.out-dir }}
+        EXIT_CODE: ${{ steps.run.outputs.exit-code }}
+      run: |
+        set -euo pipefail
+        node "$GITHUB_ACTION_PATH/scripts/read-results.mjs" "$OUT_DIR" "${EXIT_CODE:-2}"
+
+    - name: Write job summary
+      if: ${{ inputs.summary == 'true' }}
+      shell: bash
+      env:
+        OUT_DIR: ${{ steps.paths.outputs.out-dir }}
+        EXIT_CODE: ${{ steps.run.outputs.exit-code }}
+        INPUT_URL: ${{ inputs.url }}
+      run: |
+        set -euo pipefail
+        if [ -f "$OUT_DIR/summary.md" ]; then
+          cat "$OUT_DIR/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+        else
+          {
+            echo "## Agentic Web Check: no results"
+            echo ""
+            echo "The scan of **$INPUT_URL** did not produce a summary (exit code ${EXIT_CODE:-unknown}). See the job log."
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Upload results artifact
+      if: ${{ !cancelled() && inputs.artifact == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ steps.paths.outputs.out-dir }}
+        if-no-files-found: warn
+
+    - name: Post pull request comment
+      if: ${{ inputs.comment == 'true' && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') }}
+      uses: actions/github-script@v7
+      env:
+        OUT_DIR: ${{ steps.paths.outputs.out-dir }}
+        EXIT_CODE: ${{ steps.run.outputs.exit-code }}
+        INPUT_URL: ${{ inputs.url }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          const marker = '<!-- agentic-web-check -->';
+          const pr = context.payload.pull_request;
+          if (!pr) {
+            core.info('No pull request in the event payload; skipping the comment.');
+            return;
+          }
+          const exitCode = process.env.EXIT_CODE || 'unknown';
+          let body;
+          try {
+            body = fs.readFileSync(path.join(process.env.OUT_DIR, 'summary.md'), 'utf8');
+          } catch {
+            body = `## Agentic Web Check: no results\n\nThe scan of **${process.env.INPUT_URL}** did not produce a summary (exit code ${exitCode}). See the job log.`;
+          }
+          const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+          const footer = `\n\n<sub>[Workflow run](${runUrl}) · exit code ${exitCode}</sub>`;
+          const limit = 65000 - marker.length - footer.length - 32;
+          if (body.length > limit) body = `${body.slice(0, limit)}\n\n_(truncated)_`;
+          body = `${marker}\n${body}${footer}`;
+          const { owner, repo } = context.repo;
+          try {
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: pr.number, per_page: 100,
+            });
+            const existing = comments.find((c) => typeof c.body === 'string' && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+              core.info(`Updated comment ${existing.id}`);
+            } else {
+              const created = await github.rest.issues.createComment({ owner, repo, issue_number: pr.number, body });
+              core.info(`Created comment ${created.data.id}`);
+            }
+          } catch (err) {
+            core.warning(`Could not post the pull request comment: ${err.message}. ` +
+              'Grant `pull-requests: write` to the job, or set `comment: false`.');
+          }
+
+    - name: Enforce exit code
+      shell: bash
+      env:
+        EXIT_CODE: ${{ steps.run.outputs.exit-code }}
+        SCORE: ${{ steps.results.outputs.score }}
+        OUT_DIR: ${{ steps.paths.outputs.out-dir }}
+      run: |
+        set -euo pipefail
+        case "${EXIT_CODE:-2}" in
+          0)
+            echo "Agentic Web Check passed (score ${SCORE:-n/a}/100). Results in $OUT_DIR"
+            ;;
+          1)
+            echo "::error title=Agentic Web Check: thresholds not met::Score ${SCORE:-n/a}/100. The scan ran but at least one threshold (fail-under, fail-on-task-fail, fail-on) was not met. See the job summary and $OUT_DIR/summary.md."
+            exit 1
+            ;;
+          *)
+            echo "::error title=Agentic Web Check: runtime error::The scanner exited with code ${EXIT_CODE:-2} before producing a verdict (unreachable URL, browser failure, invalid tasks file, ...). See the step log."
+            exit 2
+            ;;
+        esac

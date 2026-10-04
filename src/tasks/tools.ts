@@ -73,31 +73,99 @@ export class BrowserTools {
   /** Detect hard blockers in the current page state. */
   async detectBlocker(): Promise<{ kind: BlockerKind; detail: string } | null> {
     const state = await this.page
-      .evaluate((markers) => {
-        const low =
-          `${document.title} ${document.body ? document.body.innerText.slice(0, 5000) : ''}`.toLowerCase();
-        const idsClasses = Array.from(document.querySelectorAll('[id],[class]'))
-          .slice(0, 1500)
-          .map((e) => `${e.id} ${e.className}`.toLowerCase())
-          .join(' ');
-        const hits = markers.filter((m) => low.includes(m) || idsClasses.includes(m));
-        const pw = document.querySelector('input[type=password]');
-        const pwVisible = pw ? pw.getBoundingClientRect().height > 0 : false;
-        return { hits, pwVisible, title: document.title, url: location.href };
-      }, CHALLENGE_MARKERS)
-      .catch(() => ({ hits: [] as string[], pwVisible: false, title: '', url: this.page.url() }));
+      .evaluate(
+        ({ markers, dismissWords }) => {
+          const low =
+            `${document.title} ${document.body ? document.body.innerText.slice(0, 5000) : ''}`.toLowerCase();
+          const idsClasses = Array.from(document.querySelectorAll('[id],[class]'))
+            .slice(0, 1500)
+            .map((e) => `${e.id} ${e.className}`.toLowerCase())
+            .join(' ');
+          const hits = markers.filter((m) => low.includes(m) || idsClasses.includes(m));
+          const pw = document.querySelector('input[type=password]');
+          const pwVisible = pw ? pw.getBoundingClientRect().height > 0 : false;
+          const loginSignal = Array.from(
+            document.querySelectorAll('h1,h2,h3,[role=alert],legend,dialog'),
+          )
+            .map((e) => (e.textContent || '').toLowerCase())
+            .some((t) => /sign in|log in|login|logged in|iniciar sess|entrar|autentica/.test(t));
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
+          let overlayBlocking = '';
+          for (const el of Array.from(document.querySelectorAll('body *'))) {
+            const cs = getComputedStyle(el);
+            if (
+              cs.position !== 'fixed' ||
+              cs.display === 'none' ||
+              cs.visibility === 'hidden' ||
+              parseFloat(cs.opacity) === 0
+            )
+              continue;
+            const r = el.getBoundingClientRect();
+            const ix = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0));
+            const iy = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+            const coverage = (ix * iy) / (vw * vh);
+            const coversCenter =
+              r.left <= vw / 2 && r.right >= vw / 2 && r.top <= vh / 2 && r.bottom >= vh / 2;
+            if (coverage < 0.3 && !(coversCenter && coverage >= 0.1)) continue;
+            const names = Array.from(
+              el.querySelectorAll(
+                'button,a[href],[role=button],input[type=button],input[type=submit]',
+              ),
+            ).map((c) =>
+              (
+                (c as HTMLElement).getAttribute('aria-label') ||
+                c.textContent ||
+                (c as HTMLInputElement).value ||
+                ''
+              )
+                .trim()
+                .toLowerCase(),
+            );
+            const dismiss = names.some(
+              (n) => n && dismissWords.some((w: string) => n === w || n.startsWith(`${w} `)),
+            );
+            if (!dismiss)
+              overlayBlocking = `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''} covering ${Math.round(coverage * 100)}% of the viewport`;
+            break;
+          }
+          return {
+            hits,
+            pwVisible,
+            loginSignal,
+            overlayBlocking,
+            title: document.title,
+            url: location.href,
+          };
+        },
+        { markers: CHALLENGE_MARKERS, dismissWords: DISMISS_WORDS },
+      )
+      .catch(() => ({
+        hits: [] as string[],
+        pwVisible: false,
+        loginSignal: false,
+        overlayBlocking: '',
+        title: '',
+        url: this.page.url(),
+      }));
     if (state.hits.length > 0) {
       const captcha = state.hits.some((h) => /captcha|turnstile|recaptcha/.test(h));
       return { kind: captcha ? 'captcha' : 'bot-wall', detail: state.hits.slice(0, 4).join(', ') };
     }
     if (
       state.pwVisible &&
-      /login|signin|sign-in|auth|account|session/i.test(state.url) &&
-      /sign in|log in|login|iniciar sess|entrar/i.test(
-        `${state.title} ${this.lastSnapshotText.slice(0, 3000)}`,
-      )
+      (/login|signin|sign-in|auth|session/i.test(state.url) || state.loginSignal)
     ) {
-      return { kind: 'login-required', detail: `password field on ${state.url}` };
+      return {
+        kind: 'login-required',
+        detail: `password field with sign-in prompt on ${state.url}`,
+      };
+    }
+    if (state.overlayBlocking) {
+      return {
+        kind: 'consent-overlay',
+        detail: `${state.overlayBlocking} with no named dismiss control`,
+      };
     }
     return null;
   }

@@ -39,7 +39,17 @@ export async function launchBrowser(opts: BrowserOptions): Promise<BrowserSessio
   const browser = await chromium.launch({
     headless: opts.headless ?? true,
     executablePath,
-    args: ['--disable-dev-shm-usage'],
+    args: [
+      '--disable-dev-shm-usage',
+      // No background traffic to Google services: the only network calls are to the target site.
+      '--disable-background-networking',
+      '--disable-component-update',
+      '--disable-default-apps',
+      '--disable-sync',
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-features=OptimizationHints,MediaRouter,Translate,InterestFeedContentSuggestions',
+    ],
   });
   const probe = await browser.newContext();
   const probePage = await probe.newPage();
@@ -169,8 +179,27 @@ export async function loadPage(page: Page, url: string, opts: LoadOptions): Prom
   const consoleErrors: string[] = [];
   const failedScripts: string[] = [];
   const onConsole = (msg: { type(): string; text(): string }) => {
-    if (msg.type() === 'error' && consoleErrors.length < 50)
+    // Resource failures are tracked through responses (with URLs); console only keeps script errors.
+    if (
+      msg.type() === 'error' &&
+      consoleErrors.length < 50 &&
+      !/^Failed to load resource/.test(msg.text())
+    )
       consoleErrors.push(msg.text().slice(0, 300));
+  };
+  const onResponse = (res: {
+    status(): number;
+    url(): string;
+    request(): { resourceType(): string };
+  }) => {
+    const type = res.request().resourceType();
+    if (
+      res.status() >= 400 &&
+      failedScripts.length < 20 &&
+      /^(script|stylesheet|document|fetch|xhr)$/.test(type) &&
+      !/favicon|apple-touch-icon/i.test(res.url())
+    )
+      failedScripts.push(`${res.url()} (HTTP ${res.status()}, ${type})`);
   };
   const onPageError = (err: Error) => {
     if (consoleErrors.length < 50)
@@ -182,6 +211,7 @@ export async function loadPage(page: Page, url: string, opts: LoadOptions): Prom
   page.on('console', onConsole);
   page.on('pageerror', onPageError);
   page.on('requestfailed', onRequestFailed);
+  page.on('response', onResponse);
 
   const started = Date.now();
   let status: number | null = null;
@@ -224,6 +254,7 @@ export async function loadPage(page: Page, url: string, opts: LoadOptions): Prom
   page.off('console', onConsole);
   page.off('pageerror', onPageError);
   page.off('requestfailed', onRequestFailed);
+  page.off('response', onResponse);
 
   const finalUrl = page.url();
   const summary: PageSummary = {
@@ -291,6 +322,7 @@ export function emptyPageData(): PageData {
     canvas: { coverage: 0, count: 0 },
     iframes: [],
     passwordFieldsOutsideForms: 0,
+    looseFields: { count: 0, unnamed: 0 },
     inputTypeSearch: 0,
     customWidgets: [],
     draggables: 0,

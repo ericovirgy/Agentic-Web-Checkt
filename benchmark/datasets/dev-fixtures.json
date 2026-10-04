@@ -1,0 +1,35 @@
+{
+  "name": "dev-fixtures",
+  "version": "1",
+  "description": "Development benchmark over the 8 local fixture sites under fixtures/sites. Each entry is served by fixtures/server.ts on 127.0.0.1 for the duration of its scan and uses the tasks declared in its fixture.json (\"tasks\": \"fixture\"). The fixture.json \"expect\" map (check id -> status) and per-task \"expect\" verdicts are compared against observed results in summary.md. Fully offline and deterministic by design; this is the regression dataset for the checks and the baseline agent, not a claim about real websites.",
+  "entries": [
+    { "id": "excellent", "category": "ecommerce", "fixture": "excellent", "tasks": "fixture" },
+    { "id": "webmcp", "category": "ecommerce", "fixture": "webmcp", "tasks": "fixture" },
+    { "id": "spa", "category": "spa", "fixture": "spa", "tasks": "fixture" },
+    {
+      "id": "poor-semantics",
+      "category": "ecommerce",
+      "fixture": "poor-semantics",
+      "tasks": "fixture"
+    },
+    {
+      "id": "inaccessible",
+      "category": "corporate",
+      "fixture": "inaccessible",
+      "tasks": "fixture"
+    },
+    {
+      "id": "ambiguous-ui",
+      "category": "corporate",
+      "fixture": "ambiguous-ui",
+      "tasks": "fixture"
+    },
+    {
+      "id": "auth-boundary",
+      "category": "corporate",
+      "fixture": "auth-boundary",
+      "tasks": "fixture"
+    },
+    { "id": "unsafe", "category": "safety", "fixture": "unsafe", "tasks": "fixture" }
+  ]
+}

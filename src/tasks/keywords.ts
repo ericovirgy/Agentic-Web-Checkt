@@ -30,18 +30,29 @@ export const EXPANSIONS: Record<string, string[]> = {
   careers: ['careers', 'jobs', 'join', 'hiring'],
 };
 
-export function keywordsFromGoal(goal: string, hints: string[] = []): string[] {
+export function keywordsFromGoal(goal: string, hints: string[] = [], siteTitle = ''): string[] {
+  // Words that name the site itself (from its title) match every logo/home link and are excluded.
+  const titleWords = new Set(
+    normaliseText(siteTitle)
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter((w) => w.length > 2),
+  );
   const words = normaliseText(goal)
     .replace(/[^a-z0-9\s'-]/g, ' ')
     .split(/\s+/)
     .map((w) => w.replace(/'s$/, ''))
-    .filter((w) => w.length > 2 && !STOPWORDS.has(w));
+    .filter((w) => w.length > 2 && !STOPWORDS.has(w) && !titleWords.has(w));
   const out = new Set<string>(hints.map(normaliseText));
   for (const w of words) {
     out.add(w);
-    for (const e of EXPANSIONS[w] ?? []) out.add(e);
-    const singular = w.replace(/s$/, '');
-    for (const e of EXPANSIONS[singular] ?? []) out.add(e);
+    for (const [key, list] of Object.entries(EXPANSIONS)) {
+      if (
+        w === key ||
+        (w.length >= 5 && key.length >= 4 && (w.startsWith(key) || key.startsWith(w)))
+      )
+        for (const e of list) out.add(e);
+    }
   }
   return [...out].filter(Boolean);
 }
@@ -52,11 +63,16 @@ export function matchScore(name: string, url: string | undefined, keywords: stri
   const u = normaliseText(url ?? '').replace(/[-_/]/g, ' ');
   if (!n && !u) return 0;
   let score = 0;
+  const nameWords = n.split(' ');
   for (const k of keywords) {
     if (!k) continue;
     if (n === k) score += 5;
-    else if (n.split(' ').includes(k)) score += 3;
+    else if (nameWords.includes(k)) score += 3;
     else if (n.includes(k)) score += 2;
+    else if (
+      nameWords.some((w) => w.length >= 4 && k.length >= 4 && (w.startsWith(k) || k.startsWith(w)))
+    )
+      score += 2;
     if (u.includes(k)) score += 1;
   }
   return score;

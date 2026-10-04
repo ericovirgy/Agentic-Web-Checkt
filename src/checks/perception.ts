@@ -275,6 +275,18 @@ export const perceptionChecks: CheckDefinition[] = [
         const v = axeViolations(p.axe, ['label-content-name-mismatch']);
         n += v.reduce((a, r) => a + r.nodes.length, 0);
         evidence.push(...axeEvidence(p, v, 8));
+        for (const f of p.data.forms) {
+          for (const m of f.labelMismatches) {
+            n++;
+            if (evidence.length < 20)
+              evidence.push({
+                url: p.finalUrl,
+                selector: m.selector,
+                observed: `visible label "${m.visible}", aria-label "${m.accessible}"`,
+                expected: 'aria-label contains the visible label',
+              });
+          }
+        }
       }
       return {
         status: n === 0 ? 'pass' : n <= 2 ? 'warn' : 'fail',

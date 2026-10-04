@@ -50,7 +50,8 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "fixtures:serve": "tsx fixtures/server.ts",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "bench": "tsx benchmark/run.ts"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.13.0",

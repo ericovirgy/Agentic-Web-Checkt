@@ -36,17 +36,23 @@ export async function runBaselineAgent(
   task: TaskDefinition,
   opts: AgentRunOptions,
 ): Promise<AgentOutcome> {
-  const keywords = keywordsFromGoal(task.goal, task.hints);
-  const query = task.data?.query ?? task.data?.search;
+  const siteTitle = await tools.page.title().catch(() => '');
+  const keywords = keywordsFromGoal(task.goal, task.hints, siteTitle);
+  const hintSet = new Set((task.hints ?? []).map(normaliseText));
+  const query = task.data?.query ?? task.data?.search ?? /"([^"]{2,60})"/.exec(task.goal)?.[1];
   const visitedUrls = new Set<string>();
   const clickedRefs = new Set<string>();
+  const clickedKeys = new Set<string>();
+  const keyOf = (role: string, name: string, url: string) =>
+    `${role}|${normaliseText(name)}|${normaliseText(url)}`;
   const stateHashes: string[] = [];
   let scrolled = 0;
   let dismissed = false;
   const started = Date.now();
+  const startUrl = tools.page.url();
 
   const satisfied = async (): Promise<{ ok: boolean; state: PageState; answer: string }> => {
-    const state = await capturePageState(tools.page);
+    const state = await capturePageState(tools.page, startUrl);
     const answer = task.success.some((a) => 'answer' in a) ? await answerFromPage(tools) : '';
     const results = evaluateAll(task.success, state, answer);
     return { ok: results.length > 0 && results.every((r) => r.holds), state, answer };
@@ -96,10 +102,10 @@ export async function runBaselineAgent(
           (n.role === 'searchbox' ||
             (n.role === 'textbox' && /search|pesquis|procurar|find/i.test(n.name))) &&
           n.ref &&
-          !clickedRefs.has(n.ref),
+          !clickedKeys.has(keyOf('search', n.name, state.url)),
       );
       if (box?.ref) {
-        clickedRefs.add(box.ref);
+        clickedKeys.add(keyOf('search', box.name, state.url));
         try {
           await tools.type(box.ref, query, true);
         } catch (e) {
@@ -118,7 +124,8 @@ export async function runBaselineAgent(
           (n.role === 'link' || n.role === 'button' || n.role === 'menuitem' || n.role === 'tab') &&
           n.ref &&
           n.name &&
-          !clickedRefs.has(n.ref),
+          !clickedRefs.has(n.ref) &&
+          !clickedKeys.has(keyOf(n.role, n.name, n.url ?? '')),
       )
       .map((n) => {
         let abs = '';
@@ -126,13 +133,15 @@ export async function runBaselineAgent(
           abs = n.url ? new URL(n.url, state.url).toString() : '';
         } catch {}
         const visited = abs ? visitedUrls.has(normaliseText(abs)) : false;
-        return { n, abs, score: visited ? 0 : matchScore(n.name, n.url, keywords) };
+        const hintBonus = [...hintSet].some((h) => h && normaliseText(n.name).includes(h)) ? 6 : 0;
+        return { n, abs, score: visited ? 0 : matchScore(n.name, n.url, keywords) + hintBonus };
       })
       .filter((c) => c.score > 0)
       .sort((a, b) => b.score - a.score);
     const best = candidates[0];
     if (best?.n.ref) {
       clickedRefs.add(best.n.ref);
+      clickedKeys.add(keyOf(best.n.role, best.n.name, best.n.url ?? ''));
       try {
         await tools.click(best.n.ref);
       } catch (e) {
@@ -144,11 +153,12 @@ export async function runBaselineAgent(
       continue;
     }
 
-    // 4. Nothing matched: scroll once to reveal more, then give up.
-    if (scrolled < 2) {
+    // 4. Nothing matched: scroll once to reveal more; if that changes nothing, give up.
+    if (scrolled < 1) {
       scrolled++;
       await tools.scroll('down').catch(() => {});
-      continue;
+      const last = tools.steps[tools.steps.length - 1];
+      if (!last?.noFeedback) continue;
     }
     return {
       status: 'gave_up',

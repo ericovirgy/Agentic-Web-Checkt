@@ -58,7 +58,7 @@ export const DEFAULT_TASKS: TaskDefinition[] = [
   },
 ];
 
-const ASSERTION_KEYS = ['url', 'text', 'title', 'element', 'answer', 'any_of'];
+const ASSERTION_KEYS = ['url', 'text', 'title', 'element', 'answer', 'any_of', 'navigated'];
 
 export function parseAssertion(raw: unknown, path: string): Assertion {
   if (!raw || typeof raw !== 'object') throw new Error(`${path}: assertion must be an object`);
@@ -84,6 +84,7 @@ export function parseAssertion(raw: unknown, path: string): Assertion {
         parseAssertion(x, `${path}.any_of[${i}]`),
       ),
     };
+  if (key === 'navigated') return { navigated: true };
   const value = o[key];
   if (!value || typeof value !== 'object') throw new Error(`${path}.${key}: must be an object`);
   return { [key]: value } as Assertion;

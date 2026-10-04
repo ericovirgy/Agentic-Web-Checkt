@@ -1,0 +1,91 @@
+{
+  "name": "public-sample",
+  "version": "1",
+  "description": "CANDIDATE: not yet executed. No numbers may be quoted for this dataset until a run directory produced by benchmark/run.ts exists and is cited. 12 public websites across categories, chosen because they are built for or known to tolerate automated access: dedicated test/demo and scraping-sandbox sites (saucedemo, demo.vercel.store, toscrape.com), public documentation sites, open-source project pages, public institutions and reference sites. Every entry uses the built-in read-only task archetypes (\"tasks\": \"default\"). The runner uses an honest user agent and respects robots.txt; do not add sites whose terms forbid automated access.",
+  "entries": [
+    {
+      "id": "saucedemo",
+      "category": "ecommerce-demo",
+      "url": "https://www.saucedemo.com/",
+      "tasks": "default",
+      "notes": "Sauce Labs demo store built for test automation; login wall on the start page exercises the auth boundary checks."
+    },
+    {
+      "id": "vercel-store",
+      "category": "ecommerce-demo",
+      "url": "https://demo.vercel.store/",
+      "tasks": "default",
+      "notes": "Next.js Commerce demo store; modern SPA-style storefront."
+    },
+    {
+      "id": "books-toscrape",
+      "category": "ecommerce-demo",
+      "url": "https://books.toscrape.com/",
+      "tasks": "default",
+      "notes": "Scraping sandbox published for automated access; static catalogue with pagination."
+    },
+    {
+      "id": "quotes-toscrape",
+      "category": "scraping-sandbox",
+      "url": "https://quotes.toscrape.com/",
+      "tasks": "default",
+      "notes": "Scraping sandbox published for automated access; includes login and JS-rendered variants."
+    },
+    {
+      "id": "mdn",
+      "category": "docs",
+      "url": "https://developer.mozilla.org/",
+      "tasks": "default",
+      "notes": "Large public documentation site with search and structured navigation."
+    },
+    {
+      "id": "example-com",
+      "category": "reference",
+      "url": "https://example.com/",
+      "tasks": "default",
+      "notes": "IANA reserved example domain; minimal single page, lower bound for navigation and tasks."
+    },
+    {
+      "id": "w3c",
+      "category": "standards-body",
+      "url": "https://www.w3.org/",
+      "tasks": "default",
+      "notes": "Public standards body; accessibility-conscious site."
+    },
+    {
+      "id": "wikipedia-en",
+      "category": "encyclopedia",
+      "url": "https://en.wikipedia.org/",
+      "tasks": "default",
+      "notes": "Public encyclopedia with an explicit bot policy and documented robots.txt."
+    },
+    {
+      "id": "github",
+      "category": "open-source-platform",
+      "url": "https://github.com/",
+      "tasks": "default",
+      "notes": "Marketing/landing page of the platform; heavy client-side rendering."
+    },
+    {
+      "id": "playwright-dev",
+      "category": "open-source-project",
+      "url": "https://playwright.dev/",
+      "tasks": "default",
+      "notes": "Docusaurus-based open-source project site."
+    },
+    {
+      "id": "github-docs",
+      "category": "docs",
+      "url": "https://docs.github.com/",
+      "tasks": "default",
+      "notes": "Public product documentation with search and versioned navigation."
+    },
+    {
+      "id": "gov-uk",
+      "category": "government",
+      "url": "https://www.gov.uk/",
+      "tasks": "default",
+      "notes": "Public institution with strong accessibility requirements (GDS)."
+    }
+  ]
+}

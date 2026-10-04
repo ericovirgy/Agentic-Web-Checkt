@@ -106,7 +106,7 @@ async function runTask(
   let verdict: TaskVerdict;
   let reason: string;
   let assertions: TaskResult['assertions'] = [];
-  const state = await capturePageState(page).catch(() => null);
+  const state = await capturePageState(page, startUrl).catch(() => null);
   if (state && outcome.status !== 'error')
     assertions = evaluateAll(task.success, state, outcome.answer);
   const allHold = assertions.length > 0 && assertions.every((a) => a.holds);

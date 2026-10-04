@@ -3,6 +3,7 @@ import { probeSite } from './browser/probes.js';
 import { type LoadedPage, launchBrowser, loadPage } from './browser/session.js';
 import { interactiveNodes } from './browser/snapshot.js';
 import { KEY_PAGE_VOCAB, matchesVocab } from './checks/navigation.js';
+import { isConsequentialName } from './tasks/tools.js';
 import { ALL_CHECKS, type CheckContext, runChecks } from './checks/index.js';
 import { computeScores, suggestedFixes } from './scoring/index.js';
 import { runTasks } from './tasks/runner.js';
@@ -31,7 +32,14 @@ export function pickPagesToScan(start: LoadedPage, max: number): string[] {
       continue;
     }
     if (abs.origin !== origin || !/^https?:$/.test(abs.protocol)) continue;
-    abs.hash = '';
+    // Never follow consequential links during a scan (delete, pay, unsubscribe…).
+    if (
+      isConsequentialName(l.name) ||
+      /[?&](confirm|delete|remove|action|do|logout|unsubscribe)=/i.test(abs.search)
+    )
+      continue;
+    // Keep hash-router paths (#/route) as distinct pages; drop plain fragments.
+    if (!abs.hash.startsWith('#/')) abs.hash = '';
     const key = normalise(abs.toString());
     if (seen.has(key)) continue;
     if (/\.(pdf|zip|png|jpe?g|gif|svg|xml|txt|css|js)$/i.test(abs.pathname)) continue;

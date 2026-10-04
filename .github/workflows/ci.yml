@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Check package contents
+        run: npm pack --dry-run
+
+  self-check:
+    name: Self-check (action against fixture site)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Serve the "excellent" fixture site
+        run: |
+          nohup npx tsx fixtures/server.ts excellent 4311 > fixture-server.log 2>&1 &
+          for _ in $(seq 1 30); do
+            if curl -sSf http://127.0.0.1:4311/ > /dev/null 2>&1; then
+              echo "Fixture server is up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Fixture server did not start"
+          cat fixture-server.log
+          exit 1
+
+      - name: "Run the action (version: local)"
+        id: awc
+        uses: ./action
+        with:
+          url: http://127.0.0.1:4311/
+          version: local
+          tasks: default
+          fail-under: 70
+          fail-on-task-fail: true
+          comment: false
+          artifact-name: self-check-results
+
+      - name: Assert outputs
+        env:
+          SCORE: ${{ steps.awc.outputs.score }}
+          MODE: ${{ steps.awc.outputs.mode }}
+          PASSED: ${{ steps.awc.outputs.passed }}
+          RESULTS: ${{ steps.awc.outputs.results-path }}
+          REPORT: ${{ steps.awc.outputs.report-path }}
+          BADGE: ${{ steps.awc.outputs.badge-path }}
+        run: |
+          echo "score=$SCORE mode=$MODE passed=$PASSED"
+          test "$PASSED" = "true"
+          test "$MODE" = "behavioural"
+          test -n "$SCORE" && test "$SCORE" -ge 70
+          test -f "$RESULTS" && test -f "$REPORT" && test -f "$BADGE"

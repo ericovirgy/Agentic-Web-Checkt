@@ -1,0 +1,98 @@
+
+AGENTIC WEB CHECK  v0.1.0 · methodology v1
+http://127.0.0.1:4313/  (fixture: ambiguous-ui)
+Behavioural verification (3 tasks, baseline agent)
+
+Agent Readiness   58/100
+
+PERCEPTION           81   6 pass · 2 warn · 1 fail
+NAVIGATION           75   4 pass · 0 warn · 2 fail
+INTERACTION          77   8 pass · 0 warn · 1 fail
+MACHINE INTERFACES   78   2 pass · 1 warn · 1 fail
+RELIABILITY         100   5 pass · 0 warn · 0 fail
+SAFETY               86   3 pass · 2 warn · 0 fail
+TASK SUCCESS          0   0 pass · 0 warn · 3 fail
+
+28 passed  5 warnings  5 failures  5 not applicable/info
+
+FAIL
+  ✗ No overlay blocks the page at load [overlay-interference, interaction, weight 10]
+    2 overlays block the page without an accessible dismiss control.
+    · div#consent · observed: overlay covering 100% of the viewport with no named dismiss control · expected: named Accept/Close/Reject button
+    · div#consent · observed: overlay covering 100% of the viewport with no named dismiss control · expected: named Accept/Close/Reject button
+  ✗ Control names are specific, not repeated or generic [ambiguous-control-names, perception, weight 3]
+    6 generic names and 0 names reused for different destinations.
+    · button "Submit" [ref=e36] [cursor=pointer] · observed: generic name · expected: name describing destination or action
+    · button "Submit" [ref=e40] [cursor=pointer] · observed: generic name · expected: name describing destination or action
+    · button "Submit" [ref=e43] [cursor=pointer] · observed: generic name · expected: name describing destination or action
+    · … 3 more in JSON/HTML report
+  ✗ Menus do not depend on hover [hover-only-menus, navigation, weight 3]
+    12 navigation links are only revealed on hover.
+    · observed: 6 nav links hidden until hover · expected: submenu behind a button with aria-expanded, or always rendered
+    · observed: 6 nav links hidden until hover · expected: submenu behind a button with aria-expanded, or always rendered
+  ✗ A sitemap is published [sitemap, navigation, weight 3]
+    No sitemap.xml and no Sitemap directive in robots.txt.
+    · observed: HTTP 404 · expected: urlset/sitemapindex XML
+  ✗ Structured data (JSON-LD) describes the page [structured-data, machine-interfaces, weight 3]
+    No JSON-LD found.
+    · observed: types: none · expected: Organization, WebSite, WebPage, Product, Offer, FAQPage
+
+WARNING
+  ! Clickable elements are real controls, not generic elements [fake-interactive-elements, perception, weight 7]
+    2 clickable elements without a control role (6% of clickables).
+    · generic [ref=e4] [cursor=pointer] : × · observed: generic element with pointer cursor · expected: button or link role
+    · <div> "×" · observed: onclick attribute · expected: semantic control
+    · generic [ref=e4] [cursor=pointer] : × · observed: generic element with pointer cursor · expected: button or link role
+    · … 1 more in JSON/HTML report
+  ! Consequential actions require confirmation [consequential-actions-guarded, safety, weight 7]
+    4 of 4 consequential actions execute without a visible confirmation step.
+    · button "delete account" · observed: immediate action without confirmation signal · expected: confirmation dialog or review step
+    · submit "buy now" · observed: immediate action without confirmation signal · expected: confirmation dialog or review step
+    · button "delete account" · observed: immediate action without confirmation signal · expected: confirmation dialog or review step
+    · … 1 more in JSON/HTML report
+  ! Visible labels are part of accessible names [label-in-name, perception, weight 3]
+    2 controls whose accessible name does not contain their visible label.
+    · <a href="index.html#pricing" aria-label="Plans">Pricing</a> · observed: label-content-name-mismatch · expected: Elements must have their visible text as part of their accessible name
+    · <a href="index.html#pricing" aria-label="Plans">Pricing</a> · observed: label-content-name-mismatch · expected: Elements must have their visible text as part of their accessible name
+  ! llms.txt is published and well-formed [llms-txt, machine-interfaces, weight 3]
+    No llms.txt published.
+    · observed: HTTP 404 · expected: markdown file with H1
+  ! Downloads and new windows are announced [download-and-popup-links, safety, weight 1]
+    2 of 2 download/new-window links are not announced.
+    · link "Get it" → brochure.zip · observed: download not announced in name · expected: name mentions download / new tab
+    · link "Get it" → brochure.zip · observed: download not announced in name · expected: name mentions download / new tab
+
+BEHAVIOURAL TESTS
+  Find the company's contact information (an email address or phone n…: BLOCKED (0 steps, 0.8 s)
+    consent-overlay: div#consent covering 100% of the viewport with no named dismiss control
+  Find the page describing the privacy policy or terms of service.: BLOCKED (0 steps, 0.8 s)
+    consent-overlay: div#consent covering 100% of the viewport with no named dismiss control
+  Find a page that explains what the company or product does (about, …: BLOCKED (0 steps, 0.8 s)
+    consent-overlay: div#consent covering 100% of the viewport with no named dismiss control
+
+Suggested fixes
+  1. No overlay blocks the page at load [overlay-interference, weight 10]
+     Avoid full-page overlays at load; if a consent dialog is required, make it a role="dialog"
+     with a clearly named Accept/Reject button and let the rest of the page work beneath it.
+  2. Control names are specific, not repeated or generic [ambiguous-control-names, weight 3]
+     Make link and button text describe the destination or action ("Read the return policy",
+     "Add Trail Bike to cart"). Avoid "Click here"/"Read more"; use aria-label to disambiguate
+     when visual text must stay short.
+  3. Menus do not depend on hover [hover-only-menus, weight 3]
+     Expose submenus through a <button aria-expanded> toggle, or render submenu links in the
+     page (footer sitemap) so they are reachable without hover.
+  4. A sitemap is published [sitemap, weight 3]
+     Publish /sitemap.xml and reference it with a Sitemap: line in robots.txt.
+  5. Structured data (JSON-LD) describes the page [structured-data, weight 3]
+     Add JSON-LD for Organization/WebSite on the home page and Product/Offer, FAQPage,
+     ContactPoint or BreadcrumbList on inner pages.
+  6. Clickable elements are real controls, not generic elements [fake-interactive-elements, weight 7]
+     Use <button> or <a href> for actions and navigation. If a custom element must stay, add
+     role="button", tabindex="0", a name and keyboard handlers.
+  7. Consequential actions require confirmation [consequential-actions-guarded, weight 7]
+     Put consequential actions behind a confirmation dialog (aria-haspopup="dialog" + <dialog>)
+     or a review step; never auto-submit them.
+  8. Visible labels are part of accessible names [label-in-name, weight 3]
+     Ensure the accessible name (aria-label) contains the visible text of the control.
+
+2 pages · 9.3 s · chromium 141.0.7390.37 · 2026-10-04T21:43:46.062Z

@@ -10,3 +10,7 @@ awc-results/
 .env.*
 !.env.example
 /tmp/
+
+# Benchmark run output: committed only for published runs (see benchmark/results/README.md)
+benchmark/results/*
+!benchmark/results/README.md

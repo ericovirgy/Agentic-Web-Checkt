@@ -143,11 +143,11 @@ export function axeRan(ctx: CheckContext): boolean {
 }
 
 export function pagesOf(ctx: CheckContext): string[] {
-  return ctx.pages.filter((p) => !p.error).map((p) => p.finalUrl);
+  return okPages(ctx).map((p) => p.finalUrl);
 }
 
 export function okPages(ctx: CheckContext): LoadedPage[] {
-  return ctx.pages.filter((p) => !p.error);
+  return ctx.pages.filter((p) => !p.error && (p.status === null || p.status < 400));
 }
 
 export function dataOf(p: LoadedPage): PageData {

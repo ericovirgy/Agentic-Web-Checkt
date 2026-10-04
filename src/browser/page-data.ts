@@ -22,6 +22,8 @@ export interface FormInfo {
   toolautosubmit?: boolean;
   textSample: string;
   requiredMarkersWithoutAttr: number;
+  /** Fields whose aria-label does not contain the visible <label> text (WCAG 2.5.3 for inputs). */
+  labelMismatches: { selector: string; visible: string; accessible: string }[];
 }
 
 export interface LinkInfo {
@@ -69,6 +71,8 @@ export interface PageData {
   canvas: { coverage: number; count: number };
   iframes: { src: string; crossOrigin: boolean; selector: string }[];
   passwordFieldsOutsideForms: number;
+  /** Form controls that are not inside any <form>. */
+  looseFields: { count: number; unnamed: number };
   inputTypeSearch: number;
   customWidgets: { role: string; selector: string; reason: string }[];
   draggables: number;
@@ -325,10 +329,14 @@ export const PAGE_DATA_SCRIPT = `(args) => {
     const fields = Array.from(f.querySelectorAll('input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=reset]),select,textarea'));
     const submit = f.querySelector('button[type=submit],input[type=submit],button:not([type])');
     let requiredMarkersWithoutAttr = 0;
+    const labelMismatches = [];
     for (const field of fields) {
-      const id = field.id; const label = id ? f.querySelector('label[for="' + CSS.escape(id) + '"]') : field.closest('label');
+      const id = field.id; const label = (id ? f.querySelector('label[for="' + CSS.escape(id) + '"]') : null) || field.closest('label');
       const lt = label ? norm(label.textContent) : '';
       if (/\\*/.test(lt) && !field.required && field.getAttribute('aria-required') !== 'true') requiredMarkersWithoutAttr++;
+      const al = norm(field.getAttribute('aria-label') || '');
+      const visible = lt.replace(/[*:]/g, '').trim();
+      if (al && visible && !lower(al).includes(lower(visible)) && labelMismatches.length < 10) labelMismatches.push({ selector: cssPath(field), visible: visible.slice(0, 60), accessible: al.slice(0, 60) });
     }
     return {
       selector: cssPath(f),
@@ -343,6 +351,7 @@ export const PAGE_DATA_SCRIPT = `(args) => {
       toolautosubmit: f.hasAttribute('toolautosubmit') || undefined,
       textSample: norm(f.textContent).slice(0, 200),
       requiredMarkersWithoutAttr,
+      labelMismatches,
     };
   });
 
@@ -425,6 +434,8 @@ export const PAGE_DATA_SCRIPT = `(args) => {
   const iframes = Array.from(document.querySelectorAll('iframe')).slice(0, 30).map((f) => { const src = f.getAttribute('src') || (f.hasAttribute('srcdoc') ? 'about:srcdoc' : ''); let cross = false; try { if (src && !src.startsWith('about:')) cross = new URL(src, location.href).origin !== origin; } catch {} return { src: src.slice(0, 200), crossOrigin: cross, selector: cssPath(f) }; });
 
   const passwordFieldsOutsideForms = Array.from(document.querySelectorAll('input[type=password]')).filter((i) => !i.form).length;
+  const looseFieldEls = Array.from(document.querySelectorAll('input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=reset]),select,textarea')).filter((f) => !f.form);
+  const looseFields = { count: looseFieldEls.length, unnamed: looseFieldEls.filter((f) => !f.getAttribute('name')).length };
   const inputTypeSearch = document.querySelectorAll('input[type=search]').length;
 
   const customWidgets = [];
@@ -494,7 +505,7 @@ export const PAGE_DATA_SCRIPT = `(args) => {
     htmlLength: document.documentElement.outerHTML.length,
     hiddenBlocks, htmlComments, forms, links, overlays, nonSemanticClickables, landmarks, headings, jsonLd,
     canvas: { coverage: Math.round(canvasCoverage * 100) / 100, count: canvases.length },
-    iframes, passwordFieldsOutsideForms, inputTypeSearch, customWidgets, draggables, contentEditable, positiveTabindex,
+    iframes, passwordFieldsOutsideForms, looseFields, inputTypeSearch, customWidgets, draggables, contentEditable, positiveTabindex,
     consequentialControls, secretHits, webmcp,
     closedShadowRoots: st.closedShadowRoots || 0, closedShadowHosts: st.closedShadowHosts || [], clickListenerCount: st.clickListenerCount || 0,
     mutations: st.mutations || 0, mutationsAfterSettle: st.mutationsAfterSettle || 0, cls: Math.round((st.cls || 0) * 1000) / 1000,

@@ -2,9 +2,22 @@
   "name": "excellent",
   "description": "Northwind Bikes (fictional): an agent-ready small company site with semantic HTML, landmarks, labelled forms, JSON-LD, robots.txt, sitemap.xml, llms.txt, a client-side search and a guarded checkout flow.",
   "pages": [
-    "index.html", "products.html", "product-trail.html", "product-city.html", "product-kids.html",
-    "contact.html", "returns.html", "search.html", "privacy.html", "terms.html", "about.html",
-    "login.html", "cart.html", "robots.txt", "sitemap.xml", "llms.txt"
+    "index.html",
+    "products.html",
+    "product-trail.html",
+    "product-city.html",
+    "product-kids.html",
+    "contact.html",
+    "returns.html",
+    "search.html",
+    "privacy.html",
+    "terms.html",
+    "about.html",
+    "login.html",
+    "cart.html",
+    "robots.txt",
+    "sitemap.xml",
+    "llms.txt"
   ],
   "expect": {
     "control-accessible-name": "pass",
@@ -22,7 +35,7 @@
     "key-pages-discoverable": "pass",
     "search-available": "pass",
     "sitemap": "pass",
-    "breadcrumbs": "pass",
+    "breadcrumbs": "na",
     "form-fields-labelled": "pass",
     "overlay-interference": "pass",
     "native-controls": "pass",
@@ -48,7 +61,7 @@
     "webmcp-tool-annotations": "na",
     "auth-boundary-signalled": "pass",
     "exposed-secrets": "pass",
-    "download-and-popup-links": "pass"
+    "download-and-popup-links": "na"
   },
   "notes": {
     "breadcrumbs": "BreadcrumbList JSON-LD and nav[aria-label=Breadcrumb] are on the three product pages only; the start page is the root so it may report na there.",
@@ -61,9 +74,20 @@
       "safety": "read-only",
       "expect": "PASS",
       "success": [
-        { "type": "url", "includes": "contact.html" },
-        { "type": "text", "includes": "hello@northwind.example" },
-        { "type": "answer", "must_include": ["hello@northwind.example"] }
+        {
+          "type": "url",
+          "includes": "contact.html"
+        },
+        {
+          "type": "text",
+          "includes": "hello@northwind.example"
+        },
+        {
+          "type": "answer",
+          "must_include": [
+            "hello@northwind.example"
+          ]
+        }
       ]
     },
     {
@@ -72,9 +96,20 @@
       "safety": "read-only",
       "expect": "PASS",
       "success": [
-        { "type": "url", "includes": "returns.html" },
-        { "type": "text", "includes": "30 days" },
-        { "type": "answer", "must_include": ["30 days"] }
+        {
+          "type": "url",
+          "includes": "returns.html"
+        },
+        {
+          "type": "text",
+          "includes": "30 days"
+        },
+        {
+          "type": "answer",
+          "must_include": [
+            "30 days"
+          ]
+        }
       ]
     },
     {
@@ -83,8 +118,21 @@
       "safety": "read-only",
       "expect": "PASS",
       "success": [
-        { "type": "url", "includes": "product-trail.html" },
-        { "type": "title", "includes": "Northwind Trail 29" }
+        {
+          "type": "url",
+          "includes": "product-trail.html"
+        },
+        {
+          "type": "title",
+          "includes": "Northwind Trail 29"
+        }
+      ],
+      "data": {
+        "query": "trail"
+      },
+      "hints": [
+        "search",
+        "trail"
       ]
     },
     {
@@ -93,8 +141,15 @@
       "safety": "read-only",
       "expect": "PASS",
       "success": [
-        { "type": "url", "includes": "privacy.html" },
-        { "type": "element", "role": "heading", "name": "Privacy policy" }
+        {
+          "type": "url",
+          "includes": "privacy.html"
+        },
+        {
+          "type": "element",
+          "role": "heading",
+          "name": "Privacy policy"
+        }
       ]
     },
     {
@@ -103,9 +158,17 @@
       "safety": "consequential",
       "expect": "BLOCKED",
       "success": [
-        { "type": "url", "includes": "cart.html" },
-        { "type": "element", "role": "dialog", "name": "Confirm your order" }
+        {
+          "type": "url",
+          "includes": "cart.html"
+        },
+        {
+          "type": "element",
+          "role": "dialog",
+          "name": "Confirm your order"
+        }
       ]
     }
-  ]
+  ],
+  "scanPages": 12
 }

@@ -44,6 +44,14 @@ export const interactionChecks: CheckDefinition[] = [
         ]);
         violations += v.reduce((a, r) => a + r.nodes.length, 0);
         evidence.push(...axeEvidence(p, v, 8));
+        fields += p.data.looseFields.count;
+        unnamed += p.data.looseFields.unnamed;
+        if (p.data.looseFields.unnamed > 0 && evidence.length < 20)
+          evidence.push({
+            url: p.finalUrl,
+            observed: `${p.data.looseFields.unnamed} fields outside any <form> without a name attribute`,
+            expected: 'fields inside a <form> with name attributes',
+          });
         for (const f of p.data.forms) {
           fields += f.fieldCount;
           unnamed += f.unnamedFields;
