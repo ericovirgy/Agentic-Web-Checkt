@@ -1,0 +1,83 @@
+name: False positive / false negative
+description: A check reported a status that does not match what the page actually does.
+title: "check: <check-id> "
+labels: ["check-accuracy"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every check is a heuristic with a documented detection rule in `docs/SCORING.md`. The most
+        useful report names the check, shows the evidence it produced and explains what the page
+        really does. Please do not report a disagreement with a check's existence or weight here;
+        open a Discussion for that.
+  - type: input
+    id: check
+    attributes:
+      label: Check id
+      description: As printed in brackets in the report, for example `overlay-interference`. `agentic-web-check checks` lists them.
+      placeholder: hover-only-menus
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - "False positive: the check failed or warned, but the page is fine"
+        - "False negative: the check passed, but the page has the problem"
+        - "Wrong severity: pass/warn/fail does not match the documented thresholds"
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: URL or fixture
+      description: A public URL, or a fixture under `fixtures/sites/` (ideally a minimal HTML snippet that reproduces it).
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version and methodology
+      description: From the report header, for example `v0.1.0 · methodology v1`.
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed
+      description: The check's summary and evidence lines exactly as reported.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      description: What the page actually does and which status you believe the detection rule in `docs/SCORING.md` should produce.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence JSON
+      description: The check's object from `results.json` (`checks[]` entry with the matching `id`), including `evidence` and `metrics`.
+      render: json
+      placeholder: |
+        {
+          "id": "ambiguous-control-names",
+          "status": "fail",
+          "summary": "6 generic names and 0 names reused for different destinations.",
+          "evidence": [
+            { "url": "http://127.0.0.1:4313/", "ref": "e36", "element": "button \"Submit\" [ref=e36]", "observed": "generic name", "expected": "name describing destination or action" }
+          ],
+          "metrics": { "controls": 28, "generic": 6, "duplicateNames": 0 }
+        }
+    validations:
+      required: true
+  - type: textarea
+    id: html
+    attributes:
+      label: Minimal HTML
+      description: If you can, the smallest markup that reproduces the misclassification. This becomes the fixture for the fix.
+      render: html

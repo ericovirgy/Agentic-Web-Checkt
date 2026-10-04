@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/ericovirgy/agentic-web-check/discussions
+    about: Ask how something works, discuss methodology or propose larger changes before opening an issue.
+  - name: Security vulnerability
+    url: https://github.com/ericovirgy/agentic-web-check/security/advisories/new
+    about: Report a vulnerability in the scanner privately. Do not open a public issue.

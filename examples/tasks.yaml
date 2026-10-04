@@ -1,0 +1,75 @@
+# Example tasks file for an e-commerce site.
+#
+# Run it with:
+#   npx agentic-web-check scan https://shop.example --tasks examples/tasks.yaml
+#   npx agentic-web-check scan https://shop.example --tasks examples/tasks.yaml --allow-forms
+#
+# The verdict of every task comes from the `success` assertions evaluated against the final
+# browser state, never from the agent saying it is done. All assertions must hold unless they are
+# wrapped in `any_of`. Text matching is case-insensitive and ignores accents and extra whitespace.
+#
+# Fields per task:
+#   name        required, used in reports and screenshot file names
+#   goal        required, the instruction given to the agent
+#   safety      read-only (default) | form-submit | consequential
+#   start       optional path or URL to start from (defaults to the scanned URL)
+#   max_steps   optional step budget (default 15)
+#   hints       optional accessible-name vocabulary for the baseline agent
+#   data        optional synthetic data the agent may type; data.query drives the baseline search
+#   success     required, non-empty list of assertions (see docs/BEHAVIOURAL-TESTING.md)
+
+tasks:
+  # 1. Read-only: find the contact page. Works with the baseline agent (no API key): it follows
+  #    links whose accessible name matches the hints and the goal's keywords.
+  - name: contact
+    goal: Find the customer service contact information (an email address or a phone number).
+    safety: read-only
+    hints: [contact, contact us, customer service, help]
+    success:
+      - any_of:
+          - url: { regex: "contact|support|help|customer-service" }
+          - text: { includes: "@" }
+
+  # 2. Read-only: open the returns policy and check that the return window is stated.
+  #    `answer` is evaluated against what the agent reports back (the LLM agent returns it in its
+  #    finish call; the baseline agent returns the main content of the final page).
+  - name: returns-policy
+    goal: Find the returns policy and report how many days customers have to return an item.
+    safety: read-only
+    hints: [returns, refunds, return policy]
+    max_steps: 12
+    success:
+      - url: { regex: "return|refund" }
+      - any_of:
+          - text: { includes: "30 days" }
+          - text: { includes: "14 days" }
+      - answer: { must_include: ["days"] }
+
+  # 3. Read-only: use the site search. `data.query` is what the baseline agent types into the
+  #    first searchbox it finds (pressing Enter); the LLM agent receives `data` as synthetic data.
+  - name: search
+    goal: Use the site search to find the trail bike and open its product page.
+    safety: read-only
+    data: { query: trail bike }
+    hints: [search, trail]
+    success:
+      - url: { regex: "product|/p/|item" }
+      - title: { includes: "Trail" }
+      - element: { role: button, name: "Add to cart" }
+
+  # 4. Form submission with synthetic data. Without --allow-forms the runner turns the task
+  #    BLOCKED the moment a non-GET form would be submitted (verdict reason: consequential-step).
+  #    Never put real personal data here; the values below are what the agent will type.
+  - name: newsletter-signup
+    goal: Subscribe to the newsletter with the email address provided.
+    safety: form-submit
+    start: /newsletter
+    max_steps: 10
+    data:
+      email: awc-test@example.com
+      name: Agentic Web Check
+    success:
+      - any_of:
+          - text: { includes: "thank you for subscribing" }
+          - text: { includes: "check your inbox" }
+          - element: { role: heading, name: "Subscribed" }

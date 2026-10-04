@@ -1,0 +1,85 @@
+name: New check proposal
+description: Propose a new deterministic check. Rationale, reference and a fixture are required.
+title: "check proposal: "
+labels: ["new-check"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Checks are admitted only when they cite a standard, an audit or a documented agent failure
+        mode, come with a fixture, and are documented in `docs/SCORING.md` (see CONTRIBUTING.md,
+        "Adding a check"). This template collects exactly that. Checks that duplicate a Lighthouse
+        Agentic Browsing audit or another fetch-and-parse checklist item are not accepted.
+  - type: input
+    id: id
+    attributes:
+      label: Proposed check id
+      description: kebab-case, states the condition, for example `infinite-scroll-without-pagination`.
+    validations:
+      required: true
+  - type: dropdown
+    id: dimension
+    attributes:
+      label: Dimension
+      options:
+        - perception
+        - navigation
+        - interaction
+        - machine-interfaces
+        - reliability
+        - safety
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale
+      description: What goes wrong for an agent when this condition holds, and how often. Observed behaviour beats intuition.
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: Reference
+      description: The WCAG success criterion, Lighthouse audit id, specification section, or the benchmark / agent-harness document (with link) that documents this failure mode. One of these is mandatory.
+    validations:
+      required: true
+  - type: textarea
+    id: detection
+    attributes:
+      label: Detection rule
+      description: How the check decides pass / warn / fail from the accessibility snapshot, DOM data, axe results or HTTP probes. State every threshold and label it FACT (sourced) or INFERENCE (your judgement).
+    validations:
+      required: true
+  - type: dropdown
+    id: weight
+    attributes:
+      label: Proposed weight
+      description: 10 blocks agents outright, 7 causes frequent failures, 3 degrades, 1 is a nicety.
+      options:
+        - "10 (critical)"
+        - "7 (serious)"
+        - "3 (moderate)"
+        - "1 (minor)"
+    validations:
+      required: true
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Fixture
+      description: The HTML that triggers each status the check can return. It will become a fixture under `fixtures/sites/` with an `expect` entry. Required, even as a sketch.
+      render: html
+    validations:
+      required: true
+  - type: textarea
+    id: remediation
+    attributes:
+      label: Remediation text
+      description: What the site owner should change, in one or two sentences, as it will appear in the report.
+    validations:
+      required: true
+  - type: textarea
+    id: false_positives
+    attributes:
+      label: Known false positives
+      description: Legitimate pages that would trip the rule and how the detection avoids them.

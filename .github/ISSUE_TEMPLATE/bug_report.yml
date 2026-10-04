@@ -1,0 +1,70 @@
+name: Bug report
+description: The CLI, the Action or the API crashed, hung or produced wrong output.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a check that fires when it should not (or stays silent when it should fire), use the
+        **False positive / false negative** template instead.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `agentic-web-check --version` (or the Action tag and `version` input).
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: The exact command, including flags. Redact API keys.
+      render: sh
+      placeholder: npx agentic-web-check scan https://example.com --tasks default --out awc-results
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened
+      description: Error message, stack trace or the wrong output. Paste text, not screenshots.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: dropdown
+    id: reproducible
+    attributes:
+      label: Reproducible on a fixture?
+      description: Fixtures live under `fixtures/sites/` and are served with `pnpm fixtures:serve <site> <port>`.
+      options:
+        - "Yes, on a fixture (name it below)"
+        - "No, only on a public URL (give it below)"
+        - "No, only on a private site (describe it below)"
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Fixture name or URL
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node version (`node --version`), how Chromium was installed (`npx playwright install chromium` or `AWC_BROWSER_PATH`), and the browser version from the report footer.
+      placeholder: |
+        Ubuntu 24.04, Node v22.22.0, Playwright Chromium 141.0.7390.37
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Attach `results.json` or the `--verbose` output if you have them.
