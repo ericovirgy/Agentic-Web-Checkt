@@ -25,8 +25,12 @@ preparing these drafts and must be resolved before anything is posted.
 
 ## 1. Release
 
-- [ ] Add the `NPM_TOKEN` secret (Settings, Secrets and variables, Actions). The workflow publishes
-      with `--provenance`, so the token must be an automation token and the repository must be public.
+- [ ] Configure npm Trusted Publishing instead of a token: on npmjs.com, package `agentic-web-check`,
+      Settings, Trusted Publisher: GitHub Actions, repository `ericovirgy/agentic-web-check`, workflow
+      `release.yml`, no environment. If npm refuses because the package does not exist yet, do a one-time
+      first publish from a maintainer machine with 2FA (`npm publish --access public`), then configure the
+      trusted publisher and set Publishing access to "Require two-factor authentication and disallow
+      tokens". The workflow has no `NPM_TOKEN` and never needs one.
 - [ ] `CHANGELOG.md` has the `## [0.1.0] - 2026-10-04` section the workflow extracts; adjust the date
       if the tag is pushed on another day.
 - [ ] Run locally once more: `pnpm lint && pnpm typecheck && pnpm test && pnpm build && npm pack --dry-run`.

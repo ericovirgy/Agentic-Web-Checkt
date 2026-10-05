@@ -36,8 +36,8 @@ Status values: PASS, FAIL, BLOCKED, NOT TESTED. Evidence is cited by command, ru
 
 ## Remaining blockers before tagging v0.1.0
 
-1. Rename the repository to `agentic-web-check` and set `main` as the default branch (manual, GitHub settings).
-2. Add the `NPM_TOKEN` secret for the release workflow (publishing is deliberately not done yet).
+1. Resolved 2026-10-05: repository renamed to `ericovirgy/agentic-web-check`, default branch `main`.
+2. Configure the npm Trusted Publisher for `agentic-web-check` (GitHub Actions, repository `ericovirgy/agentic-web-check`, workflow `release.yml`, no environment); if npm requires the package to exist first, do a one-time manual first publish with 2FA, then configure it. No `NPM_TOKEN` is needed or read by the workflow.
 
 ## Update log
 
