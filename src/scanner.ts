@@ -175,6 +175,10 @@ export async function scan(options: ScanOptions): Promise<ScanResult> {
 
 export function normaliseInputUrl(input: string): string {
   const trimmed = input.trim();
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  return `https://${trimmed}`;
+  const withScheme = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  // Credentials in the URL would otherwise end up in logs, JSON, HTML and PR comments.
+  const u = new URL(withScheme);
+  u.username = '';
+  u.password = '';
+  return u.toString();
 }

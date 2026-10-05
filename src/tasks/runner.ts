@@ -2,6 +2,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { BrowserSession } from '../browser/session.js';
 import type { ScanOptions, TaskDefinition, TaskResult, TaskVerdict } from '../types.js';
+import { stripControl } from '../util/text.js';
 import { capturePageState, evaluateAll } from './assertions.js';
 import { type AgentOutcome, runBaselineAgent } from './baseline.js';
 import { runLlmAgent } from './llm-agent.js';
@@ -159,7 +160,7 @@ async function finish(
   return {
     ...base,
     verdict,
-    reason,
+    reason: stripControl(reason).slice(0, 500),
     finalUrl: page.url(),
     finalTitle: await page.title().catch(() => ''),
     assertions,

@@ -41,9 +41,22 @@ jobs:
       - name: Run the real-world validation dataset
         run: |
           pnpm bench --dataset benchmark/datasets/real-world-validation.json --out validation/real-world --pages 3 --timeout 45000
-      - name: Show summary
+      - name: Show summary and evidence (also printed to the log; artifacts may be unreachable from some networks)
         if: always()
-        run: cat validation/real-world/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+        run: |
+          cat validation/real-world/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+          echo "===== SUMMARY.MD ====="; cat validation/real-world/summary.md || true
+          echo "===== EVIDENCE ====="
+          node -e '
+            const fs = require("fs"); const path = require("path");
+            const root = "validation/real-world";
+            for (const id of fs.readdirSync(root)) {
+              const f = path.join(root, id, "run-1.json"); if (!fs.existsSync(f)) continue;
+              const r = JSON.parse(fs.readFileSync(f, "utf8"));
+              console.log(`### ${id} ${r.meta.url} overall=${r.overall} pages=${r.pages.map(p => `${p.finalUrl} [${p.status}]`).join(" | ")}`);
+              for (const c of r.checks.filter(c => c.status === "fail" || c.status === "warn")) console.log(`  ${c.status.toUpperCase()} ${c.id}: ${c.summary} :: ${JSON.stringify(c.evidence.slice(0, 2)).slice(0, 400)}`);
+              for (const t of r.tasks) console.log(`  TASK ${t.name} ${t.verdict} (${t.steps.length} steps): ${t.reason} :: ${t.steps.map(s => `${s.tool} ${JSON.stringify(s.args)} -> ${s.result.split("\n")[0].slice(0, 80)}`).join(" ; ").slice(0, 600)}`);
+            }'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -95,6 +108,7 @@ jobs:
         if: always()
         run: |
           { echo "## Real-model smoke task (${{ inputs.model }})"; cat validation/real-model/exit.txt; echo; cat validation/real-model/summary.md; } >> "$GITHUB_STEP_SUMMARY" || true
+          echo "===== RESULTS.JSON (tasks) ====="; node -e 'const r=require("./validation/real-model/results.json"); console.log(JSON.stringify({meta:r.meta, tasks:r.tasks.map(t=>({name:t.name,verdict:t.verdict,reason:t.reason,steps:t.steps.map(s=>({tool:s.tool,args:s.args,result:s.result.split("\n")[0].slice(0,120),ms:s.durationMs})),assertions:t.assertions,usage:t.usage,durationMs:t.durationMs}))}, null, 1))' || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:

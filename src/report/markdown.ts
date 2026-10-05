@@ -1,5 +1,6 @@
 import { summarizeTaskOutcomes, taskOutcomeLine } from '../scoring/index.js';
 import type { ScanResult } from '../types.js';
+import { markdownCell, stripControl } from '../util/text.js';
 
 /** GitHub job summary / PR comment markdown. */
 export function renderMarkdownSummary(
@@ -18,7 +19,7 @@ export function renderMarkdownSummary(
   lines.push(`## ${opts.title ?? 'Agentic Web Check'}: ${result.overall ?? 'n/a'}/100`);
   lines.push('');
   lines.push(
-    `**${result.meta.url}** · ${mode} · v${result.meta.version} · methodology v${result.meta.methodology}`,
+    `**${markdownCell(result.meta.url)}** · ${mode} · v${result.meta.version} · methodology v${result.meta.methodology}`,
   );
   lines.push('');
   const taskLine = taskOutcomeLine(result.tasks);
@@ -51,12 +52,13 @@ export function renderMarkdownSummary(
   if (fails.length) {
     lines.push(`### ❌ Failures (${fails.length})`);
     for (const c of fails.slice(0, max))
-      lines.push(`- **${c.title}** (\`${c.id}\`, weight ${c.weight}): ${c.summary}`);
+      lines.push(`- **${c.title}** (\`${c.id}\`, weight ${c.weight}): ${markdownCell(c.summary)}`);
     lines.push('');
   }
   if (warns.length) {
     lines.push(`### ⚠️ Warnings (${warns.length})`);
-    for (const c of warns.slice(0, max)) lines.push(`- **${c.title}** (\`${c.id}\`): ${c.summary}`);
+    for (const c of warns.slice(0, max))
+      lines.push(`- **${c.title}** (\`${c.id}\`): ${markdownCell(c.summary)}`);
     lines.push('');
   }
   if (result.tasks.length) {
@@ -65,7 +67,7 @@ export function renderMarkdownSummary(
     lines.push('|---|---|---:|---|');
     for (const t of result.tasks)
       lines.push(
-        `| ${t.goal.replace(/\|/g, '\\|')} | ${t.verdict} | ${t.steps.length} | ${t.reason.replace(/\|/g, '\\|').slice(0, 120)} |`,
+        `| ${markdownCell(t.goal)} | ${t.verdict} | ${t.steps.length} | ${markdownCell(t.reason.slice(0, 120))} |`,
       );
     lines.push('');
   }

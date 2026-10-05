@@ -174,3 +174,27 @@ INFERENCE from the vendor policies above: irreversible or externally visible = *
 - Intermediate **key nodes** (URL / element path / element value, exact|include|semantic) so partial credit and the failing step are reported (WebCanvas, TheAgentCompany weighted partial score).
 - LLM judge only as fallback, WebJudge-style (key points → key screenshots → verdict), with the judge's reasoning stored; never the sole arbiter for WRITE tasks (BrowserArena VLM-vs-human gap, Verified hallucination finding).
 - Always record a HAR/trace and the final a11y snapshot alongside the verdict so false positives can be audited.
+
+---
+
+## Refresh 2026-10-05
+
+Tags as above. arxiv.org (and api.semanticscholar.org via the proxy) remain blocked, so paper facts are FACT\* from search snippets; GitHub raw files and the Hugging Face API were reachable.
+
+### Website-oriented evaluation (additions to A.2)
+
+- **AgentReady dataset (ora.ai + Vercel)** — FACT (https://raw.githubusercontent.com/agentready-org/standard/main/data/README.md): `traces.csv` = 1,033 real agent runs across 25 public product sites (ahrefs, airtable, asana, datadog, hubspot, notion, stripe, twilio, zapier…), models claude-haiku-4-5 (327) / claude-sonnet-4-6 (236) / gpt-5.4 (236) / claude-fable-5 (234), harnesses `claude-agent-sdk` (541) / `eve` (492), collected June–Aug 2026; per-run columns record surfaces reached (homepage, docs, sitemap, llms.txt, .well-known, openapi.json, AGENTS.md, web search), navigation order, fetch format, discovery-file linkage, llms.txt steering and answer provenance. `fetchability.csv` = a controlled 19-configuration × 5-topic × 2-client grid (190 probes) on one docs site with planted answers: only `js-only` (plain fetch fails, JS client succeeds) and hostile `bot-block` 403 (both fail) break extraction; the other 16 configurations (llms.txt, sitemap, JSON-LD, AGENTS.md, heading removal, redirects…) all succeed. Spec stat: markdown requested on ~65% of fetches, chosen 96% of the time when a format was specified, "Format did not determine task success". **Scope limit**: these are fetch/tool-call agents, not browser-UI agents; no clicking, forms or a11y tree. First public signals×outcomes dataset — section D.3 of file 03 is now "partially closed".
+- **"Designing Agent-Ready Websites for AI Web Agents: A Framework for Machine Readability, Actionability, and Decision Reliability"** (Elnaffar & Rashidi, arXiv 2607.12056, submitted 2026-07-13, accepted ICEME 2026) — FACT\* (https://arxiv.org/abs/2607.12056; snippets via papers.cool, uxtigers): two versions of a small online store; the agent-ready version exposes product data via JSON-LD, semantic labels and **stable identifiers for interactive controls**; browser agents GPT-4.1, Gemini 2.5 Flash, Grok 4 Fast; 300 trials; success **89.3% vs 49.3%** baseline, PARTIAL outcomes 43 → 3, average steps −30.4%; biggest gains on structured extraction, option comparison, multi-constraint selection; replication package announced. INFERENCE: the first controlled evidence that site-side changes (not model changes) move browser-agent task success — exactly the causal link a failure-attribution scanner asserts; cite it, and reuse its task families (extract / compare / multi-constraint select) as archetypes.
+- **"AX is the New AEO"** (arXiv 2609.34951, Sept 2026) — exists in the search index; content UNVERIFIED (page blocked, no snippet found).
+- **Agentic Readiness Index** (HF dataset `4AMKarmYogi/agentic-readiness-index`) — FACT (Hugging Face API): last updated 2026-06-03, CC BY 4.0, companion to "Built for Eyes, Not Agents" (DOI 10.13140/RG.2.2.10508.48000); no v2 since the baseline.
+- **Cloudflare Radar / URL Scanner** — FACT\* (developers.cloudflare.com changelogs 2026-04-17, 2026-05-12): weekly re-scan of the top 200k domains for agent standards adoption (3.9% Markdown negotiation, 4% declared AI preferences); URL Scanner "Agent Readiness" tab with six categories; `agentReadiness` API parameter. Static-signal benchmark only.
+- **Lighthouse** — FACT\* (developer.chrome.com/docs/lighthouse/agentic-browsing/scoring): still "informational and unbenchmarked"; FACT (default-config.js on `main`, 2026-10-05) audit list and `fraction` display unchanged (see file 01 refresh).
+
+### Failure analysis (A.3) — no change to the table
+
+- **"Detecting Pipeline Failures through Fine-Grained Analysis of Web Agents"** (arXiv 2509.14382, Sept 2025) — FACT\*: decomposes a SeeAct/Mind2Web pipeline into stages; the initial *action prediction* stage is the main bottleneck (best model GPT-4o 70.17% accuracy, ~30% of tasks fail before grounding), followed by *action selection*; error-propagation pattern is similar across models ("systemic … inherent to the web navigation task"). Reinforces that grounding/selection errors (our "ambiguous element" row) are model-independent; no new site-side failure mode.
+- No new website-side error-analysis numbers (CAPTCHA/consent/overlay rates) found for Sept–Oct 2026; the Online-Mind2Web 51% "access and environment" figure and the Web Bench READ/WRITE split remain the best quantified sources.
+
+### CI tooling (D) — minor
+
+- `ai-readiness-check` 0.2.1 (FACT, npm README, 2026-09-24): zero-dep Node ≥22 CLI with `init --github-action`, SARIF upload, and a score **ratchet** ("fail CI when the score drops below … the best score the site has reached so far") — a pattern worth copying for behavioural N-of-M results.

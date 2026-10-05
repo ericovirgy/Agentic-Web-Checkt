@@ -25,6 +25,22 @@ A dimension with no scorable checks is reported as `n/a` and excluded from the o
 with HTTP 4xx/5xx are listed but excluded from check aggregation, and consequential links (delete, pay,
 unsubscribe…) are never followed when selecting additional pages.
 
+**A dimension score is only as broad as its scorable checks.** `na` and `info` checks drop out of both the
+numerator and the denominator, so a dimension in which a single check is scorable is 100 from one pass and
+0 from one fail (SAFETY on a page with no forms, no WebMCP, no consequential controls and no downloads is
+scored by `hidden-instructions` alone). Every report shows the counts next to the score (`pass · warn ·
+fail · N of M checks scored` in the terminal, a `Scored` column in markdown and HTML); read the score
+together with that breadth. Crashed checks are `na` with an `error` field; the terminal and markdown
+summaries always print a one-line "N checks crashed and were not scored" note so an exception cannot
+silently narrow a dimension.
+
+**Start-page gate.** When the start page does not load (navigation error, or an HTTP 4xx/5xx answer),
+every check except `page-load` and `challenge-or-bot-wall` is `na` ("Not evaluated: start page did not
+load"), so RELIABILITY is the only scored dimension. `page-load` fails; `challenge-or-bot-wall` fails
+(403/429/503 or challenge markers) or is `na` (navigation error with no markers), so the overall is 0.
+Known gap: a start page that answers another 4xx/5xx (404, 500…) without challenge markers passes
+`challenge-or-bot-wall`, which puts RELIABILITY at 50 and the overall at 50; nothing else can raise it.
+
 ## 2. Dimensions and overall
 
 | Dimension | Question | Weight (no tasks) | Weight (with tasks) |
@@ -48,6 +64,50 @@ cost. Machine interfaces are weighted low on purpose: FACT, llms.txt adoption by
 takes 30% because observed behaviour outranks inferred behaviour (project principle).
 
 TASK SUCCESS = 100 × PASS / (PASS + FAIL + BLOCKED). INCONCLUSIVE runs are excluded and reported.
+
+BLOCKED counts as a failure on purpose: a blocked task is a task the agent could not finish, and the
+things that block it (CAPTCHA, bot wall, login wall, consent overlay without a named dismiss, HTTP error)
+are site properties. The one exception is a task declared `safety: consequential` that was BLOCKED with
+blocker `consequential-step`, i.e. the runner's own guard stopped it because the scan ran without
+`--allow-consequential` (or without `--allow-forms` for its form submission). That block is the user's
+choice, not a site defect, so the task is excluded from the denominator exactly like an INCONCLUSIVE run;
+it is still listed with its verdict, and the summary line says "N BLOCKED not scored: consequential task
+run without --allow-consequential". A `consequential-step` block on a `read-only` or `form-submit` task
+stays in the denominator: there the agent reached a consequential or form-submitting control while
+pursuing a goal that was declared harmless, which is exactly the kind of surprise the score should expose.
+
+When no task counts (none ran, all INCONCLUSIVE, or all excluded as above), TASK SUCCESS is `n/a`, the
+deterministic weights are not scaled, and the report mode reads "Behavioural run … no task counted, task
+success not scored" rather than "verification". The badge then says `scan`, never `verified`.
+
+When behavioural tasks ran, every task that did not PASS is stated in one line under the overall
+("N of M behavioural tasks did not pass (x FAIL, y BLOCKED, z INCONCLUSIVE)") in the terminal and markdown
+summaries, because the blend can hide them: all checks passing with every task failing gives
+0.7 × 100 + 0.3 × 0 = **70**, which reads as a decent score unless the task line is there.
+
+### Sensitivity
+
+How much one check can move the score. "Dimension cost" is the drop in that dimension when one check of the
+given weight fails and every other catalogued check in the dimension is scorable and passes; the overall
+cost multiplies it by the dimension weight (no tasks) or the scaled weight (with tasks). Fewer scorable
+checks make each one count for more (see §1), so these are lower bounds for a given report.
+
+| Dimension | Σ catalogue weights | Heaviest check | Dimension cost | Overall cost (no tasks) | Overall cost (with tasks) |
+|---|---:|---:|---:|---:|---:|
+| PERCEPTION | 42 | 10 | −24 | −4.8 | −3.3 |
+| NAVIGATION | 25 | 7 | −28 | −4.2 | −2.9 |
+| INTERACTION | 43 | 10 | −23 | −4.7 | −3.3 |
+| MACHINE INTERFACES | 24 | 7 | −29 | −2.9 | −2.0 |
+| RELIABILITY | 33 | 10 | −30 | −4.5 | −3.2 |
+| SAFETY | 34 | 10 | −29 | −5.9 | −4.1 |
+| TASK SUCCESS (N counted tasks) | — | one task | −100/N | — | −30/N |
+
+A `warn` costs half of the listed dimension cost. The maximum influence of any single dimension on the
+overall is its weight (20 points without tasks, 14 with, 30 for TASK SUCCESS); when other dimensions are
+`n/a` the remaining weights are renormalised, so with the start-page gate RELIABILITY alone decides the
+overall. The scaled deterministic weights (14 + 10.5 + 14 + 7 + 10.5 + 14) sum to exactly 70, and the
+overall is a weighted mean of values in 0..100 rounded once, so it cannot leave 0..100: all checks and all
+tasks passing is 100, all failing is 0.
 
 ## 3. Check catalogue
 
@@ -133,8 +193,12 @@ Abbreviations: WCAG = WCAG 2.2 success criterion; LH = Lighthouse audit id; FM =
 |---|---|
 | PASS | agent called `finish` with `done` AND all `success` assertions hold on the final state |
 | FAIL | agent called `finish` with `gave_up`, or assertions fail, or step budget/wall clock exhausted |
-| BLOCKED | runner detected CAPTCHA/bot wall/login requirement/consent overlay without dismiss, or the next step would be consequential without opt-in |
+| BLOCKED | runner detected CAPTCHA/bot wall/login requirement/consent overlay without dismiss, or the next step would be consequential without opt-in (`blocker` names the cause) |
 | INCONCLUSIVE | navigation error, browser crash, provider error, or assertions impossible to evaluate |
+
+BLOCKED and FAIL both count against TASK SUCCESS (§2). The single exception is `blocker: consequential-step`
+on a task with `safety: consequential`, which is the user's own opt-out (`--allow-consequential` not
+passed) and is excluded from the score; the verdict stays BLOCKED in the task list and in the JSON.
 
 Assertions (all must hold unless `any_of` is used): `url` (`includes`/`equals`/`regex`), `text` (`includes`,
 normalised whitespace/case), `element` (`role` present, optional `name`, `url` and `state`), `title`

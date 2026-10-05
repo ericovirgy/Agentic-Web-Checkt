@@ -1,4 +1,34 @@
 import { truncateSnapshot } from '../browser/snapshot.js';
+
+/**
+ * The LLM-facing snapshot omits iframe subtrees. Cross-origin frames (including internal hosts the
+ * scanner can reach) would otherwise be readable by a prompt-injected model and exfiltrated through
+ * a same-origin navigation. The deterministic checks still inspect frames.
+ */
+export function omitFrameContent(snapshotText: string): string {
+  const lines = snapshotText.split('\n');
+  const out: string[] = [];
+  let skipIndent = -1;
+  for (const line of lines) {
+    const indent = line.length - line.trimStart().length;
+    if (skipIndent >= 0) {
+      if (indent > skipIndent) continue;
+      skipIndent = -1;
+    }
+    if (/^\s*- iframe\b/.test(line)) {
+      out.push(`${line.replace(/:\s*$/, '')} [content omitted for the agent]`);
+      skipIndent = indent;
+      continue;
+    }
+    out.push(line);
+  }
+  return out.join('\n');
+}
+
+function forAgent(text: string): string {
+  return truncateSnapshot(omitFrameContent(text), SNAPSHOT_CHARS_FOR_AGENT);
+}
+
 import type { TaskDefinition } from '../types.js';
 import type { AgentOutcome, AgentRunOptions } from './baseline.js';
 import type { LlmProvider, ToolDef, Turn } from './llm-provider.js';
@@ -127,7 +157,7 @@ export async function runLlmAgent(
   const dataNote = task.data ? `\nSynthetic data you may use: ${JSON.stringify(task.data)}` : '';
   turns.push({
     role: 'user',
-    text: `Task: ${task.goal}${dataNote}\n\nCurrent URL: ${tools.page.url()}\nSnapshot:\n${truncateSnapshot(initial.text, SNAPSHOT_CHARS_FOR_AGENT)}`,
+    text: `Task: ${task.goal}${dataNote}\n\nCurrent URL: ${tools.page.url()}\nSnapshot:\n${forAgent(initial.text)}`,
   });
   const started = Date.now();
 
@@ -157,13 +187,16 @@ export async function runLlmAgent(
     }
     turns.push({ role: 'assistant', text, toolCalls });
     const results: { id: string; name: string; result: string }[] = [];
-    for (const call of toolCalls) {
+    // Parallel tool calls count against the step budget individually.
+    const remaining = opts.maxSteps - step - 1;
+    for (const call of toolCalls.slice(0, Math.max(1, remaining + 1))) {
+      if (call !== toolCalls[0]) step++;
       const a = call.args;
       try {
         let r: string;
         switch (call.name) {
           case 'snapshot':
-            r = await tools.snapshotText();
+            r = forAgent(await tools.snapshotText());
             break;
           case 'click':
             r = await tools.click(String(a.ref ?? ''));
@@ -201,7 +234,7 @@ export async function runLlmAgent(
         const snapText =
           call.name === 'snapshot'
             ? ''
-            : `\nURL: ${tools.page.url()}\nSnapshot:\n${truncateSnapshot(tools.currentSnapshot?.text ?? '', SNAPSHOT_CHARS_FOR_AGENT)}`;
+            : `\nURL: ${tools.page.url()}\nSnapshot:\n${forAgent(tools.currentSnapshot?.text ?? '')}`;
         results.push({ id: call.id, name: call.name, result: `${r}${snapText}` });
       } catch (e) {
         if (e instanceof BlockedError) return { status: 'blocked', reason: e.message, blocker: e };

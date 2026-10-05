@@ -63,6 +63,17 @@ ${body}
 `;
 }
 
+/** Only http(s) URLs and relative paths are allowed in href attributes (results may come from untrusted JSON). */
+function safeHref(u: string): string {
+  const t = u.trim();
+  if (
+    /^(https?:)?\/\//i.test(t) ||
+    (/^[A-Za-z0-9_./#-]/.test(t) && !/^[a-z][a-z0-9+.-]*:/i.test(t))
+  )
+    return escapeHtml(t);
+  return '#';
+}
+
 export function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -86,7 +97,7 @@ function renderHeader(r: ScanResult): string {
       : `Behavioural ${counted > 0 ? 'verification' : 'run'} (${r.tasks.length} task${r.tasks.length === 1 ? '' : 's'}, agent ${agent ?? 'unknown'}${model ? `, model ${model}` : ''})${counted > 0 ? '' : '; no task counted, task success not scored'}`;
   return `<header class="head">
 <p class="tool">Agentic Web Check</p>
-<h1><a href="${escapeHtml(m.url)}">${escapeHtml(m.url)}</a></h1>
+<h1><a href="${safeHref(m.url)}">${escapeHtml(m.url)}</a></h1>
 <dl class="meta">
 ${dt('Mode', mode)}${dt('Scanned', `${fmtDate(m.startedAt)} (${fmtMs(m.durationMs)})`)}${dt('Tool version', m.version)}${dt('Methodology', `v${m.methodology}`)}${dt('Browser', `${m.browser.name} ${m.browser.version}`)}${dt('Node', m.node)}
 </dl>
@@ -129,7 +140,7 @@ function renderCheck(c: CheckResult): string {
     : '';
   return `<article class="check" id="check-${escapeHtml(c.id)}">
 <header class="check-head">
-<span class="badge ${c.status}">${c.status.toUpperCase()}</span>
+<span class="badge ${escapeHtml(c.status)}">${c.status.toUpperCase()}</span>
 <h3>${escapeHtml(c.title)}</h3>
 <span class="ids"><code>${escapeHtml(c.id)}</code> &middot; ${escapeHtml(c.dimension)} &middot; weight ${c.weight}</span>
 </header>
@@ -169,7 +180,7 @@ function renderTask(t: TaskResult): string {
   const shots = t.screenshots
     .map((s) => {
       const rel = screenshotHref(s.path);
-      return `<li>${escapeHtml(s.label)}: <a href="${escapeHtml(rel)}">${escapeHtml(rel)}</a></li>`;
+      return `<li>${escapeHtml(s.label)}: <a href="${safeHref(rel)}">${escapeHtml(rel)}</a></li>`;
     })
     .join('');
   const usage = t.usage
@@ -177,7 +188,7 @@ function renderTask(t: TaskResult): string {
     : '';
   return `<article class="task" id="task-${escapeHtml(t.name)}">
 <header class="check-head">
-<span class="badge ${t.verdict.toLowerCase()}">${t.verdict}</span>
+<span class="badge ${escapeHtml(t.verdict.toLowerCase())}">${escapeHtml(t.verdict)}</span>
 <h3>${escapeHtml(t.name)}</h3>
 <span class="ids">${escapeHtml(t.agent)}${t.model ? ` &middot; ${escapeHtml(t.model)}` : ''} &middot; ${escapeHtml(t.safety)} &middot; ${fmtMs(t.durationMs)}</span>
 </header>

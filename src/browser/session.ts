@@ -68,6 +68,7 @@ export async function launchBrowser(opts: BrowserOptions): Promise<BrowserSessio
     viewport: { width: 1280, height: 800 },
     locale: 'en-US',
     ignoreHTTPSErrors: opts.ignoreHttpsErrors ?? false,
+    acceptDownloads: false,
   });
   await context.addInitScript(INIT_SCRIPT);
   return {

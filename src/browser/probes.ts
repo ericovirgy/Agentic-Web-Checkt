@@ -142,18 +142,36 @@ export function robotsAllows(
     groupName = group ? '*' : null;
   }
   if (!group) return { allowed: true, group: null };
-  const match = (pattern: string): number => {
-    if (!pattern) return -1;
-    const re = new RegExp(
-      `^${pattern
-        .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-        .replace(/\*/g, '.*')
-        .replace(/\\\$$/, '$')}`,
-    );
-    return re.test(path) ? pattern.length : -1;
-  };
+  const match = (pattern: string): number =>
+    pattern && globMatch(pattern, path) ? pattern.length : -1;
   const bestAllow = Math.max(-1, ...group.allow.map(match));
   const bestDisallow = Math.max(-1, ...group.disallow.map(match));
   if (bestDisallow < 0) return { allowed: true, group: groupName };
   return { allowed: bestAllow >= bestDisallow, group: groupName };
+}
+
+/** Linear-time robots.txt path matching: `*` matches any run of characters, a trailing `$` anchors the end. */
+export function globMatch(pattern: string, path: string): boolean {
+  const anchored = pattern.endsWith('$');
+  const pat = anchored ? pattern.slice(0, -1) : pattern;
+  let p = 0;
+  let t = 0;
+  let starP = -1;
+  let starT = -1;
+  while (t < path.length) {
+    if (p < pat.length && pat[p] === '*') {
+      starP = p++;
+      starT = t;
+    } else if (p < pat.length && pat[p] === path[t]) {
+      p++;
+      t++;
+    } else if (p === pat.length && !anchored) {
+      return true; // unanchored patterns are prefixes
+    } else if (starP >= 0) {
+      p = starP + 1;
+      t = ++starT;
+    } else return false;
+  }
+  while (p < pat.length && pat[p] === '*') p++;
+  return p === pat.length;
 }

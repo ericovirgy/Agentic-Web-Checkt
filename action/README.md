@@ -84,7 +84,7 @@ The default `baseline` agent needs no API key. To run tasks with an LLM-driven a
 | `timeout` | `30000` | Navigation timeout in milliseconds. |
 | `allow-forms` | `false` | Allow tasks marked `safety: form-submit` to submit POST forms with synthetic data. |
 | `version` | `latest` | npm version or dist-tag of `agentic-web-check` to run, or `local` to build and run the checked-out repository (used by this repository's own CI). |
-| `comment` | `true` | Post or update a sticky pull request comment on `pull_request` / `pull_request_target` events. |
+| `comment` | `true` | Post or update a sticky pull request comment on `pull_request` events (`pull_request_target` is deliberately not supported: it would run repository code from a fork with a write token). |
 | `summary` | `true` | Append the markdown summary to the job summary. |
 | `artifact` | `true` | Upload the results directory as a workflow artifact. |
 | `artifact-name` | `agentic-web-check` | Name of the uploaded artifact. |

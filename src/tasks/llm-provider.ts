@@ -5,6 +5,7 @@
  * Tool definitions are plain JSON Schema so the loop is provider-agnostic.
  */
 import type { LlmOptions } from '../types.js';
+import { redactSecrets } from '../util/text.js';
 
 export interface ToolDef {
   name: string;
@@ -83,7 +84,8 @@ async function postJson(
     body: JSON.stringify(body),
   });
   const text = await res.text();
-  if (!res.ok) throw new Error(`LLM provider HTTP ${res.status}: ${text.slice(0, 300)}`);
+  if (!res.ok)
+    throw new Error(`LLM provider HTTP ${res.status}: ${redactSecrets(text.slice(0, 160))}`);
   try {
     return JSON.parse(text);
   } catch {

@@ -95,10 +95,14 @@ export const reliabilityChecks: CheckDefinition[] = [
           note: "UA-parity probe with the tool's own user agent",
         },
       ];
-      if (p.error && fetchHits.length === 0)
+      const notLoaded =
+        Boolean(p.error) ||
+        (p.status !== null && p.status >= 400 && ![403, 429, 503].includes(p.status));
+      if (notLoaded && browserHits.length === 0 && fetchHits.length === 0)
         return {
           status: 'na',
-          summary: 'Start page did not load; no challenge markers in the plain fetch either.',
+          summary:
+            'Start page did not load; no challenge markers in the browser or the plain fetch.',
           evidence,
         };
       const status =

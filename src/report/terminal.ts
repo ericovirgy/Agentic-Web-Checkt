@@ -4,6 +4,7 @@ type Colors = ReturnType<typeof pc.createColors>;
 
 import { summarizeTaskOutcomes, taskOutcomeLine } from '../scoring/index.js';
 import type { CheckResult, ScanResult, TaskResult } from '../types.js';
+import { stripControl } from '../util/text.js';
 
 export interface TerminalOptions {
   color?: boolean;
@@ -114,7 +115,7 @@ export function renderTerminal(result: ScanResult, opts: TerminalOptions = {}): 
       `${result.pages.length} pages · ${(result.meta.durationMs / 1000).toFixed(1)} s · ${result.meta.browser.name} ${result.meta.browser.version} · ${result.meta.finishedAt}`,
     ),
   );
-  return lines.join('\n');
+  return stripControl(lines.join('\n'), true);
 }
 
 function checkLines(ch: CheckResult, c: Colors, verbose?: boolean): string[] {

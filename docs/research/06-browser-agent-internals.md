@@ -232,3 +232,19 @@ INFERENCE: Option B is ~150 lines per adapter plus message-history conversion; O
 - OpenAI official computer-use docs and ai-sdk.dev pages were proxy-blocked; facts above come from the GitHub mirrors of the same docs.
 - Robustness of small local models (Ollama) at multi-step tool calling without `tool_choice` is untested here.
 - `page.getByRef` requires Playwright 1.64 (not yet on npm); the `aria-ref=` selector in 1.63 is undocumented and could change.
+
+---
+
+## Refresh 2026-10-05
+
+Versions re-checked on registry.npmjs.org (FACT): `playwright` 1.63.0 (latest prerelease `1.64.0-alpha-2026-10-04`), `@playwright/mcp` 0.0.83 (deps `playwright`/`playwright-core` `1.64.0-alpha-1790635538000`), `chrome-devtools-mcp` 1.10.1 (puppeteer 25.12.0), `agent-browser` 0.38.2, `@browserbasehq/stagehand` 4.1.0 — all unchanged since 2026-10-04.
+
+**1.1 / 1.2 — verified again on both branches (FACT):**
+- `packages/playwright-core/src/tools/backend/tab.ts` `captureSnapshot` calls `ariaSnapshot({ mode: 'ai', depth, boxes })` / `ariaSnapshotJSON({ mode: 'ai', depth, boxes })` on **`main` lines 447–459** and on **`release-1.63` lines 423–435** (https://raw.githubusercontent.com/microsoft/playwright/release-1.63/packages/playwright-core/src/tools/backend/tab.ts). This is the primary proof that "Playwright MCP feeds the model `mode:'ai'` aria snapshots" and can be stated as FACT with that file/line citation.
+- Ref resolution differs by branch: `main` line 552 `this.page.getByRef(param.target)`; `release-1.63` line 509 `this.page.locator(\`aria-ref=${param.target}\`)`. So the `@playwright/mcp` 0.0.83 npm package (built on 1.64-alpha) already uses `getByRef`, while `npx playwright mcp` from the stable 1.63.0 package uses the undocumented `aria-ref=` engine. Both resolve against the last snapshot of the frame (unchanged).
+- `docs/src/api/class-page.md` on `main` documents `Page.getByRef` as `since: v1.64`; `docs/src/release-notes-js.md` on `main` still has no 1.64 section, so **1.64 has not shipped**; table 1.2 stands.
+- `docs/src/api/class-locator.md` "ariaSnapshot" section is identical on `release-1.63` and `main` (diff empty) — the three documented `mode:'ai'` properties (refs, no waiting/throws when none match, includes iframes) are unchanged. `packages/injected/src/ariaSnapshot.ts` on `main`: internal `mode` union is `'ai' | 'default' | 'codegen' | 'autoexpect'` and `mode === 'ai'` still maps to `{visibility:'ariaOrVisible', refs:'interactable', includeGenericRole:true, renderActive, renderCursorPointer:true}`.
+
+**4 — chrome-devtools-mcp (FACT, docs/tool-reference.md on `main`):** `list_webmcp_tools` / `execute_webmcp_tool` are gated: "The WebMCP category is not active by default. Use the '--categoryExperimentalWebmcp' flag." Add `--categoryExperimentalWebmcp=true` when using this server for WebMCP discovery. 1.10.0 also fixed `lighthouse_audit` to set `emulatedUserAgent` and use `finalDisplayedUrl` (CHANGELOG #2795).
+
+**8.1 / 8.5 — recommendation unchanged:** pin `playwright@1.63.0`, use `page.locator(\`aria-ref=${ref}\`)`, validate refs with `/^(f\d+)?e\d+$/`, and switch to `page.getByRef()` once 1.64 is on npm (the published MCP package shows the migration is mechanical).

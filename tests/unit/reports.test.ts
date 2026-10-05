@@ -5,9 +5,11 @@ import { escapeHtml, renderHtml } from '../../src/report/html.js';
 import { renderMarkdownSummary } from '../../src/report/markdown.js';
 import { renderTerminal } from '../../src/report/terminal.js';
 import { DIMENSION_WEIGHTS } from '../../src/scoring/index.js';
-import type { ScanResult } from '../../src/types.js';
+import type { ScanResult, TaskResult } from '../../src/types.js';
 import {
   ANSI_RE,
+  makeCheck,
+  makeTask,
   minimalScanResult,
   readExampleResult,
   stripAnsi,
@@ -17,6 +19,48 @@ import {
 const excellent = readExampleResult('results-excellent');
 const ambiguous = readExampleResult('results-ambiguous-ui');
 const minimal = minimalScanResult();
+
+/** The minimal result with its tasks replaced (dimension rows left untouched on purpose). */
+function withTasks(tasks: TaskResult[], taskScore: number | null = 0): ScanResult {
+  return {
+    ...minimal,
+    tasks,
+    dimensions: minimal.dimensions.map((d) =>
+      d.dimension === 'task-success' ? { ...d, score: taskScore } : d,
+    ),
+  };
+}
+const allInconclusive = withTasks(
+  [
+    makeTask({ name: 'a', verdict: 'INCONCLUSIVE' }),
+    makeTask({ name: 'b', verdict: 'INCONCLUSIVE' }),
+  ],
+  null,
+);
+const optOutOnly = withTasks(
+  [
+    makeTask({
+      name: 'buy',
+      verdict: 'BLOCKED',
+      blocker: 'consequential-step',
+      safety: 'consequential',
+    }),
+  ],
+  null,
+);
+const crashed: ScanResult = {
+  ...minimal,
+  checks: [
+    ...minimal.checks,
+    makeCheck({
+      id: 'aria-validity',
+      dimension: 'perception',
+      status: 'na',
+      summary: 'Check crashed; excluded from scoring.',
+      error: 'TypeError: boom',
+    }),
+  ],
+};
 
 const ANSI = ANSI_RE;
 
@@ -118,6 +162,62 @@ describe('renderTerminal', () => {
     expect(out).toMatch(/Agent Readiness\s+n\/a/);
     expect(out).not.toContain('n/a/100');
   });
+
+  it('shows how many checks of each dimension were scored next to the score', () => {
+    const out = renderTerminal(minimal, { color: false });
+    expect(out).toMatch(/PERCEPTION\s+0\s+0 pass · 0 warn · 1 fail · 1 of 1 check scored/);
+    expect(out).toMatch(
+      /MACHINE INTERFACES\s+n\/a\s+0 pass · 0 warn · 0 fail · 0 of 1 check scored/,
+    );
+    expect(out).toMatch(/TASK SUCCESS\s+100\s+1 pass · 0 warn · 0 fail · 1 of 1 task scored/);
+    const amb = renderTerminal(ambiguous, { color: false });
+    for (const d of ambiguous.dimensions)
+      expect(amb).toContain(
+        `${d.passed + d.warned + d.failed} of ${d.checks.length} ${d.dimension === 'task-success' ? 'task' : 'check'}s scored`,
+      );
+  });
+
+  it('states under the overall when behavioural tasks did not pass', () => {
+    expect(renderTerminal(minimal, { color: false })).not.toContain('did not pass');
+    const out = renderTerminal(
+      withTasks([
+        makeTask({ name: 'a', verdict: 'PASS' }),
+        makeTask({ name: 'b', verdict: 'FAIL' }),
+        makeTask({ name: 'c', verdict: 'BLOCKED', blocker: 'captcha' }),
+      ]),
+      { color: false },
+    );
+    const lines = out.split('\n');
+    const i = lines.findIndex((l) => l.startsWith('Agent Readiness'));
+    expect(lines[i + 1]).toBe('2 of 3 behavioural tasks did not pass (1 FAIL, 1 BLOCKED)');
+    const amb = renderTerminal(ambiguous, { color: false });
+    expect(amb).toContain('3 of 3 behavioural tasks did not pass (3 BLOCKED)');
+  });
+
+  it('does not call an all-INCONCLUSIVE or all-excluded run a verification', () => {
+    for (const r of [allInconclusive, optOutOnly]) {
+      const out = renderTerminal(r, { color: false });
+      expect(out).not.toContain('Behavioural verification');
+      expect(out).toContain('no task counted, task success not scored');
+      expect(out).not.toContain('TASK SUCCESS');
+      expect(out).toContain('BEHAVIOURAL TESTS');
+    }
+    expect(renderTerminal(allInconclusive, { color: false })).toContain(
+      '2 of 2 behavioural tasks did not pass (2 INCONCLUSIVE); INCONCLUSIVE not scored',
+    );
+    expect(renderTerminal(optOutOnly, { color: false })).toContain(
+      '1 BLOCKED not scored: consequential task run without --allow-consequential',
+    );
+  });
+
+  it('always surfaces crashed checks in one line, not only in verbose mode', () => {
+    const out = renderTerminal(crashed, { color: false });
+    expect(out).toContain('1 check crashed and was not scored (see JSON): aria-validity');
+    expect(out).not.toContain('TypeError: boom');
+    const verbose = renderTerminal(crashed, { color: false, verbose: true });
+    expect(verbose).toContain('(error: TypeError: boom)');
+    expect(renderTerminal(minimal, { color: false })).not.toContain('crashed');
+  });
 });
 
 describe('renderMarkdownSummary', () => {
@@ -174,6 +274,31 @@ describe('renderMarkdownSummary', () => {
       '## Agentic Web Check: n/a/100',
     );
   });
+
+  it('adds a Scored column, a task-outcome line and a crashed-checks note', () => {
+    const md = renderMarkdownSummary(minimal);
+    expect(md).toContain('| Dimension | Score | Pass | Warn | Fail | Scored |');
+    expect(md).toContain('| PERCEPTION | 0 | 0 | 0 | 1 | 1/1 |');
+    expect(md).toContain('| MACHINE INTERFACES | n/a | 0 | 0 | 0 | 0/1 |');
+    expect(md).toContain('| TASK SUCCESS | 100 | 1 | 0 | 0 | 1/1 |');
+    expect(md).not.toContain('did not pass');
+    expect(md).not.toContain('crashed');
+    const failing = renderMarkdownSummary(
+      withTasks(
+        [makeTask({ name: 'a', verdict: 'FAIL' }), makeTask({ name: 'b', verdict: 'PASS' })],
+        50,
+      ),
+    );
+    expect(failing).toContain('**1 of 2 behavioural tasks did not pass (1 FAIL)**');
+    expect(renderMarkdownSummary(crashed)).toContain(
+      '**1 check crashed and was not scored** (see JSON): `aria-validity`',
+    );
+    for (const r of [allInconclusive, optOutOnly]) {
+      const out = renderMarkdownSummary(r);
+      expect(out).not.toContain('behavioural verification');
+      expect(out).toContain('no task counted: task success not scored');
+    }
+  });
 });
 
 describe('badgeLabel / renderBadgeSvg', () => {
@@ -191,6 +316,25 @@ describe('badgeLabel / renderBadgeSvg', () => {
     expect(badgeLabel(det).label).toBe('Agent Ready · scan');
     expect(badgeLabel(det).label).not.toContain('verified');
     expect(badgeLabel(det).label.toLowerCase()).not.toContain('safe');
+  });
+
+  it('says "verified" only when at least one task counted towards TASK SUCCESS', () => {
+    expect(badgeLabel(allInconclusive).label).toBe('Agent Ready · scan');
+    expect(badgeLabel(optOutOnly).label).toBe('Agent Ready · scan');
+    expect(badgeLabel(minimal).label).toBe('Agent Ready · verified (1 task)');
+    const mixed = withTasks([
+      makeTask({ name: 'a', verdict: 'FAIL' }),
+      makeTask({ name: 'b', verdict: 'INCONCLUSIVE' }),
+      makeTask({
+        name: 'c',
+        verdict: 'BLOCKED',
+        blocker: 'consequential-step',
+        safety: 'consequential',
+      }),
+      makeTask({ name: 'd', verdict: 'BLOCKED', blocker: 'bot-wall' }),
+    ]);
+    // 4 ran, 2 counted (FAIL + bot-wall BLOCKED): verified means tasks ran, not that they passed.
+    expect(badgeLabel(mixed).label).toBe('Agent Ready · verified (2 tasks)');
   });
 
   it('colours by score band and greys out n/a', () => {
@@ -287,6 +431,11 @@ describe('renderHtml', () => {
     expect(html).toContain('Add aria-label to icon buttons');
     expect(html).toMatch(/<p class="big">61<span class="denom">\/100<\/span><\/p>/);
     expect(html).toContain('<th scope="row">PERCEPTION</th>');
+    expect(html).toContain(
+      '<th class="num" title="scored checks / checks in the dimension">Scored</th>',
+    );
+    expect(html).toContain('<td class="num muted">1/1</td>');
+    expect(html).toContain('<td class="num muted">0/1</td>');
     // unscored task-success row is hidden only when null; here it is 100
     expect(html).toContain('<th scope="row">TASK SUCCESS</th>');
     expect(html).toContain('Behavioural verification (1 task, agent baseline)');
@@ -308,6 +457,13 @@ describe('renderHtml', () => {
     expect(det).toContain('task-success: 30 when tasks are run');
     expect(det).not.toContain('<details class="section" id="tasks"');
     expect(det).toContain('Deterministic scan');
+    expect(det).toContain('only as broad as its scorable checks');
+    expect(det).toContain('<code>--allow-consequential</code>');
+    for (const r of [allInconclusive, optOutOnly]) {
+      const out = renderHtml(r);
+      expect(out).not.toContain('Behavioural verification');
+      expect(out).toContain('no task counted, task success not scored');
+    }
   });
 
   it('renders the example results without leaking raw markup from summaries', () => {
