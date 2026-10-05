@@ -1,0 +1,23 @@
+{
+  "name": "real-world-validation",
+  "version": "1",
+  "description": "RELEASE VALIDATION dataset, not the public benchmark. 16 public websites across categories used to check that the scanner behaves sensibly on real sites (no crashes, plausible findings, task verdicts explainable). Results are recorded for release validation only; no aggregate statistics are published from this dataset. Sites are public, widely automated, and scanned with the honest user agent, robots.txt respected, read-only default tasks, at most 3 pages each.",
+  "entries": [
+    { "id": "example-com", "category": "static", "url": "https://example.com/", "tasks": "default" },
+    { "id": "quotes-toscrape", "category": "static", "url": "https://quotes.toscrape.com/", "tasks": "default" },
+    { "id": "books-toscrape", "category": "ecommerce-demo", "url": "https://books.toscrape.com/", "tasks": "default" },
+    { "id": "saucedemo", "category": "ecommerce-demo", "url": "https://www.saucedemo.com/", "tasks": "default" },
+    { "id": "vercel-store", "category": "ecommerce-spa", "url": "https://demo.vercel.store/", "tasks": "default" },
+    { "id": "mdn", "category": "docs", "url": "https://developer.mozilla.org/", "tasks": "default" },
+    { "id": "docs-github", "category": "docs", "url": "https://docs.github.com/", "tasks": "default" },
+    { "id": "playwright-dev", "category": "docs", "url": "https://playwright.dev/", "tasks": "default" },
+    { "id": "react-dev", "category": "docs-spa", "url": "https://react.dev/", "tasks": "default" },
+    { "id": "pypi", "category": "developer-tooling", "url": "https://pypi.org/", "tasks": "default" },
+    { "id": "npmjs", "category": "developer-tooling", "url": "https://www.npmjs.com/", "tasks": "default" },
+    { "id": "github", "category": "saas", "url": "https://github.com/", "tasks": "default" },
+    { "id": "wikipedia", "category": "reference", "url": "https://en.wikipedia.org/", "tasks": "default" },
+    { "id": "gov-uk", "category": "public-institution", "url": "https://www.gov.uk/", "tasks": "default" },
+    { "id": "w3-org", "category": "public-institution", "url": "https://www.w3.org/", "tasks": "default" },
+    { "id": "bbc", "category": "news", "url": "https://www.bbc.com/", "tasks": "default" }
+  ]
+}

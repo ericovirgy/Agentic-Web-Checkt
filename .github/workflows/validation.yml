@@ -1,0 +1,105 @@
+name: Validation (manual)
+
+# Release-validation evidence gathered on GitHub-hosted runners, which have open network access.
+# Not part of CI. Produces artifacts only; nothing is published.
+on:
+  workflow_dispatch:
+    inputs:
+      real-world:
+        description: Run the real-world validation dataset (baseline agent)
+        type: boolean
+        default: true
+      real-model:
+        description: Run the real-model smoke task (Ollama, CPU)
+        type: boolean
+        default: true
+      model:
+        description: Ollama model for the real-model smoke task
+        type: string
+        default: qwen2.5:3b
+
+permissions:
+  contents: read
+
+jobs:
+  real-world:
+    if: ${{ inputs.real-world }}
+    name: Real-world validation scans
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium
+      - name: Run the real-world validation dataset
+        run: |
+          pnpm bench --dataset benchmark/datasets/real-world-validation.json --out validation/real-world --pages 3 --timeout 45000
+      - name: Show summary
+        if: always()
+        run: cat validation/real-world/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-world-validation
+          path: validation/real-world
+          retention-days: 30
+
+  real-model:
+    if: ${{ inputs.real-model }}
+    name: Real-model smoke task (Ollama)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium
+      - run: pnpm build
+      - name: Install Ollama and pull the model
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          ollama serve > ollama.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:11434/api/tags > /dev/null && break; sleep 1; done
+          ollama pull "${{ inputs.model }}"
+          ollama list
+      - name: Start the fixture site
+        run: |
+          nohup npx tsx fixtures/server.ts excellent 4311 > fixture.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:4311/ > /dev/null && break; sleep 1; done
+      - name: Run the behavioural tasks with the real model
+        env:
+          AWC_LLM_BASE_URL: http://127.0.0.1:11434/v1
+          AWC_LLM_API_KEY: ollama
+        run: |
+          set +e
+          start=$(date +%s)
+          node dist/cli.js test http://127.0.0.1:4311/ --agent llm --provider openai --model "${{ inputs.model }}" \
+            --tasks default --max-steps 8 --timeout 120000 --pages 1 --no-color -v --out validation/real-model
+          echo "exit=$?" | tee validation/real-model/exit.txt
+          echo "elapsed_s=$(( $(date +%s) - start ))" | tee -a validation/real-model/exit.txt
+          ollama ps || true
+      - name: Show summary
+        if: always()
+        run: |
+          { echo "## Real-model smoke task (${{ inputs.model }})"; cat validation/real-model/exit.txt; echo; cat validation/real-model/summary.md; } >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-model-smoke
+          path: |
+            validation/real-model
+            ollama.log
+          retention-days: 30
