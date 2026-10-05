@@ -54,3 +54,32 @@ Provider: OpenAI-compatible endpoint (Ollama 0.x on the runner, CPU only). Model
 | help-or-about | BLOCKED | 2 | 109.1 s | the model clicked "Checkout"; the consequential-action guard stopped the task (`consequential-step`) |
 
 This is one run of one small model and proves the pipeline (real model, real browser agent, real site, programmatic verdict); it says nothing about model quality in general.
+
+## Second run after the fixes (run 37268708357, commit ad6fc89)
+
+Same dataset, same settings, after the overlay hit-test fix, the path-segment URL criteria and the off-origin
+redirect exclusion. All 16 sites completed again, no crash, no INCONCLUSIVE.
+
+| Site | Overall (run 1 → run 2) | Tasks run 2 (contact / legal-policy / help-or-about) | Change |
+|---|---|---|---|
+| github | 56 → 89 | PASS / PASS / PASS | fixed hero no longer counted as a blocking overlay; tasks now run |
+| react-dev | 67 → 58 | FAIL / FAIL / FAIL | help-or-about no longer passes on a slug containing "docs" via an article link; stricter criteria |
+| bbc | 84 → 84 | PASS / PASS / PASS | unchanged |
+| mdn | 81 → 84 | FAIL / PASS / PASS | the accounts.firefox.com redirect is now excluded from checks |
+| gov-uk | 96 → 95 | PASS / PASS / PASS | one `dom-stability` warning on this run (site content changes between runs) |
+| quotes-toscrape | 62 → 64 | FAIL / FAIL / FAIL | unchanged verdicts |
+| others | within 0 to 2 points | unchanged | books 69, docs-github 89, example 67, npmjs 84, playwright 74, pypi 74, saucedemo 55, vercel-store 88, w3 90, wikipedia 87 |
+
+### Real-model smoke task, second run (job 111630918476)
+
+`qwen2.5:3b` on the runner CPU again, fixture `excellent`, default tasks, 465 s total, 31 provider calls,
+94,927 input tokens, 1,016 output tokens (from the run's `results.json` usage fields).
+
+| Task | Verdict | Steps | Time | What happened |
+|---|---|---:|---:|---|
+| contact | BLOCKED | 4 | 147.0 s | navigated to the contact page (criteria already held), then clicked "Send us a message" (contact-form submit); the read-only safety class stops at a form submission named with "send" |
+| legal-policy | PASS | 2 | 41.7 s | clicked "Privacy policy", called `finish` with the page URL as the answer; assertions held |
+| help-or-about | FAIL | 4 | 272.5 s | after one navigation the model kept clicking refs from the previous snapshot (stale refs, each click timing out after 8 s) and never called `finish` |
+
+The two runs differ in which task passed: that is the expected non-determinism of a small model, and the reason
+the verdict is computed from the page state rather than from the model. Both runs prove the pipeline end to end.
