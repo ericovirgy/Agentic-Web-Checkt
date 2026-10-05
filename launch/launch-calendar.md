@@ -2,7 +2,7 @@
 
 Proposed T0: Wednesday 2026-10-14 (weekday, after Node Weekly returns from its break on 2026-10-08,
 and after three prep days). Shift all dates together if T0 moves. Every public action is gated by
-the owner's approval in `launch/submission-tracker.md`.
+the owner's approval in the local, unversioned `launch/private/submission-tracker.md`.
 
 | Day | Date | Actions | Gate |
 |---|---|---|---|

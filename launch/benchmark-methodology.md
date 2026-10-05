@@ -23,7 +23,7 @@ describes the harness as it exists today and this file describes what a publishe
 
 1. Check out the frozen commit; `pnpm install --frozen-lockfile`.
 2. Run the dev-fixtures regression; expectations must match.
-3. Execute the public dataset with `--agent baseline --runs 3 --pages 3`, on the GitHub-hosted runner.
+3. Execute the public dataset with `npx tsx benchmark/run.ts --dataset <file> --agent baseline --runs 3 --pages 3`, on the GitHub-hosted runner.
 4. Commit the run directory unedited under `benchmark/results/`.
 5. Generate tables only from `aggregate.json` and `manifest.json`.
 6. Publish with the citation block (dataset, versions, date, raw directory).

@@ -19,10 +19,10 @@ Status date: 2026-10-05. Evidence base: repository state at `a8f29de`, npm `agen
 | Validation workflow | `.github/workflows/validation.yml`, manual, artifacts only | file | None |
 | CONTRIBUTING, SECURITY, CoC | Present. Community profile reports all of them plus issue and PR templates | GitHub community profile | None |
 | Examples | `examples/tasks.yaml`, `docs/examples/*.json`, 8 fixture sites | tree | Add a "scan your own site in 2 minutes" snippet (optional) |
-| Issues | Enabled, 0 open. Templates: bug, false positive, new check | `.github/ISSUE_TEMPLATE` | Create labels `check-accuracy`, `new-check` (templates reference them; existing labels are the GitHub defaults only) |
-| Discussions | Disabled | `has_discussions: false` | Enable (needs the owner in Settings) |
-| Topics | None | `topics: []` | Apply the list in `launch/github-optimisation.md` |
-| Homepage / description | Homepage empty. Description has a leading space and the text "itand" (a dash was lost) | REST payload | Replace with the text in `launch/github-optimisation.md` |
+| Issues | Enabled, 0 open. Templates: bug, false positive, new check | `.github/ISSUE_TEMPLATE` | DONE 2026-10-05: labels `check-accuracy` and `new-check` created |
+| Discussions | Enabled 2026-10-05 | REST `has_discussions: true` | Create the first posts and categories (see `docs/launch/github-repo-metadata.md`) |
+| Topics | 17 applied 2026-10-05 | REST `topics` | None |
+| Homepage / description | Description replaced 2026-10-05 (no leading space, no broken text). Homepage still empty | REST payload | Optional: set homepage to the npm URL |
 | `package.json` description | "Lighthouse for AI agents: ..." is frozen in the published 0.1.0 | `package.json`, npm | Cannot change without a new version. Do not cut a release just for this. Fix in the next real release |
 | Existing launch drafts | `docs/launch/` (HN, Reddit, X, LinkedIn, blog, checklist) written before this plan | `docs/launch/` | Superseded by `launch/`. They still use the "Lighthouse for AI agents" tagline in the HN title |
 | Telemetry / security claim | "No telemetry" in README | `README.md` | Keep. Say exactly what it says |
@@ -33,7 +33,7 @@ Status date: 2026-10-05. Evidence base: repository state at `a8f29de`, npm `agen
    "Open-source browser evaluator for whether AI agents can actually use websites."
 2. GitHub About: description, topics, enable Discussions, labels, social preview.
 3. Fix the validation doc row count note (15 rows shown, 16 sites run).
-4. Decide the first-run story for Chromium (`npx playwright install chromium`), since a cold `npx` run needs it. The README states it, but it sits below the first command. Move the one line up.
+4. Decide the first-run story for Chromium (`npx playwright install chromium`), since a cold `npx` run needs it. The README states it, but it sits below the first command. Done on branch `launch/prep` (README line 14).
 
 None of these changes the architecture, checks, weights or package contents.
 
@@ -68,7 +68,7 @@ Principles:
   is a question we plan to test, not a finding.
 - One channel at a time at the start. Show HN first, because its rules (something others can try,
   written by a human, no vote solicitation) match the product, and because it feeds curators.
-- Everything public passes the approval queue in `launch/submission-tracker.md`.
+- Everything public passes the approval queue in the local, unversioned `launch/private/submission-tracker.md`.
 
 ## 5. Phases
 
