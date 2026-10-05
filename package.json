@@ -8,8 +8,8 @@
     "node": ">=20"
   },
   "bin": {
-    "agentic-web-check": "./dist/cli.js",
-    "awc": "./dist/cli.js"
+    "agentic-web-check": "dist/cli.js",
+    "awc": "dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
