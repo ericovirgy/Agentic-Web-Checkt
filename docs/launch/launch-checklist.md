@@ -5,16 +5,10 @@ preparing these drafts and must be resolved before anything is posted.
 
 ## 0. Repository state (updated 2026-10-05)
 
-- [ ] **Blocker: repository name.** The canonical repository is `ericovirgy/agentic-web-check`;
-      every URL in `README.md`, `package.json`, `action/README.md`, `action/action.yml`,
-      `CHANGELOG.md` and the issue template config already says so. The GitHub remote is still
-      `ericovirgy/Agentic-Web-Checkt` because repository-settings writes were not possible through
-      the tooling available in the session that prepared this release. Manual action:
-      1. GitHub: Settings, General, Repository name: enter `agentic-web-check` and confirm. GitHub
-         redirects the old name, so existing links keep working.
-      2. Locally: `git remote set-url origin https://github.com/ericovirgy/agentic-web-check.git`.
-      3. GitHub: Settings, General, Default branch: set it to `main` (the CI badge in `README.md`
-         and the release workflow assume `main`).
+- [x] **Repository name (resolved 2026-10-05).** The repository is `ericovirgy/agentic-web-check`
+      and `main` is the default branch; the old name `Agentic-Web-Checkt` redirects. Every URL in
+      `README.md`, `package.json`, `action/README.md`, `action/action.yml`, `CHANGELOG.md` and the
+      issue template config points at the canonical name.
 - [x] Major tag for the action: decided as option (a). `release.yml` computes `v0` for `0.1.0`, and
       `action/README.md`, the main README and the self-check all say `@v0`. The action is labelled
       experimental in both READMEs.

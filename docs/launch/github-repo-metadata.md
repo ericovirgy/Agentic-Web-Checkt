@@ -9,7 +9,7 @@ Settings, Features (Discussions).
 
 Character count: 317.
 
-Repository name: `agentic-web-check` (rename from `Agentic-Web-Checkt`; see `launch-checklist.md`, step 0).
+Repository name: `agentic-web-check` (renamed on 2026-10-05; the old name redirects).
 
 Website field: leave empty until there is a docs site, or point at `docs/SCORING.md` on GitHub.
 
