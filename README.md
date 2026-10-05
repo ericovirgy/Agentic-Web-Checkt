@@ -1,6 +1,6 @@
 # Agentic Web Check
 
-**Lighthouse for AI agents.**
+**Open-source browser evaluator for whether AI agents can actually use websites.**
 
 Scan a website. Measure how usable it is for AI agents. Get actionable fixes.
 
@@ -11,6 +11,7 @@ Scan a website. Measure how usable it is for AI agents. Get actionable fixes.
 ## 30 seconds
 
 ```sh
+npx playwright install chromium   # first run only, or pass --browser-path
 npx agentic-web-check scan https://example.com
 npx agentic-web-check scan https://example.com --tasks default
 ```
