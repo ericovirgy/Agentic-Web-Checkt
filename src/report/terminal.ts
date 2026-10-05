@@ -2,6 +2,7 @@ import pc from 'picocolors';
 
 type Colors = ReturnType<typeof pc.createColors>;
 
+import { summarizeTaskOutcomes, taskOutcomeLine } from '../scoring/index.js';
 import type { CheckResult, ScanResult, TaskResult } from '../types.js';
 
 export interface TerminalOptions {
@@ -21,10 +22,14 @@ function scoreColor(n: number | null, c: Colors): string {
 export function renderTerminal(result: ScanResult, opts: TerminalOptions = {}): string {
   const c = opts.color === false ? pc.createColors(false) : pc;
   const lines: string[] = [];
+  const outcomes = summarizeTaskOutcomes(result.tasks);
+  const agentText = `${result.meta.options.agent} agent${result.meta.options.model ? `, ${result.meta.options.model}` : ''}`;
   const modeText =
-    result.meta.mode === 'behavioural'
-      ? `Behavioural verification (${result.tasks.length} tasks, ${result.meta.options.agent} agent${result.meta.options.model ? `, ${result.meta.options.model}` : ''})`
-      : 'Deterministic scan (no tasks run)';
+    result.meta.mode !== 'behavioural'
+      ? 'Deterministic scan (no tasks run)'
+      : outcomes.counted > 0
+        ? `Behavioural verification (${result.tasks.length} tasks, ${agentText})`
+        : `Behavioural run (${result.tasks.length} tasks, ${agentText}) · no task counted, task success not scored`;
   lines.push('');
   lines.push(
     c.bold('AGENTIC WEB CHECK') +
@@ -36,11 +41,15 @@ export function renderTerminal(result: ScanResult, opts: TerminalOptions = {}): 
   lines.push(
     `${c.bold('Agent Readiness')}  ${c.bold(scoreColor(result.overall, c))}${result.overall !== null ? c.dim('/100') : ''}`,
   );
+  const taskLine = taskOutcomeLine(result.tasks);
+  if (taskLine) lines.push(c.yellow(taskLine));
   lines.push('');
   for (const d of result.dimensions) {
     if (d.dimension === 'task-success' && d.score === null) continue;
+    const scored = d.passed + d.warned + d.failed;
+    const unit = d.dimension === 'task-success' ? 'task' : 'check';
     lines.push(
-      `${d.label.padEnd(20)}${scoreColor(d.score, c)}   ${c.dim(`${d.passed} pass · ${d.warned} warn · ${d.failed} fail`)}`,
+      `${d.label.padEnd(20)}${scoreColor(d.score, c)}   ${c.dim(`${d.passed} pass · ${d.warned} warn · ${d.failed} fail · ${scored} of ${d.checks.length} ${unit}${d.checks.length === 1 ? '' : 's'} scored`)}`,
     );
   }
   lines.push('');
@@ -51,6 +60,13 @@ export function renderTerminal(result: ScanResult, opts: TerminalOptions = {}): 
   lines.push(
     `${c.green(`${passed} passed`)}  ${c.yellow(`${warned} warnings`)}  ${c.red(`${failed} failures`)}  ${c.dim(`${na} not applicable/info`)}`,
   );
+  const crashed = result.checks.filter((x) => x.error);
+  if (crashed.length)
+    lines.push(
+      c.magenta(
+        `${crashed.length} check${crashed.length === 1 ? '' : 's'} crashed and ${crashed.length === 1 ? 'was' : 'were'} not scored (see JSON): ${crashed.map((x) => x.id).join(', ')}`,
+      ),
+    );
   lines.push('');
 
   const byStatus = (s: CheckResult['status']) =>

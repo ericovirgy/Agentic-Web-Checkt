@@ -25,6 +25,7 @@
     "LICENSE",
     "docs/SCORING.md"
   ],
+  "sideEffects": false,
   "keywords": [
     "ai-agents",
     "agentic-web",
@@ -38,7 +39,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ericovirgy/agentic-web-check"
+    "url": "git+https://github.com/ericovirgy/agentic-web-check.git"
+  },
+  "homepage": "https://github.com/ericovirgy/agentic-web-check#readme",
+  "bugs": {
+    "url": "https://github.com/ericovirgy/agentic-web-check/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "build": "tsup",

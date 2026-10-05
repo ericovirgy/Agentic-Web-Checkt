@@ -1,4 +1,4 @@
-import { DIMENSION_WEIGHTS, TASK_SUCCESS_WEIGHT } from '../scoring/index.js';
+import { DIMENSION_WEIGHTS, isCountedTask, TASK_SUCCESS_WEIGHT } from '../scoring/index.js';
 import type { CheckResult, EvidenceItem, ScanResult, TaskResult, TaskStep } from '../types.js';
 
 /**
@@ -79,10 +79,11 @@ function renderHeader(r: ScanResult): string {
   const opts = m.options as Record<string, unknown>;
   const agent = typeof opts.agent === 'string' ? opts.agent : r.tasks[0]?.agent;
   const model = typeof opts.model === 'string' ? opts.model : r.tasks.find((t) => t.model)?.model;
+  const counted = r.tasks.filter(isCountedTask).length;
   const mode =
-    m.mode === 'behavioural'
-      ? `Behavioural verification (${r.tasks.length} task${r.tasks.length === 1 ? '' : 's'}, agent ${agent ?? 'unknown'}${model ? `, model ${model}` : ''})`
-      : 'Deterministic scan';
+    m.mode !== 'behavioural'
+      ? 'Deterministic scan'
+      : `Behavioural ${counted > 0 ? 'verification' : 'run'} (${r.tasks.length} task${r.tasks.length === 1 ? '' : 's'}, agent ${agent ?? 'unknown'}${model ? `, model ${model}` : ''})${counted > 0 ? '' : '; no task counted, task success not scored'}`;
   return `<header class="head">
 <p class="tool">Agentic Web Check</p>
 <h1><a href="${escapeHtml(m.url)}">${escapeHtml(m.url)}</a></h1>
@@ -96,7 +97,7 @@ function renderScoreboard(r: ScanResult): string {
   const dims = r.dimensions.filter((d) => !(d.dimension === 'task-success' && d.score === null));
   const rows = dims.map(
     (d) =>
-      `<tr><th scope="row">${escapeHtml(d.label)}</th><td class="num"><span class="pill ${band(d.score)}">${scoreText(d.score)}</span></td><td class="num">${d.weight}</td>${count(d.passed, 'pass-c')}${count(d.warned, 'warn-c')}${count(d.failed, 'fail-c')}<td class="num muted">${d.checks.length}</td></tr>`,
+      `<tr><th scope="row">${escapeHtml(d.label)}</th><td class="num"><span class="pill ${band(d.score)}">${scoreText(d.score)}</span></td><td class="num">${d.weight}</td>${count(d.passed, 'pass-c')}${count(d.warned, 'warn-c')}${count(d.failed, 'fail-c')}<td class="num muted">${d.passed + d.warned + d.failed}/${d.checks.length}</td></tr>`,
   );
   return `<section class="score" aria-labelledby="overall">
 <div class="overall ${band(r.overall)}">
@@ -104,7 +105,7 @@ function renderScoreboard(r: ScanResult): string {
 <p class="big">${scoreText(r.overall)}<span class="denom">${r.overall === null ? '' : '/100'}</span></p>
 </div>
 <table class="dims">
-<thead><tr><th>Dimension</th><th class="num">Score</th><th class="num">Weight</th><th class="num">Pass</th><th class="num">Warn</th><th class="num">Fail</th><th class="num">Checks</th></tr></thead>
+<thead><tr><th>Dimension</th><th class="num">Score</th><th class="num">Weight</th><th class="num">Pass</th><th class="num">Warn</th><th class="num">Fail</th><th class="num" title="scored checks / checks in the dimension">Scored</th></tr></thead>
 <tbody>${rows.join('')}</tbody>
 </table>
 </section>`;
@@ -234,7 +235,7 @@ function renderMethodology(r: ScanResult): string {
   return `<p>Every check has a status (<b>pass</b> = 1, <b>warn</b> = 0.5, <b>fail</b> = 0; <b>na</b> and <b>info</b> are not scored) and a weight that follows the Lighthouse accessibility scale: <b>10</b> critical, <b>7</b> serious, <b>3</b> moderate, <b>1</b> minor. A dimension score is round(100 &times; &Sigma;(score &times; weight) / &Sigma;(weight)) over its scorable checks; a dimension with none is n/a and excluded.</p>
 <p>The overall score is the weighted mean of the available dimensions. Dimension weights${withTasks ? ' (scaled by 0.7 because behavioural tasks were run)' : ''}:</p>
 <ul class="weights">${dims}${withTasks ? `<li>task-success: ${TASK_SUCCESS_WEIGHT}</li>` : `<li>task-success: ${TASK_SUCCESS_WEIGHT} when tasks are run (not scored in a deterministic scan)</li>`}</ul>
-<p>Task success = 100 &times; PASS / (PASS + FAIL + BLOCKED); INCONCLUSIVE runs are excluded. Methodology version ${escapeHtml(r.meta.methodology)}; see docs/SCORING.md in the project for the full catalogue.</p>`;
+<p>Task success = 100 &times; PASS / (PASS + FAIL + BLOCKED); INCONCLUSIVE runs are excluded, as is a task with <code>safety: consequential</code> that was BLOCKED only because the run had no <code>--allow-consequential</code>. A dimension score is only as broad as its scorable checks (the Scored column). Methodology version ${escapeHtml(r.meta.methodology)}; see docs/SCORING.md in the project for the full catalogue.</p>`;
 }
 
 function renderFooter(r: ScanResult): string {

@@ -1,16 +1,20 @@
+import { isCountedTask } from '../scoring/index.js';
 import type { ScanResult } from '../types.js';
 
 /**
  * Badge wording reflects exactly what was tested:
  *   "Agent Ready · scan 84/100"            deterministic scan only
- *   "Agent Ready · verified 84/100"        behavioural tasks were run (N tasks)
- * The badge never implies the site is "safe"; the methodology version is embedded.
+ *   "Agent Ready · verified 84/100"        behavioural tasks were run AND at least one counted
+ *                                          towards TASK SUCCESS (N = counted tasks)
+ * A behavioural run whose tasks were all INCONCLUSIVE (or all excluded) verified nothing, so it is
+ * labelled "scan". The badge never implies the site is "safe"; the methodology version is embedded.
  */
 export function badgeLabel(result: ScanResult): { label: string; message: string; color: string } {
   const score = result.overall;
+  const counted = result.tasks.filter(isCountedTask).length;
   const label =
-    result.meta.mode === 'behavioural'
-      ? `Agent Ready · verified (${result.tasks.length} tasks)`
+    result.meta.mode === 'behavioural' && counted > 0
+      ? `Agent Ready · verified (${counted} task${counted === 1 ? '' : 's'})`
       : 'Agent Ready · scan';
   const message = score === null ? 'n/a' : `${score}/100 · v${result.meta.methodology}`;
   const color =

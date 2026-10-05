@@ -96,12 +96,15 @@ export async function runChecks(
   for (const def of defs) {
     if (only?.length && !only.includes(def.id)) continue;
     const t = Date.now();
-    // Gate: when the start page did not load, only the load/challenge checks are meaningful.
-    if (ctx.start.error && def.id !== 'page-load' && def.id !== 'challenge-or-bot-wall') {
+    // Gate: when the start page did not load (navigation error or HTTP 4xx/5xx), only the
+    // load/challenge checks are meaningful; everything else is `na` so RELIABILITY is the only
+    // scored dimension (docs/SCORING.md §1).
+    const startFailure = startPageFailure(ctx.start);
+    if (startFailure && def.id !== 'page-load' && def.id !== 'challenge-or-bot-wall') {
       results.push(
         finalize(
           def,
-          { status: 'na', summary: `Not evaluated: start page did not load (${ctx.start.error}).` },
+          { status: 'na', summary: `Not evaluated: start page did not load (${startFailure}).` },
           0,
         ),
       );
@@ -116,6 +119,13 @@ export async function runChecks(
     }
   }
   return results;
+}
+
+/** Why the start page counts as not loaded (navigation error or HTTP >= 400), or null. */
+export function startPageFailure(start: Pick<LoadedPage, 'error' | 'status'>): string | null {
+  if (start.error) return start.error;
+  if (start.status !== null && start.status >= 400) return `HTTP ${start.status}`;
+  return null;
 }
 
 /* ---------- helpers shared by checks ---------- */

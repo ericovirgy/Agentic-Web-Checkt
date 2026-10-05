@@ -1,3 +1,4 @@
+import { summarizeTaskOutcomes, taskOutcomeLine } from '../scoring/index.js';
 import type { ScanResult } from '../types.js';
 
 /** GitHub job summary / PR comment markdown. */
@@ -7,21 +8,38 @@ export function renderMarkdownSummary(
 ): string {
   const max = opts.maxItems ?? 10;
   const lines: string[] = [];
+  const outcomes = summarizeTaskOutcomes(result.tasks);
   const mode =
-    result.meta.mode === 'behavioural'
-      ? `behavioural verification, ${result.tasks.length} tasks (${result.meta.options.agent} agent)`
-      : 'deterministic scan';
+    result.meta.mode !== 'behavioural'
+      ? 'deterministic scan'
+      : outcomes.counted > 0
+        ? `behavioural verification, ${result.tasks.length} tasks (${result.meta.options.agent} agent)`
+        : `behavioural run, ${result.tasks.length} tasks (${result.meta.options.agent} agent), no task counted: task success not scored`;
   lines.push(`## ${opts.title ?? 'Agentic Web Check'}: ${result.overall ?? 'n/a'}/100`);
   lines.push('');
   lines.push(
     `**${result.meta.url}** · ${mode} · v${result.meta.version} · methodology v${result.meta.methodology}`,
   );
   lines.push('');
-  lines.push('| Dimension | Score | Pass | Warn | Fail |');
-  lines.push('|---|---:|---:|---:|---:|');
+  const taskLine = taskOutcomeLine(result.tasks);
+  if (taskLine) {
+    lines.push(`**${taskLine}**`);
+    lines.push('');
+  }
+  const crashed = result.checks.filter((c) => c.error);
+  if (crashed.length) {
+    lines.push(
+      `**${crashed.length} check${crashed.length === 1 ? '' : 's'} crashed and ${crashed.length === 1 ? 'was' : 'were'} not scored** (see JSON): ${crashed.map((c) => `\`${c.id}\``).join(', ')}`,
+    );
+    lines.push('');
+  }
+  lines.push('| Dimension | Score | Pass | Warn | Fail | Scored |');
+  lines.push('|---|---:|---:|---:|---:|---:|');
   for (const d of result.dimensions) {
     if (d.dimension === 'task-success' && d.score === null) continue;
-    lines.push(`| ${d.label} | ${d.score ?? 'n/a'} | ${d.passed} | ${d.warned} | ${d.failed} |`);
+    lines.push(
+      `| ${d.label} | ${d.score ?? 'n/a'} | ${d.passed} | ${d.warned} | ${d.failed} | ${d.passed + d.warned + d.failed}/${d.checks.length} |`,
+    );
   }
   lines.push('');
   const fails = result.checks
