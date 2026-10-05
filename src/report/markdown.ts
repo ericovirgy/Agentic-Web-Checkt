@@ -1,6 +1,6 @@
 import { summarizeTaskOutcomes, taskOutcomeLine } from '../scoring/index.js';
 import type { ScanResult } from '../types.js';
-import { markdownCell, stripControl } from '../util/text.js';
+import { markdownCell } from '../util/text.js';
 
 /** GitHub job summary / PR comment markdown. */
 export function renderMarkdownSummary(
