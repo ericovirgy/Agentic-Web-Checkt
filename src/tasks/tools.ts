@@ -139,6 +139,18 @@ export class BrowserTools {
             const coversCenter =
               r.left <= vw / 2 && r.right >= vw / 2 && r.top <= vh / 2 && r.bottom >= vh / 2;
             if (coverage < 0.3 && !(coversCenter && coverage >= 0.1)) continue;
+            const points: [number, number][] = [
+              [vw / 2, vh / 2],
+              [vw / 4, vh / 4],
+              [(3 * vw) / 4, vh / 4],
+              [vw / 4, (3 * vh) / 4],
+              [(3 * vw) / 4, (3 * vh) / 4],
+            ];
+            const hits = points.filter(([x, y]) => {
+              const top = document.elementFromPoint(x, y);
+              return top !== null && (top === el || el.contains(top));
+            }).length;
+            if (hits < 3) continue;
             const names = Array.from(
               el.querySelectorAll(
                 'button,a[href],[role=button],input[type=button],input[type=submit]',

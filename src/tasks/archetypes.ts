@@ -17,7 +17,11 @@ export const DEFAULT_TASKS: TaskDefinition[] = [
       { navigated: true },
       {
         any_of: [
-          { url: { regex: 'contact|contacto|support|kontakt' } },
+          {
+            url: {
+              regex: '(^|/)(contact|contact-us|contacto|contactos|support|kontakt)(/|\\.|$|\\?)',
+            },
+          },
           { element: { role: 'link', url: 'mailto:' } },
           { element: { role: 'link', url: 'tel:' } },
           { element: { role: 'heading', name: 'contact' } },
@@ -35,7 +39,12 @@ export const DEFAULT_TASKS: TaskDefinition[] = [
       { navigated: true },
       {
         any_of: [
-          { url: { regex: 'privacy|terms|legal|privacidade|termos' } },
+          {
+            url: {
+              regex:
+                '(^|/)(privacy|privacy-policy|terms|terms-of-service|terms-conditions|legal|privacidade|termos)(/|\\.|$|\\?)',
+            },
+          },
           { element: { role: 'heading', name: 'privacy' } },
           { element: { role: 'heading', name: 'terms' } },
         ],
@@ -52,7 +61,12 @@ export const DEFAULT_TASKS: TaskDefinition[] = [
       { navigated: true },
       {
         any_of: [
-          { url: { regex: 'about|help|docs|faq|support|sobre|ajuda' } },
+          {
+            url: {
+              regex:
+                '(^|/)(about|about-us|help|docs|documentation|faq|support|sobre|ajuda)(/|\\.|$|\\?)',
+            },
+          },
           { element: { role: 'heading', name: 'about' } },
           { element: { role: 'heading', name: 'help' } },
           { element: { role: 'heading', name: 'faq' } },

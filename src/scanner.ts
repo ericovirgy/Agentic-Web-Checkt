@@ -113,6 +113,12 @@ export async function scan(options: ScanOptions): Promise<ScanResult> {
       log(`loading ${extraUrl}`);
       const p = await session.newPage();
       const loaded = await loadPage(p, extraUrl, { timeoutMs, log });
+      // A linked page that redirects to another origin (SSO, external login) is not part of the site.
+      if (!loaded.error && new URL(loaded.finalUrl).origin !== new URL(start.finalUrl).origin) {
+        loaded.error = `redirected off-origin to ${loaded.finalUrl}`;
+        loaded.summary.error = loaded.error;
+        log(`skipping ${extraUrl}: ${loaded.error}`);
+      }
       pages.push(loaded);
       await p.close().catch(() => {});
     }

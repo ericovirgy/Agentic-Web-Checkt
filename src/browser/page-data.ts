@@ -382,6 +382,10 @@ export const PAGE_DATA_SCRIPT = `(args) => {
     const coversCenter = r.left <= vw / 2 && r.right >= vw / 2 && r.top <= vh / 2 && r.bottom >= vh / 2 ? 1 : 0;
     if (coverage < 0.25 && !coversCenter) continue;
     if (el.closest('header,nav') && coverage < 0.3 && !coversCenter) continue;
+    // Only count elements that actually intercept pointer events over the page (hit-test at 5 points).
+    const points = [[vw / 2, vh / 2], [vw / 4, vh / 4], [(3 * vw) / 4, vh / 4], [vw / 4, (3 * vh) / 4], [(3 * vw) / 4, (3 * vh) / 4]];
+    const hits = points.filter(([x, y]) => { const top = document.elementFromPoint(x, y); return top && (top === el || el.contains(top)); }).length;
+    if (hits < 3) continue;
     const controls = Array.from(el.querySelectorAll('button,a[href],[role=button],input[type=button],input[type=submit]'));
     const dismissControls = controls.map((c) => lower(c.getAttribute('aria-label') || c.textContent || c.value || '')).filter((n) => n && dismissWords.some((w) => n === w || n.startsWith(w + ' ') || n.includes(' ' + w)));
     overlays.push({ selector: cssPath(el), coverage: Math.round(coverage * 100) / 100, coversCenter, zIndex: cs.zIndex, dismissControls: dismissControls.slice(0, 5), textSample: norm(el.textContent).slice(0, 160) });
