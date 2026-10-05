@@ -47,7 +47,7 @@ npm Trusted Publishing (GitHub Actions OIDC) in `.github/workflows/release.yml`:
    only be configured for a package that already exists on the registry (`npm trust`: "The package you're
    configuring must already exist on the npm registry"), so the first version must be published once from a
    maintainer machine with an interactive 2FA login (no CI token, no long-lived credential):
-   `git checkout v0.1.0 && pnpm install --frozen-lockfile && pnpm build && npm login && npm publish --access public`.
+   `git checkout v0.1.0 && npx -y pnpm@10 install --frozen-lockfile && npm run build && npm login && npm publish --access public` (`npx pnpm@10` avoids needing pnpm or corepack installed; `npm run build` runs tsup and writes `dist/cli.js`).
    Then on npmjs.com, package `agentic-web-check`, Settings, Trusted Publisher: Publisher GitHub Actions,
    Organization or user `ericovirgy`, Repository `agentic-web-check`, Workflow filename `release.yml`,
    Environment name empty; and Publishing access: "Require two-factor authentication and disallow tokens"
