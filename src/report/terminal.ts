@@ -20,7 +20,15 @@ function scoreColor(n: number | null, c: Colors): string {
   return c.red(s);
 }
 
-export function renderTerminal(result: ScanResult, opts: TerminalOptions = {}): string {
+/** Page-derived strings may carry ANSI/OSC sequences or control characters; strip them before rendering. */
+function sanitise(result: ScanResult): ScanResult {
+  return JSON.parse(JSON.stringify(result), (_k, v) =>
+    typeof v === 'string' ? stripControl(v, true) : v,
+  ) as ScanResult;
+}
+
+export function renderTerminal(input: ScanResult, opts: TerminalOptions = {}): string {
+  const result = sanitise(input);
   const c = opts.color === false ? pc.createColors(false) : pc;
   const lines: string[] = [];
   const outcomes = summarizeTaskOutcomes(result.tasks);
@@ -115,7 +123,7 @@ export function renderTerminal(result: ScanResult, opts: TerminalOptions = {}): 
       `${result.pages.length} pages · ${(result.meta.durationMs / 1000).toFixed(1)} s · ${result.meta.browser.name} ${result.meta.browser.version} · ${result.meta.finishedAt}`,
     ),
   );
-  return stripControl(lines.join('\n'), true);
+  return lines.join('\n');
 }
 
 function checkLines(ch: CheckResult, c: Colors, verbose?: boolean): string[] {

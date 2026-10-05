@@ -7,11 +7,11 @@ at the end if you use them (suggested: #accessibility #aiagents #opensource).
 
 Can an AI agent use your website? Not read it: use it. Find the contact page, get past the cookie banner, tell one "Submit" button from another.
 
-I have released Agentic Web Check, an open-source CLI (MIT) that answers that question with evidence. It loads a site in headless Chromium, takes the same accessibility snapshot that agent harnesses such as Playwright MCP use, runs 43 checks across six dimensions, and then runs real tasks with a browser agent. Verdicts are computed from the final page state, never from the agent's own claim of success.
+I have released Agentic Web Check, an open-source CLI (MIT) that answers that question with evidence. It loads a site in headless Chromium, takes the AI-mode accessibility snapshot that Playwright's bundled MCP server captures, runs 43 checks across six dimensions, and then runs real tasks with a browser agent. Verdicts are computed from the final page state, never from the agent's own claim of success.
 
 One illustration: a large public site we scanned scored 71/100. The deterministic agent found the help page in one step but could not find contact details, because no link on the start page carried a contact-like name. The report also flagged navigation links hidden until hover and nine link names pointing to different destinations. Fixable things, and invisible to a checklist scanner.
 
-No API key required, no telemetry, GitHub Action included.
+No API key required, no telemetry, and an experimental GitHub Action.
 
 https://github.com/ericovirgy/agentic-web-check
 
@@ -25,3 +25,5 @@ https://github.com/ericovirgy/agentic-web-check
 - Do not quote the console-errors finding from that scan: the sandbox's egress proxy blocked
   analytics scripts, so it is partly an artefact of the environment.
 - The hover-only-menus heuristic is marked INFERENCE in docs/SCORING.md; "flagged" is the right verb.
+- The 71/100, the one-step help page, the hover-hidden links and the nine reused link names are all
+  readable from the committed results-pypi-org.json; quote nothing beyond that file.

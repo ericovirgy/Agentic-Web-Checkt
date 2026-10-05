@@ -13,13 +13,15 @@ First release. Scan a website in headless Chromium, measure how usable it is for
 ### What is included
 
 - **43 checks across six dimensions** (PERCEPTION, NAVIGATION, INTERACTION, MACHINE INTERFACES, RELIABILITY, SAFETY), each with a rationale, a reference (WCAG criterion, Lighthouse audit, specification or documented agent failure mode), remediation text and bounded evidence. `agentic-web-check checks` lists them; `docs/SCORING.md` is the catalogue.
-- **Perception at the agent's level.** The scan takes the AI-mode accessibility snapshot (`page.ariaSnapshot({ mode: 'ai' })`), the same tree Playwright MCP feeds to agents, runs selected axe-core rules, and inspects the live DOM for unnamed and fake controls, blocking overlays, hover-only menus, closed shadow roots, canvas-only UIs and bot walls.
+- **Perception at the agent's level.** The scan takes the AI-mode accessibility snapshot (`page.ariaSnapshot({ mode: 'ai' })`) that Playwright's bundled MCP server captures, runs selected axe-core rules, and inspects the live DOM for unnamed and fake controls, blocking overlays, hover-only menus, closed shadow roots, canvas-only UIs and bot walls.
 - **Behavioural task verification** with programmatic verdicts (PASS, FAIL, BLOCKED, INCONCLUSIVE). Assertions: `url`, `text`, `title`, `element`, `answer`, `any_of`. Blocker detection for CAPTCHA, bot walls, login requirements, consent overlays without a named dismiss control and consequential steps. Step log, truncated snapshots, screenshots and token usage are kept per task.
 - **Three built-in task archetypes** (`--tasks default`): contact, legal-policy, help-or-about. All read-only. Custom tasks come from a YAML file.
 - **Two agent backends** over one tool surface: `baseline` (deterministic, no LLM, accessible-name matching) and `llm` (OpenAI-compatible chat/completions or Anthropic Messages API over plain `fetch`; Ollama and other local servers work through `AWC_LLM_BASE_URL`).
 - **Safety review**: hidden text addressed to AI systems, consequential actions without a confirmation signal, forms over HTTP or cross-origin, WebMCP tool annotations, authentication boundary signalling, secret-looking tokens (redacted), unannounced downloads and new windows.
 - **Outputs**: terminal, JSON (versioned `ScanResult` schema), single-file HTML, markdown summary, SVG badge, or `--out <dir>` for all of them plus screenshots.
-- **GitHub Action** (`action/`): composite action, job summary, sticky PR comment, artifact upload, thresholds (`fail-under`, `fail-on-task-fail`, `fail-on`).
+- **Experimental GitHub Action** (`action/`): composite action, job summary, sticky PR comment on `pull_request` events (`pull_request_target` not supported), artifact upload, thresholds (`fail-under`, `fail-on-task-fail`, `fail-on`). It has run in this repository's own self-check job and validation workflow on GitHub-hosted runners; no third-party use yet.
+- **Security hardening**: downloads disabled in the browser context, robots.txt-aware page discovery, iframe subtrees omitted from the LLM-facing snapshot, control characters stripped from task reasons and page strings before terminal and markdown output, credentials stripped from the scanned URL, linear-time robots.txt matching, `--insecure` flag for staging hosts. Threat model in `docs/SECURITY-MODEL.md`.
+- **Validation workflow** (`.github/workflows/validation.yml`, manual): real-world scans with the baseline agent and a real-model smoke task with Ollama on GitHub-hosted runners. Validation evidence, not a benchmark.
 - **Benchmark harness** (`benchmark/run.ts`) with a `dev-fixtures` dataset and a `public-sample` candidate dataset.
 - **Eight fixture sites** under `fixtures/sites/` (`excellent`, `webmcp`, `spa`, `poor-semantics`, `inaccessible`, `ambiguous-ui`, `auth-boundary`, `unsafe`) and a static fixture server.
 - CLI commands `scan`, `test`, `ci`, `report`, `checks`; alias `awc`; exit codes 0 (thresholds met), 1 (threshold not met), 2 (runtime error).
@@ -27,14 +29,15 @@ First release. Scan a website in headless Chromium, measure how usable it is for
 ### Known limitations
 
 - Chromium only (Playwright). No Firefox or WebKit.
-- Start page plus up to `--pages - 1` linked same-origin pages; not a whole-site crawl. Page discovery does not yet obey robots.txt `Disallow` rules (the `robots-agent-access` check reads robots.txt; the crawler does not).
+- Start page plus up to `--pages - 1` linked same-origin pages, chosen from links the robots.txt rules for the tool's user agent allow; not a whole-site crawl.
+- The `navigate` tool enforces same-origin, but same-tab clicks and redirects can leave the origin; the step log records it.
 - Thresholds marked INFERENCE in `docs/SCORING.md` (snapshot size, server-rendered text ratio, overlay coverage, hover-menu detection) are defensible defaults, not validated constants.
 - The baseline agent is a floor, not a vendor agent. LLM results are non-deterministic; run several times.
 - `llms-txt` and `webmcp` checks report publication, not whether any agent uses them.
 - WebMCP detection relies on an injected `registerTool` stub and `form[toolname]`; other feature-detection patterns are missed.
 - Hidden-instruction detection is pattern-based and English-centric.
 - No CAPTCHA solving; a challenge is reported, not bypassed.
-- **The public benchmark dataset has not been executed. No real-site numbers are claimed.** The `dev-fixtures` dataset (the eight local fixtures) is the only one that has been run.
+- **The public benchmark dataset has not been executed and no aggregate real-site number is claimed.** The `dev-fixtures` dataset (the eight local fixtures) is the only benchmark dataset that has been run. The release-validation runs of 2026-10-05 (16 public sites with the baseline agent; a real-model smoke task on a fixture) are recorded in `docs/RELEASE-CANDIDATE.md` as validation, not as a benchmark.
 
 ### Try it in 30 seconds
 
@@ -43,7 +46,7 @@ npx playwright install chromium          # once, if you have no Chromium
 npx agentic-web-check scan https://example.com --tasks default
 ```
 
-Node 20 or newer. Add `--out awc-results` for the HTML report, JSON, markdown, badge and screenshots. For CI:
+Node 20 or newer. Add `--out awc-results` for the HTML report, JSON, markdown, badge and screenshots. For CI (experimental action):
 
 ```yaml
 - uses: ericovirgy/agentic-web-check/action@v0

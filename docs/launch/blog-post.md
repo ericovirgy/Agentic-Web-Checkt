@@ -9,11 +9,11 @@ Browser agents are now a normal way to use a website: load a page, read a text r
 
 ## Claimed readiness versus observed readiness
 
-Our research catalogued more than fifteen open-source "agent readiness" scanners, plus hosted ones from Cloudflare (isitagentready.com, 19 checks in five categories, graded as levels) and Vercel (is-agentic.com, a 0 to 100 score; its npm CLI retrieves the hosted report). Almost all are static: fetch the HTML, parse it, check for robots.txt rules, a sitemap, llms.txt, JSON-LD and manifests. Lighthouse 13 added an official Agentic Browsing category with seven audits, run in real Chrome and deliberately shown as a fraction, not a score.
+Our research catalogued more than fifteen open-source "agent readiness" scanners, plus hosted ones from Cloudflare (isitagentready.com, 19 checks in five categories, graded as levels) and Vercel (is-agentic.com, a 0 to 100 score; its npm CLI retrieves the hosted report). Almost all are static: fetch the HTML, parse it, check for robots.txt rules, a sitemap, llms.txt, JSON-LD and manifests. Lighthouse 13.x added an official Agentic Browsing category with seven audits, run in real Chrome and deliberately shown as a fraction, not a score. In August 2026 ora.ai and Vercel published the AgentReady open standard (MIT), whose tagline is "usable by AI agents from discovery to completion" and whose public dataset records fetch-based coding agents on developer-platform tasks; it has no browser and its action rules cover APIs, MCP, SDKs and CLIs, not page UI.
 
-These tools measure signals: files and markup a site publishes to declare itself ready. They do not measure outcomes. A site can publish a perfect llms.txt and still greet every agent with a full-viewport consent overlay whose only close control is an unnamed `div`. A static scan never sees the overlay; it only exists in a rendered page.
+These tools measure signals: files and markup a site publishes to declare itself ready. They do not measure outcomes in a browser. A site can publish a perfect llms.txt and still greet every agent with a full-viewport consent overlay whose only close control is an unnamed `div`. A static scan never sees the overlay; it only exists in a rendered page.
 
-The agent benchmarks say where agents actually fail, and it is rarely a missing file. WebVoyager's analysis of 300 failures attributes 44.4% to navigation getting stuck and 24.8% to visual grounding. Online-Mind2Web puts 51% of failures under access and environment issues: loading failures, access restrictions, CAPTCHA. Web Bench reports agents above 70% on read tasks and at 46.6% on write tasks. (Sources are in docs/research/04; several were read through secondary reports and should be re-checked against the primary paper before quoting.) The pattern is consistent: perception, interaction and blocking, not discoverability metadata.
+The agent benchmarks say where agents actually fail, and it is rarely a missing file. As reported in secondary summaries of the papers (docs/research/04 marks each figure as snippet-sourced; re-check against the primary paper before quoting), WebVoyager's analysis of 300 failures attributes 44.4% to navigation getting stuck and 24.8% to visual grounding, Online-Mind2Web puts 51% of failures under access and environment issues (loading failures, access restrictions, CAPTCHA), and Web Bench reports agents above 70% on read tasks and at 46.6% on write tasks. The pattern is consistent: perception, interaction and blocking, not discoverability metadata.
 
 Agentic Web Check measures what the agent receives, then checks whether an agent can finish.
 
@@ -32,7 +32,7 @@ A tree-based browser agent sees neither pixels nor HTML. It sees an accessibilit
   - generic [ref=e4] [cursor=pointer]: ×
 ```
 
-Playwright exposes this as `page.ariaSnapshot({ mode: 'ai' })`, and that is what the bundled Playwright MCP server captures. Chrome DevTools MCP's `take_snapshot` and agent-browser produce the same shape from the same source, the browser's accessibility tree. Whichever agent visits your site, this tree is the common denominator. A control with no accessible name is a bare `button`. A `div` with an `onclick` handler is not a control at all. A menu that renders on hover is absent.
+Playwright exposes this as `page.ariaSnapshot({ mode: 'ai' })`, and that is what Playwright's bundled MCP server captures (`packages/playwright-core/src/tools/backend/tab.ts` in release-1.63; `@playwright/mcp` re-exports `playwright-core`). Other tree-based agents, for example Chrome DevTools MCP's `take_snapshot` and agent-browser, build comparable accessibility-tree representations of their own from the browser's accessibility tree. Whichever tree-based agent visits your site, that tree is the common denominator. A control with no accessible name is a bare `button`. A `div` with an `onclick` handler is not a control at all. A menu that renders on hover is absent.
 
 So the website-side lever is the quality of this tree, and the deterministic layer of Agentic Web Check works there: headless Chromium, the AI-mode snapshot, selected axe-core rules, checks evaluated against the snapshot and the live DOM.
 
@@ -46,7 +46,7 @@ So the website-side lever is the quality of this tree, and the deterministic lay
 
 ## How verdicts are computed
 
-Verdicts never come from the agent. They come from assertions evaluated against the final browser state, in the shape WebArena uses: URL, text inclusion, element presence by role and name, title, or an answer the agent returned, with `any_of` where a goal can be satisfied several ways.
+Verdicts never come from the agent. They come from assertions evaluated against the final browser state, in the shape WebArena uses: URL, text inclusion, element presence by role and name, title, or an answer the agent returned, with `any_of` where a goal can be satisfied several ways. The differentiator from signal-based standards such as AgentReady is deliberate: a real browser, UI tasks, programmatic verdicts, failure evidence per task, and a safety review.
 
 ```yaml
 tasks:
@@ -59,13 +59,13 @@ tasks:
       - text: { includes: "@" }
 ```
 
-PASS: the agent reported completion and every assertion holds. FAIL: it gave up, exhausted its budget, or claimed completion while assertions do not hold. BLOCKED: a CAPTCHA, bot wall, login requirement, consent overlay with no named dismiss control, or a consequential step the task was not allowed to take. INCONCLUSIVE: a runner error. There is no LLM judge in the verdict path: WebArena Verified found bespoke evaluators passing hallucinated answers, and agents are documented declaring success after a modal or CAPTCHA blocked the submit.
+PASS: the agent reported completion and every assertion holds. FAIL: it gave up, exhausted its budget, or claimed completion while assertions do not hold. BLOCKED: a CAPTCHA, bot wall, login requirement, HTTP error on the start page, consent overlay with no named dismiss control, or a consequential step the task was not allowed to take. INCONCLUSIVE: a runner error. There is no LLM judge in the verdict path: as reported in secondary summaries of WebArena Verified (docs/research/04), bespoke evaluators passed hallucinated answers, and agents are documented declaring success after a modal or CAPTCHA blocked the submit.
 
 ## The scoring rationale
 
 Each check is pass (1), warn (0.5) or fail (0) with a weight of 10, 7, 3 or 1, the weights Lighthouse derives from axe-core impact levels for its accessibility category: a documented scale rather than an invented one. A dimension score is the weighted pass ratio of its checks; the overall is a weighted mean over dimensions, 20/15/20/10/15/20 without tasks. With tasks, TASK SUCCESS takes 30% and the rest shrink proportionally, because observed behaviour outranks inferred behaviour.
 
-Perception, interaction and safety carry the most weight because the benchmark error analyses attribute most failures to grounding, interaction and blocking, and because safety failures have real-world cost. Machine interfaces are weighted low on purpose: in an Ahrefs study of 137k domains' logs (June 2026), 28% published an llms.txt and 97% of those files received zero requests, and no major vendor documents consuming it; WebMCP is an origin trial. The `llms-txt` and `webmcp` checks therefore report publication, not use.
+Perception, interaction and safety carry the most weight because the benchmark error analyses attribute most failures to grounding, interaction and blocking, and because safety failures have real-world cost. Machine interfaces are weighted low on purpose: as reported in an Ahrefs study of 137k domains' logs (June 2026; read through secondary sources, see docs/research/02), 28% published an llms.txt and 97% of those files received zero requests, and no major vendor documents consuming it; WebMCP is an origin trial. The `llms-txt` and `webmcp` checks therefore report publication, not use.
 
 Every number is reproducible from `results.json`. The methodology version (currently 1) is embedded in every result and badge; results are only comparable within one version.
 
@@ -77,19 +77,21 @@ Eight fixture sites ship in the repository and double as the regression dataset.
 npx agentic-web-check scan https://example.com --tasks default --out awc-results
 ```
 
-We also ran one real-world scan, of https://pypi.org/ on 2026-10-04, as an illustration rather than a judgement; the site's maintainers were not contacted and a scan is a snapshot of one day. It scored 71/100 with the baseline agent: help-or-about passed in one step, contact failed because no start-page control matched a contact-like name, legal-policy failed after the agent looped. The perception and navigation findings are genuine observations of the rendered page: four navigation links per page flagged as hidden until hover, nine link names reused for different destinations, four elements with positive tabindex on the login page, and an 86,786-character snapshot on the help page. One finding is partly an artefact: the scan ran from a sandbox whose egress proxy blocked analytics scripts, so the console-errors failure counts errors a normal network would not produce. A scan reports the environment it ran in.
+We also ran one real-world scan, of https://pypi.org/ on 2026-10-04, as an illustration rather than a judgement; the site's maintainers were not contacted and a scan is a snapshot of one day. It scored 71/100 with the baseline agent: help-or-about passed in one step, contact failed because no start-page control matched a contact-like name, legal-policy failed after the agent looped. The perception and navigation findings (all taken from the committed docs/examples/results-pypi-org.json) are observations of the rendered page: four navigation links per page flagged as hidden until hover, nine link names reused for different destinations, four elements with positive tabindex on the login page, and an 86,786-character snapshot on the help page. One finding is partly an artefact: the scan ran from a sandbox whose egress proxy blocked analytics scripts, so the console-errors failure counts errors a normal network would not produce. A scan reports the environment it ran in.
+
+Before the release we also ran the validation workflow on GitHub-hosted runners (2026-10-05): the baseline agent against 16 public sites, three pages each, and a real-model smoke task with Ollama `qwen2.5:3b` on CPU against the `excellent` fixture. On the fixture the small model passed the contact task in 2 steps, failed legal-policy by exhausting its step budget (the criteria held on its final page but it never called `finish`), and was BLOCKED on help-or-about when it clicked "Checkout" and the consequential-action guard stopped it. That last result is the guard doing its job. These runs are release validation, not a benchmark; no aggregate score is published from them, and the run records are described in docs/RELEASE-CANDIDATE.md.
 
 ## What we deliberately do not do
 
 We do not duplicate the checklist layer. Lighthouse's Agentic Browsing audits, the Cloudflare and Vercel scanners and the open-source static tools cover robots, sitemap, llms.txt format, JSON-LD and WebMCP validity; our machine-interfaces dimension carries a few of those checks so the report has no hole, and weights them low.
 
-We do not run a hosted service. The CLI runs on your machine or your CI runner; the GitHub Action installs the CLI from npm and runs it there. The HTML report is one file with no external requests.
+We do not run a hosted service. The CLI runs on your machine or your CI runner; the experimental GitHub Action installs the CLI from npm and runs it there. The HTML report is one file with no external requests.
 
 We do not collect telemetry. The only network destinations are the target site and, with `--agent llm`, the provider you configured. The user agent is honest, tasks never submit non-GET forms or click consequential controls unless you opt in, and nothing fills real personal data.
 
 ## The benchmark plan, and a request
 
-The clearest gap in the research is validation: nobody has shown that any static readiness score predicts agent task success. The harness in `benchmark/` exists to produce that evidence reproducibly: a dataset file, a fixed number of runs, raw results, an aggregate and a manifest recording tool version, methodology version, browser, commit and date. The `dev-fixtures` dataset has been run. The `public-sample` dataset, twelve public sites that tolerate automated access, has not, and we will not quote a number for it until a run directory is committed.
+The clearest gap in the research is validation. AgentReady's open dataset pairs published signals with the outcomes of fetch-based coding agents on 25 developer-platform sites; we found no public dataset that pairs those signals with browser-UI task outcomes (forms, consent walls, accessibility-tree quality). The harness in `benchmark/` exists to produce that evidence reproducibly: a dataset file, a fixed number of runs, raw results, an aggregate and a manifest recording tool version, methodology version, browser, commit and date. The `dev-fixtures` dataset has been run. The `public-sample` dataset, twelve public sites that tolerate automated access, has not, and we will not quote a number for it until a run directory is committed.
 
 Contributions that help most now: false-positive reports (the issue template asks for the check id, the evidence JSON and a minimal HTML snippet, which becomes the fixture for the fix); task archetypes beyond the three that ship today (pricing lookup, documentation search, add-to-cart to the last safe step), with site-generic success criteria; reports of which local models complete the fixture tasks through the `llm` agent, at what step count and token cost; and reproducible runs of `public-sample` with the manifest attached.
 
@@ -102,9 +104,11 @@ The repository is https://github.com/ericovirgy/agentic-web-check, MIT licensed,
 - Lighthouse Agentic Browsing category, seven audits, fraction display mode: docs/research/01-lighthouse-chrome-agents.md and docs/research/03-competitive-matrix.md (FACT, read from `core/config/default-config.js`).
 - Cloudflare 19 checks and levels; Vercel hosted report and thin CLI; count of static scanners: docs/research/03-competitive-matrix.md (Cloudflare and Vercel spec details are FACT (secondary); the CLI behaviour is FACT from the npm README).
 - Failure statistics (WebVoyager 44.4% / 24.8%, Online-Mind2Web 51%, Web Bench 70% / 46.6%): docs/research/04-benchmarks-a11y-security.md §A.3, tagged FACT\* (snippet-sourced; re-verify against the primary paper before quoting). WebArena Verified finding: §A.1, FACT\*.
-- `ariaSnapshot({ mode: 'ai' })` used by Playwright MCP; DevTools MCP `take_snapshot`: docs/research/01 (FACT) and docs/research/04 §B.2 (FACT).
+- `ariaSnapshot({ mode: 'ai' })` captured by Playwright's bundled MCP server: microsoft/playwright `packages/playwright-core/src/tools/backend/tab.ts`, release-1.63 (FACT, verified 2026-10-05); DevTools MCP `take_snapshot` builds its own tree: docs/research/01 and docs/research/04 §B.2.
+- AgentReady open standard (agentready-org/standard, v1.0 Aug 2026, MIT, fetch-based dataset): docs/research/03-competitive-matrix.md, Refresh 2026-10-05 block (FACT from the raw README/spec).
+- Validation runs of 2026-10-05 (workflow run 37266821107; real-model smoke verdicts, 16-site real-world run): docs/RELEASE-CANDIDATE.md. Validation only; no aggregate may be quoted.
 - Weights 10/7/3/1 from Lighthouse's accessibility scoring: docs/SCORING.md §1; docs/research/04 §B.1 (FACT).
 - Ahrefs llms.txt usage study: docs/research/02-webmcp-standards.md §3 (FACT-S).
 - Fixture result 58/100 and BLOCKED reasons: docs/examples/terminal-output.txt.
-- pypi.org scan: docs/examples/results-pypi-org.json (71/100, 3 pages, 2026-10-04T21:50:46Z, chromium 141). Not yet committed at the time of drafting; see launch-checklist.md step 0.
+- pypi.org scan: docs/examples/results-pypi-org.json (71/100, 3 pages, 2026-10-04, chromium 141), committed.
 - Check count, archetypes, limitations, privacy model: README.md, CHANGELOG.md, src/checks/*.ts, src/tasks/archetypes.ts.

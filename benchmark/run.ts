@@ -506,6 +506,8 @@ export interface RunOptions {
   outDir: string;
   only: string[] | null;
   pages: number;
+  /** True when --pages was given on the command line (overrides fixture.json scanPages). */
+  pagesExplicit?: boolean;
   browserPath: string | undefined;
   timeoutMs: number;
   log: (message: string) => void;
@@ -574,9 +576,13 @@ export async function runBenchmark(
         } else {
           url = entry.url as string;
         }
+        // Fixture sites may declare how many pages their expectations assume (fixture.json scanPages).
+        const fixturePages = entry.fixture
+          ? (readFixtureFile(entry.fixture) as { scanPages?: number }).scanPages
+          : undefined;
         const result = await scan({
           url,
-          pages: opts.pages,
+          pages: opts.pagesExplicit ? opts.pages : (fixturePages ?? opts.pages),
           timeoutMs: opts.timeoutMs,
           tasks,
           agent: opts.agent,
@@ -729,6 +735,7 @@ if (isMain()) {
           .filter(Boolean)
       : null,
     pages,
+    pagesExplicit: process.argv.includes('--pages'),
     browserPath,
     timeoutMs,
     log,

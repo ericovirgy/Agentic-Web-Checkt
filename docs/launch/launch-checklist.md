@@ -3,29 +3,28 @@
 Ordered. Each step names the file or setting it touches. Items marked **blocker** were found while
 preparing these drafts and must be resolved before anything is posted.
 
-## 0. Repository state (blockers found on 2026-10-04)
+## 0. Repository state (updated 2026-10-05)
 
-- [ ] **Blocker: untracked files.** `git status` shows `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`,
-      `CODE_OF_CONDUCT.md`, `SECURITY.md`, `docs/BEHAVIOURAL-TESTING.md`, `examples/`, `tests/`,
-      `.github/ISSUE_TEMPLATE/` and `.github/PULL_REQUEST_TEMPLATE.md` as untracked. Commit them
-      before tagging; the release workflow runs `pnpm test` and the issue templates must be on `main`.
-- [ ] **Blocker: repository name.** The git remote is `ericovirgy/Agentic-Web-Checkt`; every URL in
-      `README.md`, `package.json`, `action/README.md`, `action/action.yml`, `CHANGELOG.md` and the issue
-      template config says `ericovirgy/agentic-web-check`. Either rename the GitHub repository to
-      `agentic-web-check` (GitHub redirects the old name) or change every URL. Rename is simpler.
-- [ ] **Blocker: major tag for the action.** `release.yml` computes the major tag as
-      `v${version%%.*}`, which for `0.1.0` is `v0`, but `action/README.md`, the main README and the
-      self-check examples all say `@v1`. Pick one: (a) document `@v0` until 1.0.0, or (b) after the
-      release, create `v1` manually at the release commit (`git tag -f v1 <sha> && git push -f origin
-      v1`) and accept that the workflow will not keep it moving until 1.x. Option (a) is honest about
-      pre-1.0 status; option (b) keeps the docs as written. Decide and make the docs match.
-- [ ] **Blocker: missing file referenced from README.** `README.md` links
-      `docs/SECURITY-MODEL.md`, which does not exist. Write it or point the link at `SECURITY.md`.
-- [ ] **Example data referenced by these drafts.** `docs/examples/results-pypi-org.json` is cited by
-      the blog post and LinkedIn notes but is not in the repository; the scan output is at
-      `/tmp/claude-0/real/pypi_org_/results.json` on the machine that ran it. Copy it into
-      `docs/examples/` (and optionally `summary.md`), and add a short note in `docs/examples/` that the
-      console-errors finding is partly an artefact of a sandbox proxy blocking analytics scripts.
+- [ ] **Blocker: repository name.** The canonical repository is `ericovirgy/agentic-web-check`;
+      every URL in `README.md`, `package.json`, `action/README.md`, `action/action.yml`,
+      `CHANGELOG.md` and the issue template config already says so. The GitHub remote is still
+      `ericovirgy/Agentic-Web-Checkt` because repository-settings writes were not possible through
+      the tooling available in the session that prepared this release. Manual action:
+      1. GitHub: Settings, General, Repository name: enter `agentic-web-check` and confirm. GitHub
+         redirects the old name, so existing links keep working.
+      2. Locally: `git remote set-url origin https://github.com/ericovirgy/agentic-web-check.git`.
+      3. GitHub: Settings, General, Default branch: set it to `main` (the CI badge in `README.md`
+         and the release workflow assume `main`).
+- [x] Major tag for the action: decided as option (a). `release.yml` computes `v0` for `0.1.0`, and
+      `action/README.md`, the main README and the self-check all say `@v0`. The action is labelled
+      experimental in both READMEs.
+- [x] `docs/SECURITY-MODEL.md` exists and is linked from the README.
+- [x] `docs/examples/results-pypi-org.json` is committed; the console-errors artefact note is in the
+      blog and LinkedIn drafts.
+- [ ] `docs/RELEASE-CANDIDATE.md` (the maintainer writes it) records the 2026-10-05 validation runs
+      (real-world, 16 sites, baseline agent; real-model smoke task, Ollama `qwen2.5:3b` on CPU, fixture
+      `excellent`). README, release notes and the drafts link to it; make sure it exists before the
+      tag is pushed.
 - [ ] Create the labels the issue templates set: `bug`, `check-accuracy`, `new-check`.
 - [ ] Confirm `agentic-web-check` is free on npm (`npm view agentic-web-check` should 404) and that the
       publishing account has 2FA with an automation token.
@@ -143,7 +142,10 @@ JSON object from `results.json`, and a minimal HTML reproduction.
 - **No claims of sites tested beyond what `benchmark/results/` contains.** Today that is the
   `dev-fixtures` dataset (eight local fixture sites) and nothing else. The `public-sample` dataset is a
   candidate list; it has not been executed. The single pypi.org scan is an illustration, not a
-  benchmark, and is never counted as "sites tested".
+  benchmark, and is never counted as "sites tested". The 2026-10-05 validation run (16 public sites,
+  baseline agent, 26 PASS / 18 FAIL / 4 BLOCKED across 48 tasks; real-model smoke task on the
+  `excellent` fixture) is release validation recorded in `docs/RELEASE-CANDIDATE.md`: it may be
+  described as validation, and no mean score or other aggregate is published from it.
 - No negative framing of any real site. pypi.org appears as an illustration with its caveats stated,
   and its maintainers were not contacted.
 - No "safe" or "secure" wording about a scanned site. The SAFETY dimension answers whether a site

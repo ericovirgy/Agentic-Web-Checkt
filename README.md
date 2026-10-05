@@ -78,9 +78,11 @@ The question is: *can an AI agent reliably understand and use this website, and 
 let it?* Three layers answer it.
 
 1. **Perception audit** (deterministic, no LLM, no API key). The page is loaded in headless
-   Chromium through Playwright. The tool takes the same accessibility snapshot that Playwright
-   MCP and similar harnesses feed to agents (`page.ariaSnapshot({ mode: 'ai' })`), runs a
+   Chromium through Playwright. The tool takes the AI-mode accessibility snapshot
+   (`page.ariaSnapshot({ mode: 'ai' })`) that Playwright's bundled MCP server captures, runs a
    selected set of axe-core rules, and evaluates 43 checks against the live DOM and the snapshot.
+   Other tree-based agents (Chrome DevTools MCP, agent-browser) build comparable
+   accessibility-tree representations from the same browser accessibility tree.
    Every check is tied to a WCAG success criterion, a Lighthouse audit, a specification, or a
    failure mode documented in agent benchmarks. `agentic-web-check checks` lists them.
 2. **Task verification** (behavioural, optional LLM). A task is a goal plus programmatic success
@@ -111,6 +113,19 @@ checklist scanner; the research found more than fifteen of those already.
 What it adds: checks at the level of what an agent *perceives* in a live browser (unnamed and
 fake controls, overlays, hover-only menus, closed shadow roots, canvas-only UIs, bot walls),
 behavioural tasks with evidence-backed verdicts, and a safety review aimed at site owners.
+The perception layer reads the same AI-mode snapshot that Playwright's MCP server sends to a
+model: in `microsoft/playwright`, `packages/playwright-core/src/tools/backend/tab.ts`
+(release-1.63) calls `page.ariaSnapshot({ mode: 'ai', ... })`, and the published
+`@playwright/mcp` package re-exports `playwright-core`.
+
+The [AgentReady open standard](https://github.com/agentready-org/standard) (ora.ai and Vercel,
+v1.0, August 2026, MIT) also describes sites "usable by AI agents from discovery to completion",
+with a public dataset of fetch-based coding agents on developer-platform tasks and no browser UI.
+The difference here is explicit: this tool runs tasks in a real browser, on UI tasks (navigation,
+overlays, forms, controls), with programmatic verdicts, failure evidence per task, and a safety
+review. As of the research refresh on 2026-10-05 we found no open-source tool that runs a browser
+agent through site-generic tasks and emits verdicts with failure attribution
+([docs/research/03-competitive-matrix.md](docs/research/03-competitive-matrix.md), section F).
 
 > Lighthouse tells you whether agents can *read* your site. Agentic Web Check tells you whether
 > they can *finish the job*, and whether it is *safe* to let them.
@@ -155,6 +170,7 @@ Options shared by `scan`, `test` and `ci`:
 | `--browser-path <path>` | | Chromium/Chrome executable (or `AWC_BROWSER_PATH`) |
 | `--headed` | off | visible browser window |
 | `--insecure` | off | accept invalid TLS certificates (staging hosts, corporate proxies; or `AWC_INSECURE=1`) |
+| `--only <ids>` | | comma-separated check ids to run (debugging) |
 | `-q, --quiet`, `-v, --verbose`, `--no-color` | | output control |
 
 Threshold options (`scan` and `ci`; `test` has `--fail-on-task-fail` only): `--fail-under <score>`,
@@ -259,7 +275,7 @@ self-contained file, no external requests), `--md` (the summary used for GitHub 
 PR comments), `--badge` (SVG), or `--out <dir>` for all of them plus screenshots. `report` re-renders
 an existing `results.json` without rescanning.
 
-## GitHub Action
+## Experimental GitHub Action
 
 ```yaml
 - uses: ericovirgy/agentic-web-check/action@v0
@@ -270,8 +286,11 @@ an existing `results.json` without rescanning.
     fail-on-task-fail: true
 ```
 
-Composite action: runs the CLI on the runner, writes a job summary, posts a sticky PR comment,
-uploads the report as an artifact. Inputs, outputs and permissions: [action/README.md](action/README.md).
+Composite action: runs the CLI on the runner, writes a job summary, posts a sticky PR comment on
+`pull_request` events (`pull_request_target` is not supported), uploads the report as an artifact.
+It is labelled experimental because it has only run in this repository's own self-check job and
+validation workflow on GitHub-hosted runners; no third party has used it yet. Inputs, outputs and
+permissions: [action/README.md](action/README.md).
 
 ## Badge
 
@@ -290,10 +309,18 @@ among seven. Results are only comparable within the same methodology version.
 - Honest user agent: the default Chromium UA plus `AgenticWebCheck/<version>`. Plain HTTP probes
   (`/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/.well-known/agent-card.json`, `/.well-known/ucp`,
   `/ai-catalog.json`, the raw HTML of the page) use the same UA.
-- No credential testing, no authentication bypass, no CAPTCHA solving.
-- Consequential links (delete, pay, unsubscribe, ...) are never followed while discovering pages.
-  Tasks never submit non-GET forms or click consequential controls unless you opt in with
-  `--allow-forms` / `--allow-consequential`, and then only with the synthetic data in the task file.
+- No credential testing, no authentication bypass, no CAPTCHA solving. Credentials embedded in
+  the URL you pass are stripped before the browser or the probes use it.
+- Page discovery honours robots.txt `Disallow` rules for the tool's user agent and never follows
+  consequential links (delete, pay, unsubscribe, ...). Tasks never submit non-GET forms or click
+  consequential controls unless you opt in with `--allow-forms` / `--allow-consequential`, and
+  then only with the synthetic data in the task file.
+- Downloads are disabled in the browser context (`acceptDownloads: false`); a link that would
+  start one is reported by `download-and-popup-links`, not saved to disk.
+- The snapshot handed to the `llm` agent omits iframe subtrees, so cross-origin frames are not
+  readable by the model; the deterministic checks still inspect them.
+- Task reasons and page-derived strings have control characters stripped before they reach the
+  terminal, the markdown summary and the PR comment.
 - Secret-looking tokens found in page source are reported with their values redacted.
 - The SAFETY score is not an application security assessment. It answers whether the site gives an
   agent what it needs to act safely (confirmation steps, labelled boundaries, no hidden
@@ -303,9 +330,8 @@ among seven. Results are only comparable within the same methodology version.
 ## Limitations
 
 - One browser: headless Chromium via Playwright. No Firefox or WebKit.
-- One start page plus up to `--pages - 1` linked same-origin pages. This is not a whole-site
-  crawl, and page discovery does not currently consult robots.txt `Disallow` rules (the
-  `robots-agent-access` check reads robots.txt; the crawler does not yet obey it).
+- One start page plus up to `--pages - 1` linked same-origin pages, chosen from links the
+  robots.txt rules for the tool's user agent allow. This is not a whole-site crawl.
 - The checks are heuristics. Thresholds marked INFERENCE in [docs/SCORING.md](docs/SCORING.md)
   (snapshot size, server-rendered text ratio, overlay coverage, hover-menu detection) are
   defensible defaults, not validated constants.
@@ -317,7 +343,12 @@ among seven. Results are only comparable within the same methodology version.
   `navigator.modelContext` and on `form[toolname]`; pages that feature-detect differently are missed.
 - Hidden-instruction detection is pattern-based and English-centric.
 - No CAPTCHA solving: a challenge is reported, not bypassed.
-- The public benchmark dataset has not been executed; no real-site numbers exist yet.
+- The `navigate` tool enforces same-origin, but a same-tab click or a server redirect can take the
+  agent to another origin; the step log records where it went.
+- The public benchmark dataset has not been executed and no aggregate real-site numbers are
+  published; the release-validation runs (real-world scans and a real-model smoke task on
+  GitHub-hosted runners, 2026-10-05) are recorded in
+  [docs/RELEASE-CANDIDATE.md](docs/RELEASE-CANDIDATE.md) as validation, not as a benchmark.
 
 ## Benchmark
 
@@ -334,7 +365,6 @@ In rough order, none of it scheduled:
 - execute and publish the public benchmark run;
 - more task archetypes (pricing/product, docs lookup, add-to-cart to the last safe step);
 - an optional Lighthouse adapter attaching the `agentic-browsing` audits to the report;
-- robots.txt-aware page discovery;
 - Firefox and WebKit;
 - an MCP server exposing the scanner;
 - hosted report sharing, only if there is demand.

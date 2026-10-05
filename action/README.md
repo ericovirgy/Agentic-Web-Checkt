@@ -1,4 +1,4 @@
-# Agentic Web Check · GitHub Action
+# Agentic Web Check · Experimental GitHub Action
 
 Runs [agentic-web-check](https://github.com/ericovirgy/agentic-web-check) inside your GitHub
 runner: scans a URL, scores how usable the site is for AI agents, optionally verifies real tasks
@@ -7,6 +7,11 @@ report as an artifact and fails the job when your thresholds are not met.
 
 It is a composite action: no Docker image, no hosted service. Node 22 and a Playwright Chromium are
 set up on the runner, the CLI is installed from npm and executed there.
+
+**Experimental.** The action has run successfully on GitHub-hosted runners in this repository's
+own self-check job (`ci.yml`, `version: local` against the `excellent` fixture) and in its manual
+validation workflow. It has not yet been used by a third party. Inputs may change before 1.0;
+pin a release tag or SHA if that matters to you.
 
 ## Minimal usage
 
@@ -128,15 +133,19 @@ scan still leaves the evidence behind.
 | `pull-requests: write` | the sticky PR comment (`comment: true` on `pull_request` events) |
 
 Without `pull-requests: write` the comment step logs a warning and the rest of the action still
-runs. Pull requests from forks receive a read-only `GITHUB_TOKEN`; set `comment: false` for them or
-run the scan on `pull_request_target` with care.
+runs. Pull requests from forks receive a read-only `GITHUB_TOKEN`, so the comment is skipped for
+them; set `comment: false` to silence the warning. `pull_request_target` is not supported: the
+comment step only runs on `pull_request` events, because `pull_request_target` would run
+repository code from a fork with a write token. The comment body is the markdown summary the CLI
+writes, in which page-derived strings have control characters stripped and table cells escaped.
 
 ## Privacy
 
 Everything runs inside the runner. No data leaves it except:
 
 - HTTP requests to the target site (honest user agent `AgenticWebCheck/<version>`, robots.txt
-  respected for crawling additional pages, synthetic form data only, no destructive actions);
+  `Disallow` rules for that user agent respected when discovering additional pages, downloads
+  disabled, synthetic form data only, no destructive actions);
 - requests to the LLM provider you configured, only when `agent: llm` is enabled;
 - the usual GitHub API calls for the job summary, the artifact upload and the PR comment.
 

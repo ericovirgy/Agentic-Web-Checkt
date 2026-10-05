@@ -5,9 +5,11 @@ Settings, Features (Discussions).
 
 ## Description (under 350 characters)
 
-> Lighthouse for AI agents. Scan a website in headless Chromium, measure how usable it is for AI agents (43 checks, 6 dimensions), run real tasks with a browser agent and get programmatic verdicts plus a safety review for site owners. Local-first CLI and GitHub Action, no API key required, no telemetry. MIT.
+> Lighthouse for AI agents. Scan a website in headless Chromium, measure how usable it is for AI agents (43 checks, 6 dimensions), run real tasks with a browser agent and get programmatic verdicts plus a safety review for site owners. Local-first CLI, experimental GitHub Action, no API key required, no telemetry. MIT.
 
-Character count: 307.
+Character count: 320.
+
+Repository name: `agentic-web-check` (rename from `Agentic-Web-Checkt`; see `launch-checklist.md`, step 0).
 
 Website field: leave empty until there is a docs site, or point at `docs/SCORING.md` on GitHub.
 
