@@ -60,3 +60,12 @@ npm Trusted Publishing (GitHub Actions OIDC) in `.github/workflows/release.yml`:
 - 2026-10-05: file created at commit ad6fc89.
 - 2026-10-05: CI run 37268774064 (613909e) success; validation run 37268708357 (ad6fc89) success for both jobs; table updated.
 - 2026-10-05: repository renamed and default branch set to `main` by the maintainer; release workflow switched to npm Trusted Publishing (OIDC) with a dry-run mode; dry run 37271344638 exposed the npm 11 `bin` path problem, fixed in `c3bd10d`; CI 37271760438 and release dry run 37271770426 green on `c3bd10d`; full local quality gate re-run (format clean, lint 0 errors, tsc clean, 413 tests, build, pack 9 files, fresh install with both binaries). Release commit: the commit that adds this update log entry (docs only; code identical to `c3bd10d`).
+- 2026-10-05 (publication bootstrap): the cloud session has no npm login (`npm whoami` fails) and cannot move
+  tags (tag force-push/delete and the refs API are refused by the session's proxy), so two things are manual
+  and are done in one command block by the maintainer: publish `0.1.0` once with the interactive 2FA session,
+  then move `v0.1.0` to `58be1e2`. Reproduced here in a fresh clone of `main` without pnpm/corepack:
+  `npx -y pnpm@10 install --frozen-lockfile`, `npm run build`, `npm pack` (9 files, bin `dist/cli.js` for
+  `agentic-web-check` and `awc`), install from the tarball, `awc --version` 0.1.0, `awc checks` 43 lines.
+  After the tag moves, the release workflow runs on `58be1e2`: the publish step is skipped (version exists),
+  the tarball is attached to the GitHub release and `v0` is created. The trusted publisher on npmjs.com is
+  then configured for `v0.1.1` onwards.
