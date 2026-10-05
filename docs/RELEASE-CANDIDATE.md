@@ -40,7 +40,20 @@ npm Trusted Publishing (GitHub Actions OIDC) in `.github/workflows/release.yml`:
 
 ## Remaining blockers before tagging v0.1.0
 
-1. Configure the npm Trusted Publisher for `agentic-web-check` (GitHub Actions, repository `ericovirgy/agentic-web-check`, workflow `release.yml`, no environment); if npm requires the package to exist first, do a one-time manual first publish with 2FA, then configure it. No `NPM_TOKEN` is needed or read by the workflow.
+1. Bootstrap the npm package (one time). Tag `v0.1.0` (commit `c3bd10d`) triggered the release workflow (run
+   37271875611): tests, build and pack passed, the OIDC exchange worked (provenance statement signed and
+   published to the Sigstore transparency log), and the registry answered `404 Not Found - PUT
+   https://registry.npmjs.org/agentic-web-check`. npm's own documentation states that a trusted publisher can
+   only be configured for a package that already exists on the registry (`npm trust`: "The package you're
+   configuring must already exist on the npm registry"), so the first version must be published once from a
+   maintainer machine with an interactive 2FA login (no CI token, no long-lived credential):
+   `git checkout v0.1.0 && pnpm install --frozen-lockfile && pnpm build && npm login && npm publish --access public`.
+   Then on npmjs.com, package `agentic-web-check`, Settings, Trusted Publisher: Publisher GitHub Actions,
+   Organization or user `ericovirgy`, Repository `agentic-web-check`, Workflow filename `release.yml`,
+   Environment name empty; and Publishing access: "Require two-factor authentication and disallow tokens"
+   (does not affect OIDC). Finally re-run the failed job of run 37271875611: the publish step now detects the
+   existing version and skips it, and the remaining steps attach the tarball to the GitHub release and move
+   the `v0` tag. From `v0.1.1` on, the tag push publishes through OIDC with provenance and no manual step.
 
 ## Update log
 

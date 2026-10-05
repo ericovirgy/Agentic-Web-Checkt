@@ -85,8 +85,21 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: npm publish --dry-run --access public
 
+      - name: Check whether this version is already on npm
+        id: published
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          name="$(node -p "require('./package.json').name")"
+          if npm view "$name@$VERSION" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "$name@$VERSION is already on the registry; the publish step will be skipped."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish to npm (Trusted Publishing, OIDC)
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && steps.published.outputs.exists != 'true' }}
         env:
           NPM_TAG: ${{ steps.version.outputs.prerelease == 'true' && 'next' || 'latest' }}
         run: npm publish --access public --tag "$NPM_TAG"
