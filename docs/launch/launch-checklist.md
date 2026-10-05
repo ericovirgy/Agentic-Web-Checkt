@@ -72,8 +72,17 @@ preparing these drafts and must be resolved before anything is posted.
 - [ ] Check every draft for the pypi.org rules: illustration not judgement, maintainers not contacted,
       console-errors finding is partly an artefact, LinkedIn does not name the site.
 - [ ] Grep the drafts for em-dashes and for "best", "first", "only", "fastest"; the launch style is
-      direct and without superlatives that cannot be backed. ("Nobody open-source executes real tasks"
-      is a research finding dated 2026-10-04 in docs/SPEC.md; if you use it, date it.)
+      direct and without superlatives that cannot be backed. The supportable competitive statement is
+      "we found no open-source tool that runs a browser agent through site-generic tasks and emits
+      verdicts with failure attribution", dated 2026-10-05 (docs/research/03-competitive-matrix.md,
+      section F3). The AgentReady open standard (ora.ai and Vercel, Aug 2026) already uses
+      "discovery to completion", so state the differentiator explicitly: real browser, UI tasks,
+      programmatic verdicts, failure evidence, safety review.
+- [ ] Any Playwright MCP sentence must say that the tool takes the AI-mode snapshot
+      (`page.ariaSnapshot({ mode: 'ai' })`) that Playwright's bundled MCP server captures (verified
+      in `packages/playwright-core/src/tools/backend/tab.ts`, release-1.63). Do not say other agents
+      (Chrome DevTools MCP, agent-browser) use "the exact same representation"; they build
+      comparable trees from the browser accessibility tree.
 - [ ] Replace `[REPO_LINK]` in `x-thread.md`. Count characters again after any edit (280 limit).
 
 ## 4. Post order and timing

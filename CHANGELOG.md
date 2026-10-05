@@ -40,10 +40,11 @@ First release. Methodology v1, result schema v1.
 - `page-load` acts as a gate: when the start page does not load or answers with an HTTP error,
   every other check except `challenge-or-bot-wall` is `na` and the overall is 0; pages answering
   4xx/5xx are excluded from check aggregation.
-- Scoring hardening: tasks opted out of consequential actions are excluded from the
-  `consequential-actions-guarded` evidence rather than counted against the site; the report prints
-  a task-outcome line per task, a note when a check crashed (status `info`, never silently `pass`),
-  and the number of scored versus not-applicable checks.
+- Scoring hardening: a `safety: consequential` task that ends BLOCKED only because it ran without
+  `--allow-consequential` is excluded from the TASK SUCCESS denominator (an operator choice, not a
+  site defect), like an INCONCLUSIVE task; the terminal and markdown reports print a task-outcome
+  line whenever a task did not PASS, a note listing checks that crashed and were not scored, and
+  per dimension the number of checks scored out of the total.
 - `--insecure` flag (`AWC_INSECURE=1`) to accept invalid TLS certificates on staging hosts.
 - Manual validation workflow (`.github/workflows/validation.yml`): real-world scans with the
   baseline agent over `benchmark/datasets/real-world-validation.json` and a real-model smoke task
@@ -73,7 +74,24 @@ First release. Methodology v1, result schema v1.
 - Public API (`agentic-web-check` ESM entry): `scan`, `computeScores`, `ALL_CHECKS`,
   `DEFAULT_TASKS`, `loadTasksFile`, renderers and types.
 - Research notes under `docs/research/`, product specification (`docs/SPEC.md`) and scoring
-  methodology (`docs/SCORING.md`).
+  methodology (`docs/SCORING.md`), threat model for running the scanner
+  (`docs/SECURITY-MODEL.md`).
+
+### Security
+
+- Downloads are disabled in the browser context (`acceptDownloads: false`); links that would start
+  one are reported, not saved.
+- Page discovery honours robots.txt `Disallow` rules for the tool's user agent token; path patterns
+  are matched with a linear-time matcher, so a hostile robots.txt cannot cause catastrophic
+  backtracking.
+- The snapshot handed to the `llm` agent omits iframe subtrees, so the model cannot read
+  cross-origin frames (including frames on internal hosts); deterministic checks still inspect them.
+- Task reasons, page titles, URLs and accessible names have ANSI/OSC escapes and control
+  characters stripped before terminal and markdown output; markdown table cells are escaped. The
+  Action's PR comment is built from that sanitised summary.
+- Credentials embedded in the scanned URL are stripped before the browser and the probes use it.
+- The GitHub Action posts comments only on `pull_request` events; `pull_request_target` is not
+  supported.
 
 [Unreleased]: https://github.com/ericovirgy/agentic-web-check/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/ericovirgy/agentic-web-check/releases/tag/v0.1.0

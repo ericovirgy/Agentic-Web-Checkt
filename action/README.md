@@ -159,7 +159,7 @@ compatible updates, or pin an exact release tag (`@v0.1.0`) or commit SHA. Each 
 1. publishes `agentic-web-check@<version>` to npm with provenance;
 2. creates a GitHub release from the matching `CHANGELOG.md` section;
 3. force-moves the major tag (`v0`, later `v1`) to the release commit, so it always points at the latest
-   `1.x` release (pre-releases such as `v1.3.0-beta.1` do not move it).
+   release in that major line (pre-releases such as `v1.3.0-beta.1` do not move it).
 
 The action installs the CLI version given by the `version` input (`latest` by default), so the
 scanner you run is decoupled from the action tag; pin `version` for fully reproducible runs.

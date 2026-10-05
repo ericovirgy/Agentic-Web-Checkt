@@ -15,7 +15,7 @@ We built an open-source tool to measure exactly that. Thread.
 
 **2/6**
 
-Agentic Web Check loads your site in headless Chromium and takes the AI-mode accessibility snapshot that Playwright's bundled MCP server captures, the kind of tree browser agents work from.
+Agentic Web Check loads your site in headless Chromium and takes the AI-mode accessibility snapshot that Playwright's MCP server captures.
 
 43 checks across 6 dimensions: perception, navigation, interaction, machine interfaces, reliability, safety.
 
@@ -46,6 +46,6 @@ v0.1.0, MIT, methodology v1.
 Try it:
 npx agentic-web-check scan https://your-site --tasks default
 
-Badge and an experimental GitHub Action included. No benchmark numbers yet (a validation run is documented, no aggregate); false-positive reports are welcome.
+Badge and an experimental GitHub Action included. No benchmark numbers yet; false-positive reports are welcome.
 
 [REPO_LINK]

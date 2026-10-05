@@ -92,7 +92,9 @@ the fact") while `exact_match` is only useful with the LLM agent.
 | INCONCLUSIVE | runner error: navigation timeout on the start URL, browser crash, LLM provider HTTP error or non-JSON response |
 
 The `reason` string in the report explains the verdict in one line, the `blocker` field names the
-blocker kind, and `assertions[]` lists each assertion with `holds` and what was `observed`.
+blocker kind, and `assertions[]` lists each assertion with `holds` and what was `observed`. Reason
+strings, titles and URLs are stored as captured in `results.json`; the terminal and markdown
+renderers strip control characters and escape markdown before printing them.
 
 TASK SUCCESS = 100 × PASS / (PASS + FAIL + BLOCKED). INCONCLUSIVE runs are excluded from the score
 and listed in the report. With `--fail-on-task-fail`, any FAIL or BLOCKED sets exit code 1.
@@ -104,7 +106,10 @@ and listed in the report. With `--fail-on-task-fail`, any FAIL or BLOCKED sets e
 - Wall clock per task: the larger of 60 s and 4 × `--timeout` (default 120 s). Exceeding it ends the
   task as FAIL ("wall-clock budget exhausted").
 - Each click, fill or key press has an 8 s timeout; `navigate` and `back` have 20 s.
-- Snapshots handed to the LLM agent are truncated to 24,000 characters.
+- Snapshots handed to the LLM agent are truncated to 24,000 characters and omit iframe subtrees:
+  the model does not see the contents of frames (cross-origin or not). The deterministic checks
+  still inspect frames; a task whose goal lives inside an iframe will not pass with the `llm`
+  agent.
 
 ## Agents
 
@@ -177,5 +182,7 @@ and `--verbose` terminal output show the steps.
 Consequential names come from a fixed vocabulary (`CONSEQUENTIAL_WORDS` in
 `src/browser/page-data.ts`: buy, purchase, pay, checkout, place order, subscribe, unsubscribe,
 delete, send, transfer, cancel, and similar) matched as whole words in the control's accessible
-name. The `navigate` tool refuses URLs outside the scanned origin. The guard is applied to clicks and
+name. The `navigate` tool refuses URLs outside the scanned origin; a same-tab click on a link to
+another site, or a redirect issued by the target, is not intercepted and the next snapshot comes
+from wherever the browser landed (the step log records the URL). The guard is applied to clicks and
 to `type` with `submit: true`; see `docs/SECURITY-MODEL.md` for what it does not cover.
